@@ -223,15 +223,6 @@ namespace rapidxml
     //! See xml_document::parse() function.
     const int parse_trim_whitespace = 0x400;
 
-    //! Parse flag instructing the parser to condense all whitespace runs of data nodes to a single space character.
-    //! Trimming of leading and trailing whitespace of data is controlled by rapidxml::parse_trim_whitespace flag.
-    //! By default, whitespace is not normalized. 
-    //! If this flag is specified, source text will be modified.
-    //! Can be combined with other flags by use of | operator.
-    //! <br><br>
-    //! See xml_document::parse() function.
-    const int parse_normalize_whitespace = 0x800;
-
     // Compound flags
     
     //! Parse flags which represent default behaviour of the parser. 
@@ -1870,26 +1861,14 @@ namespace rapidxml
             
             // Skip until end of data
             Ch *value = text;
-            if (Flags & parse_normalize_whitespace)
-                skip<text_pred, Flags>(text);
-            else
-                skip<text_pred, Flags>(text);
+            skip<text_pred, Flags>(text);
 
             // Trim trailing whitespace if flag is set; leading was already trimmed by whitespace skip after >
             if (Flags & parse_trim_whitespace)
             {
-                if (Flags & parse_normalize_whitespace)
-                {
-                    // Whitespace is already condensed to single space characters by skipping function, so just trim 1 char off the end
-                    if (*(text - 1) == Ch(' '))
-                        --text;
-                }
-                else
-                {
-                    // Backup until non-whitespace character is found
-                    while (whitespace_pred::test(*(text - 1)))
-                        --text;
-                }
+                // Backup until non-whitespace character is found
+                while (whitespace_pred::test(*(text - 1)))
+                    --text;
             }
             
             // If characters are still left between text and value (this test is only necessary if normalization is enabled)
@@ -2179,11 +2158,10 @@ namespace rapidxml
 
                 // Extract attribute value and expand char refs in it
                 Ch *value = text;
-                const int AttFlags = Flags & ~parse_normalize_whitespace;   // No whitespace normalization in attributes
                 if (quote == Ch('\''))
-                    skip<attribute_value_pred<Ch('\'')>, AttFlags>(text);
+                    skip<attribute_value_pred<Ch('\'')>, Flags>(text);
                 else
-                    skip<attribute_value_pred<Ch('"')>, AttFlags>(text);
+                    skip<attribute_value_pred<Ch('"')>, Flags>(text);
                 
                 // Set attribute value
                 attribute->value(value, text - value);
