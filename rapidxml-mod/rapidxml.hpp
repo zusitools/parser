@@ -171,13 +171,6 @@ namespace rapidxml
     //! See xml_document::parse() function.
     const int parse_no_element_values = 0x2;
     
-    //! Parse flag instructing the parser to not translate entities in the source text.
-    //! By default entities are translated, modifying source text.
-    //! Can be combined with other flags by use of | operator.
-    //! <br><br>
-    //! See xml_document::parse() function.
-    const int parse_no_entity_translation = 0x8;
-    
     //! Parse flag instructing the parser to disable UTF-8 handling and assume plain 8 bit characters.
     //! By default, UTF-8 handling is enabled.
     //! Can be combined with other flags by use of | operator.
@@ -1541,146 +1534,118 @@ namespace rapidxml
             text = tmp;
         }
 
-        // Skip characters until predicate evaluates to true while doing the following:
-        // - replacing XML character entity references with proper characters (&apos; &amp; &quot; &lt; &gt; &#...;)
-        // - condensing whitespace sequences to single space character
+        // Skip characters until predicate evaluates to true while
+        // replacing XML character entity references with proper characters (&apos; &amp; &quot; &lt; &gt; &#...;)
         template<class StopPred, class StopPredPure, int Flags>
-        static Ch *skip_and_expand_character_refs(Ch *&text)
+        static size_t copy_and_expand_character_refs(Ch *&src, std::remove_const_t<Ch> *dest)
         {
-            // If entity translation, whitespace condense and whitespace trimming is disabled, use plain skip
-            if (Flags & parse_no_entity_translation && 
-                !(Flags & parse_normalize_whitespace) &&
-                !(Flags & parse_trim_whitespace))
-            {
-                skip<StopPred, Flags>(text);
-                return text;
-            }
-            
+            Ch *dest_start = dest;
+
             // Use simple skip until first modification is detected
-            skip<StopPredPure, Flags>(text);
+            while (StopPredPure::test(*src))
+                *dest++ = *src++;
 
             // Use translation skip
-            Ch *src = text;
-            Ch *dest = src;
             while (StopPred::test(*src))
             {
-                // If entity translation is enabled    
-                if (!(Flags & parse_no_entity_translation))
+                // Test if replacement is needed
+                if (src[0] == Ch('&'))
                 {
-                    // Test if replacement is needed
-                    if (src[0] == Ch('&'))
+                    switch (src[1])
                     {
-                        switch (src[1])
+
+                    // &amp; &apos;
+                    case Ch('a'): 
+                        if (src[2] == Ch('m') && src[3] == Ch('p') && src[4] == Ch(';'))
                         {
-
-                        // &amp; &apos;
-                        case Ch('a'): 
-                            if (src[2] == Ch('m') && src[3] == Ch('p') && src[4] == Ch(';'))
-                            {
-                                *dest = Ch('&');
-                                ++dest;
-                                src += 5;
-                                continue;
-                            }
-                            if (src[2] == Ch('p') && src[3] == Ch('o') && src[4] == Ch('s') && src[5] == Ch(';'))
-                            {
-                                *dest = Ch('\'');
-                                ++dest;
-                                src += 6;
-                                continue;
-                            }
-                            break;
-
-                        // &quot;
-                        case Ch('q'): 
-                            if (src[2] == Ch('u') && src[3] == Ch('o') && src[4] == Ch('t') && src[5] == Ch(';'))
-                            {
-                                *dest = Ch('"');
-                                ++dest;
-                                src += 6;
-                                continue;
-                            }
-                            break;
-
-                        // &gt;
-                        case Ch('g'): 
-                            if (src[2] == Ch('t') && src[3] == Ch(';'))
-                            {
-                                *dest = Ch('>');
-                                ++dest;
-                                src += 4;
-                                continue;
-                            }
-                            break;
-
-                        // &lt;
-                        case Ch('l'): 
-                            if (src[2] == Ch('t') && src[3] == Ch(';'))
-                            {
-                                *dest = Ch('<');
-                                ++dest;
-                                src += 4;
-                                continue;
-                            }
-                            break;
-
-                        // &#...; - assumes ASCII
-                        case Ch('#'): 
-                            if (src[2] == Ch('x'))
-                            {
-                                unsigned long code = 0;
-                                src += 3;   // Skip &#x
-                                while (1)
-                                {
-                                    unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
-                                    if (digit == 0xFF)
-                                        break;
-                                    code = code * 16 + digit;
-                                    ++src;
-                                }
-                                insert_coded_character<Flags>(dest, code);    // Put character in output
-                            }
-                            else
-                            {
-                                unsigned long code = 0;
-                                src += 2;   // Skip &#
-                                while (1)
-                                {
-                                    unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
-                                    if (digit == 0xFF)
-                                        break;
-                                    code = code * 10 + digit;
-                                    ++src;
-                                }
-                                insert_coded_character<Flags>(dest, code);    // Put character in output
-                            }
-                            if (*src == Ch(';'))
-                                ++src;
-                            else
-                                RAPIDXML_PARSE_ERROR("expected ;", src);
+                            *dest = Ch('&');
+                            ++dest;
+                            src += 5;
                             continue;
-
-                        // Something else
-                        default:
-                            // Ignore, just copy '&' verbatim
-                            break;
-
                         }
-                    }
-                }
-                
-                // If whitespace condensing is enabled
-                if (Flags & parse_normalize_whitespace)
-                {
-                    // Test if condensing is needed                 
-                    if (whitespace_pred::test(*src))
-                    {
-                        *dest = Ch(' '); ++dest;    // Put single space in dest
-                        ++src;                      // Skip first whitespace char
-                        // Skip remaining whitespace chars
-                        while (whitespace_pred::test(*src))
+                        if (src[2] == Ch('p') && src[3] == Ch('o') && src[4] == Ch('s') && src[5] == Ch(';'))
+                        {
+                            *dest = Ch('\'');
+                            ++dest;
+                            src += 6;
+                            continue;
+                        }
+                        break;
+
+                    // &quot;
+                    case Ch('q'): 
+                        if (src[2] == Ch('u') && src[3] == Ch('o') && src[4] == Ch('t') && src[5] == Ch(';'))
+                        {
+                            *dest = Ch('"');
+                            ++dest;
+                            src += 6;
+                            continue;
+                        }
+                        break;
+
+                    // &gt;
+                    case Ch('g'): 
+                        if (src[2] == Ch('t') && src[3] == Ch(';'))
+                        {
+                            *dest = Ch('>');
+                            ++dest;
+                            src += 4;
+                            continue;
+                        }
+                        break;
+
+                    // &lt;
+                    case Ch('l'): 
+                        if (src[2] == Ch('t') && src[3] == Ch(';'))
+                        {
+                            *dest = Ch('<');
+                            ++dest;
+                            src += 4;
+                            continue;
+                        }
+                        break;
+
+                    // &#...; - assumes ASCII
+                    case Ch('#'): 
+                        if (src[2] == Ch('x'))
+                        {
+                            unsigned long code = 0;
+                            src += 3;   // Skip &#x
+                            while (1)
+                            {
+                                unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
+                                if (digit == 0xFF)
+                                    break;
+                                code = code * 16 + digit;
+                                ++src;
+                            }
+                            insert_coded_character<Flags>(dest, code);    // Put character in output
+                        }
+                        else
+                        {
+                            unsigned long code = 0;
+                            src += 2;   // Skip &#
+                            while (1)
+                            {
+                                unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
+                                if (digit == 0xFF)
+                                    break;
+                                code = code * 10 + digit;
+                                ++src;
+                            }
+                            insert_coded_character<Flags>(dest, code);    // Put character in output
+                        }
+                        if (*src == Ch(';'))
                             ++src;
+                        else
+                            RAPIDXML_PARSE_ERROR("expected ;", src);
                         continue;
+
+                    // Something else
+                    default:
+                        // Ignore, just copy '&' verbatim
+                        break;
+
                     }
                 }
 
@@ -1689,10 +1654,7 @@ namespace rapidxml
 
             }
 
-            // Return new end
-            text = src;
-            return dest;
-
+            return dest - dest_start;
         }
 
         ///////////////////////////////////////////////////////////////////////
@@ -1907,11 +1869,11 @@ namespace rapidxml
                 text = contents_start;     
             
             // Skip until end of data
-            Ch *value = text, *end;
+            Ch *value = text;
             if (Flags & parse_normalize_whitespace)
-                end = skip_and_expand_character_refs<text_pred, text_pure_with_ws_pred, Flags>(text);   
+                skip<text_pred, Flags>(text);
             else
-                end = skip_and_expand_character_refs<text_pred, text_pure_no_ws_pred, Flags>(text);
+                skip<text_pred, Flags>(text);
 
             // Trim trailing whitespace if flag is set; leading was already trimmed by whitespace skip after >
             if (Flags & parse_trim_whitespace)
@@ -1919,30 +1881,30 @@ namespace rapidxml
                 if (Flags & parse_normalize_whitespace)
                 {
                     // Whitespace is already condensed to single space characters by skipping function, so just trim 1 char off the end
-                    if (*(end - 1) == Ch(' '))
-                        --end;
+                    if (*(text - 1) == Ch(' '))
+                        --text;
                 }
                 else
                 {
                     // Backup until non-whitespace character is found
-                    while (whitespace_pred::test(*(end - 1)))
-                        --end;
+                    while (whitespace_pred::test(*(text - 1)))
+                        --text;
                 }
             }
             
-            // If characters are still left between end and value (this test is only necessary if normalization is enabled)
+            // If characters are still left between text and value (this test is only necessary if normalization is enabled)
             // Create new data node
             if (!(Flags & parse_no_data_nodes))
             {
                 xml_node<Ch> *data = this->allocate_node(node_data);
-                data->value(value, end - value);
+                data->value(value, text - value);
                 node->append_node(data);
             }
 
             // Add data to parent node if no data exists yet
             if (!(Flags & parse_no_element_values)) 
                 if (*node->value() == Ch('\0'))
-                    node->value(value, end - value);
+                    node->value(value, text - value);
 
             // Return character that ends data
             return *text;
@@ -2216,15 +2178,15 @@ namespace rapidxml
                 ++text;
 
                 // Extract attribute value and expand char refs in it
-                Ch *value = text, *end;
+                Ch *value = text;
                 const int AttFlags = Flags & ~parse_normalize_whitespace;   // No whitespace normalization in attributes
                 if (quote == Ch('\''))
-                    end = skip_and_expand_character_refs<attribute_value_pred<Ch('\'')>, attribute_value_pure_pred<Ch('\'')>, AttFlags>(text);
+                    skip<attribute_value_pred<Ch('\'')>, AttFlags>(text);
                 else
-                    end = skip_and_expand_character_refs<attribute_value_pred<Ch('"')>, attribute_value_pure_pred<Ch('"')>, AttFlags>(text);
+                    skip<attribute_value_pred<Ch('"')>, AttFlags>(text);
                 
                 // Set attribute value
-                attribute->value(value, end - value);
+                attribute->value(value, text - value);
                 
                 // Make sure that end quote is present
                 if (*text != quote)
