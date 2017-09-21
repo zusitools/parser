@@ -171,13 +171,6 @@ namespace rapidxml
     //! See xml_document::parse() function.
     const int parse_no_element_values = 0x2;
     
-    //! Parse flag instructing the parser to not place zero terminators after strings in the source text.
-    //! By default zero terminators are placed, modifying source text.
-    //! Can be combined with other flags by use of | operator.
-    //! <br><br>
-    //! See xml_document::parse() function.
-    const int parse_no_string_terminators = 0x4;
-    
     //! Parse flag instructing the parser to not translate entities in the source text.
     //! By default entities are translated, modifying source text.
     //! Can be combined with other flags by use of | operator.
@@ -257,21 +250,6 @@ namespace rapidxml
     //! <br><br>
     //! See xml_document::parse() function.
     const int parse_default = 0;
-    
-    //! A combination of parse flags that forbids any modifications of the source text. 
-    //! This also results in faster parsing. However, note that the following will occur:
-    //! <ul>
-    //! <li>names and values of nodes will not be zero terminated, you have to use xml_base::name_size() and xml_base::value_size() functions to determine where name and value ends</li>
-    //! <li>entities will not be translated</li>
-    //! <li>whitespace will not be normalized</li>
-    //! </ul>
-    //! See xml_document::parse() function.
-    const int parse_non_destructive = parse_no_string_terminators | parse_no_entity_translation;
-    
-    //! A combination of parse flags resulting in fastest possible parsing, without sacrificing important data.
-    //! <br><br>
-    //! See xml_document::parse() function.
-    const int parse_fastest = parse_non_destructive | parse_no_data_nodes;
     
     //! A combination of parse flags resulting in largest amount of data being extracted. 
     //! This usually results in slowest parsing.
@@ -666,7 +644,7 @@ namespace rapidxml
     
         //! Gets name of the node. 
         //! Interpretation of name depends on type of node.
-        //! Note that name will not be zero-terminated if rapidxml::parse_no_string_terminators option was selected during parse.
+        //! Note that name will not be zero-terminated.
         //! <br><br>
         //! Use name_size() function to determine length of the name.
         //! \return Name of node, or empty string if node has no name.
@@ -685,7 +663,7 @@ namespace rapidxml
 
         //! Gets value of node. 
         //! Interpretation of value depends on type of node.
-        //! Note that value will not be zero-terminated if rapidxml::parse_no_string_terminators option was selected during parse.
+        //! Note that value will not be zero-terminated.
         //! <br><br>
         //! Use value_size() function to determine length of the value.
         //! \return Value of node, or empty string if node has no value.
@@ -1801,10 +1779,6 @@ namespace rapidxml
             xml_node<Ch> *comment = this->allocate_node(node_comment);
             comment->value(value, text - value);
             
-            // Place zero terminator after comment value
-            if (!(Flags & parse_no_string_terminators))
-                *text = Ch('\0');
-            
             text += 3;     // Skip '-->'
             return comment;
         }
@@ -1859,10 +1833,6 @@ namespace rapidxml
                 // Create a new doctype node
                 xml_node<Ch> *doctype = this->allocate_node(node_doctype);
                 doctype->value(value, text - value);
-                
-                // Place zero terminator after value
-                if (!(Flags & parse_no_string_terminators))
-                    *text = Ch('\0');
 
                 text += 1;      // skip '>'
                 return doctype;
@@ -1908,13 +1878,6 @@ namespace rapidxml
 
                 // Set pi value (verbatim, no entity expansion or whitespace normalization)
                 pi->value(value, text - value);     
-                
-                // Place zero terminator after name and value
-                if (!(Flags & parse_no_string_terminators))
-                {
-                    pi->name()[pi->name_size()] = Ch('\0');
-                    pi->value()[pi->value_size()] = Ch('\0');
-                }
                 
                 text += 2;                          // Skip '?>'
                 return pi;
@@ -1981,14 +1944,6 @@ namespace rapidxml
                 if (*node->value() == Ch('\0'))
                     node->value(value, end - value);
 
-            // Place zero terminator after value
-            if (!(Flags & parse_no_string_terminators))
-            {
-                Ch ch = *text;
-                *end = Ch('\0');
-                return ch;      // Return character that ends data; this is required because zero terminator overwritten it
-            }
-
             // Return character that ends data
             return *text;
         }
@@ -2023,10 +1978,6 @@ namespace rapidxml
             // Create new cdata node
             xml_node<Ch> *cdata = this->allocate_node(node_cdata);
             cdata->value(value, text - value);
-
-            // Place zero terminator after value
-            if (!(Flags & parse_no_string_terminators))
-                *text = Ch('\0');
 
             text += 3;      // Skip ]]>
             return cdata;
@@ -2067,10 +2018,6 @@ namespace rapidxml
             }
             else
                 RAPIDXML_PARSE_ERROR("expected >", text);
-
-            // Place zero terminator after name
-            if (!(Flags & parse_no_string_terminators))
-                element->name()[element->name_size()] = Ch('\0');
 
             // Return parsed element
             return element;
@@ -2259,10 +2206,6 @@ namespace rapidxml
                     RAPIDXML_PARSE_ERROR("expected =", text);
                 ++text;
 
-                // Add terminating zero after name
-                if (!(Flags & parse_no_string_terminators))
-                    attribute->name()[attribute->name_size()] = 0;
-
                 // Skip whitespace after =
                 skip<whitespace_pred, Flags>(text);
 
@@ -2287,10 +2230,6 @@ namespace rapidxml
                 if (*text != quote)
                     RAPIDXML_PARSE_ERROR("expected ' or \"", text);
                 ++text;     // Skip quote
-
-                // Add terminating zero after value
-                if (!(Flags & parse_no_string_terminators))
-                    attribute->value()[attribute->value_size()] = 0;
 
                 // Skip whitespace after attribute value
                 skip<whitespace_pred, Flags>(text);
