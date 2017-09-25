@@ -56,6 +56,8 @@ namespace rapidxml
 
 namespace rapidxml
 {
+    using Ch = const char;
+    using parse_function = void (*)(Ch *&);
 
     //! Parse error exception. 
     //! This exception is thrown by the parser when an error occurs. 
@@ -90,7 +92,6 @@ namespace rapidxml
         //! Gets pointer to character data where error happened.
         //! Ch should be the same as char type of xml_document that produced the error.
         //! \return Pointer to location within the parsed string where error occured.
-        template<class Ch>
         Ch *where() const
         {
             return reinterpret_cast<Ch *>(m_where);
@@ -106,49 +107,8 @@ namespace rapidxml
 
 #endif
 
-///////////////////////////////////////////////////////////////////////////
-// Pool sizes
-
-#ifndef RAPIDXML_STATIC_POOL_SIZE
-    // Size of static memory block of memory_pool.
-    // Define RAPIDXML_STATIC_POOL_SIZE before including rapidxml.hpp if you want to override the default value.
-    // No dynamic memory allocations are performed by memory_pool until static memory is exhausted.
-    #define RAPIDXML_STATIC_POOL_SIZE (64 * 1024)
-#endif
-
-#ifndef RAPIDXML_DYNAMIC_POOL_SIZE
-    // Size of dynamic memory block of memory_pool.
-    // Define RAPIDXML_DYNAMIC_POOL_SIZE before including rapidxml.hpp if you want to override the default value.
-    // After the static block is exhausted, dynamic blocks with approximately this size are allocated by memory_pool.
-    #define RAPIDXML_DYNAMIC_POOL_SIZE (64 * 1024)
-#endif
-
-#ifndef RAPIDXML_ALIGNMENT
-    // Memory allocation alignment.
-    // Define RAPIDXML_ALIGNMENT before including rapidxml.hpp if you want to override the default value, which is the size of pointer.
-    // All memory allocations for nodes, attributes and strings will be aligned to this value.
-    // This must be a power of 2 and at least 1, otherwise memory_pool will not work.
-    #define RAPIDXML_ALIGNMENT sizeof(void *)
-#endif
-
 namespace rapidxml
 {
-    // Forward declarations
-    template<class Ch> class xml_document;
-    
-    //! Enumeration listing all node types produced by the parser.
-    enum node_type
-    {
-        node_document,      //!< A document node. Name and value are empty.
-        node_element,       //!< An element node. Name contains element name. Value contains text of first data node.
-        node_data,          //!< A data node. Name is empty. Value contains data text.
-        node_cdata,         //!< A CDATA node. Name is empty. Value contains data text.
-        node_comment,       //!< A comment node. Name is empty. Value contains comment text.
-        node_declaration,   //!< A declaration node. Name and value are empty. Declaration parameters (version, encoding and standalone) are in node attributes.
-        node_doctype,       //!< A DOCTYPE node. Name is empty. Value contains DOCTYPE text.
-        node_pi             //!< A PI node. Name contains target. Value contains instructions.
-    };
-
     ///////////////////////////////////////////////////////////////////////
     // Internals
 
@@ -176,7 +136,6 @@ namespace rapidxml
         };
 
         // Find length of the string
-        template<class Ch>
         inline std::size_t measure(const Ch *p)
         {
             const Ch *tmp = p;
@@ -186,7 +145,6 @@ namespace rapidxml
         }
 
         // Compare strings for equality
-        template<class Ch>
         inline bool compare(const Ch *p1, std::size_t size1, const Ch *p2, std::size_t size2, bool case_sensitive)
         {
             if (size1 != size2)
@@ -207,202 +165,636 @@ namespace rapidxml
         }
     }
     //! \endcond
+    
+    // Forward declarations.
+    static void parse_bom(Ch *&text);
+    static void parse_xml_declaration(Ch *&text);
+    static void parse_comment(Ch *&text);
+    static void parse_doctype(Ch *&text);
+    static void parse_pi(Ch *&text);
+    static void parse_cdata(Ch *&text);
 
-    ///////////////////////////////////////////////////////////////////////////
-    // XML base
-
-    //! Base class for xml_node and xml_attribute implementing common functions: 
-    //! name(), name_size(), value(), value_size() and parent().
-    //! \param Ch Character type to use
-    template<class Ch = char>
-    class xml_base
+    static void parse_XXX_element(Ch *&text);
+    static void parse_node_contents(Ch *&text, parse_function parse_element_function);
+    static void parse_XXX_node_attributes(Ch *&text);
+    
+    ///////////////////////////////////////////////////////////////////////
+    // Internal character utility functions
+    
+    // Detect whitespace character
+    struct whitespace_pred
     {
-
-    public:
-        
-        ///////////////////////////////////////////////////////////////////////////
-        // Construction & destruction
-    
-        // Construct a base with empty name, value and parent
-        xml_base()
-            : m_name(0)
-            , m_value(0)
+        static unsigned char test(Ch ch)
         {
+            return internal::lookup_tables<0>::lookup_whitespace[static_cast<unsigned char>(ch)];
         }
-
-        ///////////////////////////////////////////////////////////////////////////
-        // Node data access
-    
-        //! Gets name of the node. 
-        //! Interpretation of name depends on type of node.
-        //! Note that name will not be zero-terminated.
-        //! <br><br>
-        //! Use name_size() function to determine length of the name.
-        //! \return Name of node, or empty string if node has no name.
-        Ch *name() const
-        {
-            return m_name ? m_name : nullstr();
-        }
-
-        //! Gets size of node name, not including terminator character.
-        //! This function works correctly irrespective of whether name is or is not zero terminated.
-        //! \return Size of node name, in characters.
-        std::size_t name_size() const
-        {
-            return m_name ? m_name_size : 0;
-        }
-
-        //! Gets value of node. 
-        //! Interpretation of value depends on type of node.
-        //! Note that value will not be zero-terminated.
-        //! <br><br>
-        //! Use value_size() function to determine length of the value.
-        //! \return Value of node, or empty string if node has no value.
-        Ch *value() const
-        {
-            return m_value ? m_value : nullstr();
-        }
-
-        //! Gets size of node value, not including terminator character.
-        //! This function works correctly irrespective of whether value is or is not zero terminated.
-        //! \return Size of node value, in characters.
-        std::size_t value_size() const
-        {
-            return m_value ? m_value_size : 0;
-        }
-
-        ///////////////////////////////////////////////////////////////////////////
-        // Node modification
-    
-        //! Sets name of node to a non zero-terminated string.
-        //! See \ref ownership_of_strings.
-        //! <br><br>
-        //! Note that node does not own its name or value, it only stores a pointer to it. 
-        //! It will not delete or otherwise free the pointer on destruction.
-        //! It is reponsibility of the user to properly manage lifetime of the string.
-        //! The easiest way to achieve it is to use memory_pool of the document to allocate the string -
-        //! on destruction of the document the string will be automatically freed.
-        //! <br><br>
-        //! Size of name must be specified separately, because name does not have to be zero terminated.
-        //! Use name(const Ch *) function to have the length automatically calculated (string must be zero terminated).
-        //! \param name Name of node to set. Does not have to be zero terminated.
-        //! \param size Size of name, in characters. This does not include zero terminator, if one is present.
-        void name(const Ch *name, std::size_t size)
-        {
-            m_name = const_cast<Ch *>(name);
-            m_name_size = size;
-        }
-
-        //! Sets name of node to a zero-terminated string.
-        //! See also \ref ownership_of_strings and xml_node::name(const Ch *, std::size_t).
-        //! \param name Name of node to set. Must be zero terminated.
-        void name(const Ch *name)
-        {
-            this->name(name, internal::measure(name));
-        }
-
-        //! Sets value of node to a non zero-terminated string.
-        //! See \ref ownership_of_strings.
-        //! <br><br>
-        //! Note that node does not own its name or value, it only stores a pointer to it. 
-        //! It will not delete or otherwise free the pointer on destruction.
-        //! It is reponsibility of the user to properly manage lifetime of the string.
-        //! The easiest way to achieve it is to use memory_pool of the document to allocate the string -
-        //! on destruction of the document the string will be automatically freed.
-        //! <br><br>
-        //! Size of value must be specified separately, because it does not have to be zero terminated.
-        //! Use value(const Ch *) function to have the length automatically calculated (string must be zero terminated).
-        //! <br><br>
-        //! If an element has a child node of type node_data, it will take precedence over element value when printing.
-        //! If you want to manipulate data of elements using values, use parser flag rapidxml::parse_no_data_nodes to prevent creation of data nodes by the parser.
-        //! \param value value of node to set. Does not have to be zero terminated.
-        //! \param size Size of value, in characters. This does not include zero terminator, if one is present.
-        void value(const Ch *value, std::size_t size)
-        {
-            m_value = const_cast<Ch *>(value);
-            m_value_size = size;
-        }
-
-        //! Sets value of node to a zero-terminated string.
-        //! See also \ref ownership_of_strings and xml_node::value(const Ch *, std::size_t).
-        //! \param value Vame of node to set. Must be zero terminated.
-        void value(const Ch *value)
-        {
-            this->value(value, internal::measure(value));
-        }
-
-    protected:
-
-        // Return empty string
-        static Ch *nullstr()
-        {
-            static Ch zero = Ch('\0');
-            return &zero;
-        }
-
-        Ch *m_name;                         // Name of node, or 0 if no name
-        Ch *m_value;                        // Value of node, or 0 if no value
-        std::size_t m_name_size;            // Length of node name, or undefined of no name
-        std::size_t m_value_size;           // Length of node value, or undefined if no value
-
     };
 
-    ///////////////////////////////////////////////////////////////////////////
-    // XML document
-    
-    //! This class represents root of the DOM hierarchy. 
-    //! Use parse() function to build a DOM tree from a zero-terminated XML text string.
-    //! parse() function allocates memory for nodes and attributes by using functions of xml_document, 
-    //! which are inherited from memory_pool.
-    //! \param Ch Character type to use.
-    template<class Ch = char>
-    class xml_document
+    // Detect node name character
+    struct node_name_pred
     {
-    
-    public:
-
-        //! Constructs empty XML document
-        xml_document()
+        static unsigned char test(Ch ch)
         {
+            return internal::lookup_tables<0>::lookup_node_name[static_cast<unsigned char>(ch)];
         }
+    };
 
-        //! Parses zero-terminated XML string according to given flags.
-        //! Passed string will be modified by the parser, unless rapidxml::parse_non_destructive flag is used.
-        //! The string must persist for the lifetime of the document.
-        //! In case of error, rapidxml::parse_error exception will be thrown.
-        //! <br><br>
-        //! If you want to parse contents of a file, you must first load the file into the memory, and pass pointer to its beginning.
-        //! Make sure that data is zero-terminated.
-        //! <br><br>
-        //! Document can be parsed into multiple times. 
-        //! Each new call to parse removes previous nodes and attributes (if any), but does not clear memory pool.
-        //! \param text XML data to parse; pointer is non-const to denote fact that this data may be modified by the parser.
-        static void parse(Ch *text)
+    // Detect attribute name character
+    struct attribute_name_pred
+    {
+        static unsigned char test(Ch ch)
         {
-            assert(text);
-            
-            // Parse BOM, if any
-            parse_bom(text);
-            
-            // Parse children
-            while (1)
+            return internal::lookup_tables<0>::lookup_attribute_name[static_cast<unsigned char>(ch)];
+        }
+    };
+
+    // Detect text character (PCDATA)
+    struct text_pred
+    {
+        static unsigned char test(Ch ch)
+        {
+            return internal::lookup_tables<0>::lookup_text[static_cast<unsigned char>(ch)];
+        }
+    };
+
+    // Detect text character (PCDATA) that does not require processing
+    struct text_pure_no_ws_pred
+    {
+        static unsigned char test(Ch ch)
+        {
+            return internal::lookup_tables<0>::lookup_text_pure_no_ws[static_cast<unsigned char>(ch)];
+        }
+    };
+
+    // Detect text character (PCDATA) that does not require processing
+    struct text_pure_with_ws_pred
+    {
+        static unsigned char test(Ch ch)
+        {
+            return internal::lookup_tables<0>::lookup_text_pure_with_ws[static_cast<unsigned char>(ch)];
+        }
+    };
+
+    // Detect attribute value character
+    template<Ch Quote>
+    struct attribute_value_pred
+    {
+        static unsigned char test(Ch ch)
+        {
+            if (Quote == Ch('\''))
+                return internal::lookup_tables<0>::lookup_attribute_data_1[static_cast<unsigned char>(ch)];
+            if (Quote == Ch('\"'))
+                return internal::lookup_tables<0>::lookup_attribute_data_2[static_cast<unsigned char>(ch)];
+            return 0;       // Should never be executed, to avoid warnings on Comeau
+        }
+    };
+
+    // Detect attribute value character
+    template<Ch Quote>
+    struct attribute_value_pure_pred
+    {
+        static unsigned char test(Ch ch)
+        {
+            if (Quote == Ch('\''))
+                return internal::lookup_tables<0>::lookup_attribute_data_1_pure[static_cast<unsigned char>(ch)];
+            if (Quote == Ch('\"'))
+                return internal::lookup_tables<0>::lookup_attribute_data_2_pure[static_cast<unsigned char>(ch)];
+            return 0;       // Should never be executed, to avoid warnings on Comeau
+        }
+    };
+
+    // Insert coded character, using UTF8 or 8-bit ASCII
+    static void insert_coded_character(std::remove_const_t<Ch> *&text, unsigned long code)
+    {
+        // Insert UTF8 sequence
+        if (code < 0x80)    // 1 byte sequence
+        {
+                text[0] = static_cast<unsigned char>(code);
+            text += 1;
+        }
+        else if (code < 0x800)  // 2 byte sequence
+        {
+                text[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+                text[0] = static_cast<unsigned char>(code | 0xC0);
+            text += 2;
+        }
+            else if (code < 0x10000)    // 3 byte sequence
+        {
+                text[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+                text[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+                text[0] = static_cast<unsigned char>(code | 0xE0);
+            text += 3;
+        }
+            else if (code < 0x110000)   // 4 byte sequence
+        {
+                text[3] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+                text[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+                text[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
+                text[0] = static_cast<unsigned char>(code | 0xF0);
+            text += 4;
+        }
+        else    // Invalid, only codes up to 0x10FFFF are allowed in Unicode
+        {
+            RAPIDXML_PARSE_ERROR("invalid numeric character entity", text);
+        }
+    }
+
+    // Skip characters until predicate evaluates to true
+    template<class StopPred>
+    static void skip(Ch *&text)
+    {
+        Ch *tmp = text;
+        while (StopPred::test(*tmp))
+            ++tmp;
+        text = tmp;
+    }
+
+    // Skip characters until predicate evaluates to true while
+    // replacing XML character entity references with proper characters (&apos; &amp; &quot; &lt; &gt; &#...;)
+    template<class StopPred, class StopPredPure>
+    static size_t copy_and_expand_character_refs(Ch *&src, std::remove_const_t<Ch> *dest)
+    {
+        Ch *dest_start = dest;
+
+        // Use simple skip until first modification is detected
+        while (StopPredPure::test(*src))
+            *dest++ = *src++;
+
+        // Use translation skip
+        while (StopPred::test(*src))
+        {
+            // Test if replacement is needed
+            if (src[0] == Ch('&'))
             {
-                // Skip whitespace before node
-                skip<whitespace_pred>(text);
-                if (*text == 0)
+                switch (src[1])
+                {
+
+                // &amp; &apos;
+                case Ch('a'): 
+                    if (src[2] == Ch('m') && src[3] == Ch('p') && src[4] == Ch(';'))
+                    {
+                        *dest = Ch('&');
+                        ++dest;
+                        src += 5;
+                        continue;
+                    }
+                    if (src[2] == Ch('p') && src[3] == Ch('o') && src[4] == Ch('s') && src[5] == Ch(';'))
+                    {
+                        *dest = Ch('\'');
+                        ++dest;
+                        src += 6;
+                        continue;
+                    }
                     break;
 
-                // Parse and append new child
-                if (*text == Ch('<'))
+                // &quot;
+                case Ch('q'): 
+                    if (src[2] == Ch('u') && src[3] == Ch('o') && src[4] == Ch('t') && src[5] == Ch(';'))
+                    {
+                        *dest = Ch('"');
+                        ++dest;
+                        src += 6;
+                        continue;
+                    }
+                    break;
+
+                // &gt;
+                case Ch('g'): 
+                    if (src[2] == Ch('t') && src[3] == Ch(';'))
+                    {
+                        *dest = Ch('>');
+                        ++dest;
+                        src += 4;
+                        continue;
+                    }
+                    break;
+
+                // &lt;
+                case Ch('l'): 
+                    if (src[2] == Ch('t') && src[3] == Ch(';'))
+                    {
+                        *dest = Ch('<');
+                        ++dest;
+                        src += 4;
+                        continue;
+                    }
+                    break;
+
+                // &#...; - assumes ASCII
+                case Ch('#'): 
+                    if (src[2] == Ch('x'))
+                    {
+                        unsigned long code = 0;
+                        src += 3;   // Skip &#x
+                        while (1)
+                        {
+                            unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
+                            if (digit == 0xFF)
+                                break;
+                            code = code * 16 + digit;
+                            ++src;
+                        }
+                        insert_coded_character(dest, code);    // Put character in output
+                    }
+                    else
+                    {
+                        unsigned long code = 0;
+                        src += 2;   // Skip &#
+                        while (1)
+                        {
+                            unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
+                            if (digit == 0xFF)
+                                break;
+                            code = code * 10 + digit;
+                            ++src;
+                        }
+                        insert_coded_character(dest, code);    // Put character in output
+                    }
+                    if (*src == Ch(';'))
+                        ++src;
+                    else
+                        RAPIDXML_PARSE_ERROR("expected ;", src);
+                    continue;
+
+                // Something else
+                default:
+                    // Ignore, just copy '&' verbatim
+                    break;
+
+                }
+            }
+
+            // No replacement, only copy character
+            *dest++ = *src++;
+
+        }
+
+        return dest - dest_start;
+    }
+    
+    //! Parses zero-terminated XML string according to given flags.
+    //! Passed string will be modified by the parser, unless rapidxml::parse_non_destructive flag is used.
+    //! The string must persist for the lifetime of the document.
+    //! In case of error, rapidxml::parse_error exception will be thrown.
+    //! <br><br>
+    //! If you want to parse contents of a file, you must first load the file into the memory, and pass pointer to its beginning.
+    //! Make sure that data is zero-terminated.
+    //! <br><br>
+    //! Document can be parsed into multiple times. 
+    //! Each new call to parse removes previous nodes and attributes (if any), but does not clear memory pool.
+    //! \param text XML data to parse; pointer is non-const to denote fact that this data may be modified by the parser.
+    static void parse(Ch *text)
+    {
+        assert(text);
+        
+        // Parse BOM, if any
+        parse_bom(text);
+        
+        // Parse children
+        while (1)
+        {
+            // Skip whitespace before node
+            skip<whitespace_pred>(text);
+            if (*text == 0)
+                break;
+
+            // Parse and append new child
+            if (*text == Ch('<'))
+            {
+                ++text;     // Skip '<'
+                // BEGIN INLINING parse_node
+                // Parse proper node type
+                switch (text[0])
                 {
+
+                // <...
+                default:
+                {
+                    // Parse and append element node
+                    // BEGIN INLINING parse_element_function
+                    // Extract element name
+                    Ch *name = text;
+                    skip<node_name_pred>(text);
+                    if (text == name)
+                        RAPIDXML_PARSE_ERROR("expected element name", text);
+
+                    // Skip whitespace between element name and attributes or >
+                    skip<whitespace_pred>(text);
+
+                    size_t name_size = text - name;
+                    switch (name_size) {
+                      /* TODO: autogenerated code here */
+                      default: {
+                        parse_XXX_element(text);
+                        break;
+                      }
+                    }
+                    // END INLINING parse_element_function
+                    break;
+                }
+
+                // <?...
+                case Ch('?'): 
+                    ++text;     // Skip ?
+                    if ((text[0] == Ch('x') || text[0] == Ch('X')) &&
+                        (text[1] == Ch('m') || text[1] == Ch('M')) && 
+                        (text[2] == Ch('l') || text[2] == Ch('L')) &&
+                        whitespace_pred::test(text[3]))
+                    {
+                        // '<?xml ' - xml declaration
+                        text += 4;      // Skip 'xml '
+                        parse_xml_declaration(text);
+                        break;
+                    }
+                    else
+                    {
+                        // Parse PI
+                        parse_pi(text);
+                        break;
+                    }
+
+                // <!...
+                case Ch('!'): 
+
+                    // Parse proper subset of <! node
+                    switch (text[1])    
+                    {
+
+                    // <!-
+                    case Ch('-'):
+                        if (text[2] == Ch('-'))
+                        {
+                            // '<!--' - xml comment
+                            text += 3;     // Skip '!--'
+                            parse_comment(text);
+                            break;
+                        }
+                        break;
+
+                    // <![
+                    case Ch('['):
+                        if (text[2] == Ch('C') && text[3] == Ch('D') && text[4] == Ch('A') && 
+                            text[5] == Ch('T') && text[6] == Ch('A') && text[7] == Ch('['))
+                        {
+                            // '<![CDATA[' - cdata
+                            text += 8;     // Skip '![CDATA['
+                            parse_cdata(text);
+                            break;
+                        }
+                        break;
+
+                    // <!D
+                    case Ch('D'):
+                        if (text[2] == Ch('O') && text[3] == Ch('C') && text[4] == Ch('T') && 
+                            text[5] == Ch('Y') && text[6] == Ch('P') && text[7] == Ch('E') && 
+                            whitespace_pred::test(text[8]))
+                        {
+                            // '<!DOCTYPE ' - doctype
+                            text += 9;      // skip '!DOCTYPE '
+                            parse_doctype(text);
+                            break;
+                        }
+
+                    }   // switch
+
+                    // Attempt to skip other, unrecognized node types starting with <!
+                    ++text;     // Skip !
+                    while (*text != Ch('>'))
+                    {
+                        if (*text == 0)
+                            RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                        ++text;
+                    }
+                    ++text;     // Skip '>'
+                    break;     // No node recognized
+
+                }
+                // END INLINING parse_node
+            }
+            else
+                RAPIDXML_PARSE_ERROR("expected <", text);
+        }
+
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Internal parsing functions
+    
+    // Parse BOM, if any
+    static void parse_bom(Ch *&text)
+    {
+        // UTF-8?
+        if (static_cast<unsigned char>(text[0]) == 0xEF && 
+            static_cast<unsigned char>(text[1]) == 0xBB && 
+            static_cast<unsigned char>(text[2]) == 0xBF)
+        {
+            text += 3;      // Skup utf-8 bom
+        }
+    }
+
+    // Parse XML declaration (<?xml...)
+    static void parse_xml_declaration(Ch *&text)
+    {
+        // Skip until end of declaration
+        while (text[0] != Ch('?') || text[1] != Ch('>'))
+        {
+            if (!text[0])
+                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+            ++text;
+        }
+        text += 2;    // Skip '?>'
+    }
+
+    // Parse XML comment (<!--...)
+    static void parse_comment(Ch *&text)
+    {
+        // Skip until end of comment
+        while (text[0] != Ch('-') || text[1] != Ch('-') || text[2] != Ch('>'))
+        {
+            if (!text[0])
+                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+            ++text;
+        }
+        text += 3;     // Skip '-->'
+    }
+
+    // Parse DOCTYPE
+    static void parse_doctype(Ch *&text)
+    {
+        // Remember value start
+        Ch *value = text;
+
+        // Skip to >
+        while (*text != Ch('>'))
+        {
+            // Determine character type
+            switch (*text)
+            {
+            
+            // If '[' encountered, scan for matching ending ']' using naive algorithm with depth
+            // This works for all W3C test files except for 2 most wicked
+            case Ch('['):
+            {
+                ++text;     // Skip '['
+                int depth = 1;
+                while (depth > 0)
+                {
+                    switch (*text)
+                    {
+                        case Ch('['): ++depth; break;
+                        case Ch(']'): --depth; break;
+                        case 0: RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                    }
+                    ++text;
+                }
+                break;
+            }
+            
+            // Error on end of text
+            case Ch('\0'):
+                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+            
+            // Other character, skip it
+            default:
+                ++text;
+
+            }
+        }
+        
+        text += 1;      // skip '>'
+    }
+
+    // Parse PI
+    static void parse_pi(Ch *&text)
+    {
+        // Skip to '?>'
+        while (text[0] != Ch('?') || text[1] != Ch('>'))
+        {
+            if (*text == Ch('\0'))
+                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+            ++text;
+        }
+        text += 2;    // Skip '?>'
+    }
+
+    // Parse and append data
+    // Return character that ends data.
+    // This is necessary because this character might have been overwritten by a terminating 0
+    static Ch parse_and_append_data(Ch *&text, Ch *contents_start)
+    {
+        // Backup to contents start if whitespace trimming is disabled
+        text = contents_start;     
+        
+        // Skip until end of data
+        Ch *value = text;
+        skip<text_pred>(text);
+
+        // Return character that ends data
+        return *text;
+    }
+
+    // Parse CDATA
+    static void parse_cdata(Ch *&text)
+    {
+        // Skip until end of cdata
+        while (text[0] != Ch(']') || text[1] != Ch(']') || text[2] != Ch('>'))
+        {
+            if (!text[0])
+                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+            ++text;
+        }
+        text += 3;      // Skip ]]>
+    }
+    
+    // Parse element node
+    static void parse_XXX_element(Ch *&text)
+    {
+        // Parse attributes, if any
+        parse_XXX_node_attributes(text);
+
+        // Determine ending type
+        if (*text == Ch('>'))
+        {
+            ++text;
+            parse_node_contents(text, [](Ch *&text) {
+              // Extract element name
+              Ch *name = text;
+              skip<node_name_pred>(text);
+              if (text == name)
+                  RAPIDXML_PARSE_ERROR("expected element name", text);
+
+              // Skip whitespace between element name and attributes or >
+              skip<whitespace_pred>(text);
+
+              size_t name_size = text - name;
+              switch (name_size) {
+                /* TODO: autogenerated code here */
+                default: {
+                  parse_XXX_element(text);
+                  break;
+                }
+              }
+            });
+        }
+        else if (*text == Ch('/'))
+        {
+            ++text;
+            if (*text != Ch('>'))
+                RAPIDXML_PARSE_ERROR("expected >", text);
+            ++text;
+        }
+        else
+            RAPIDXML_PARSE_ERROR("expected >", text);
+    }
+
+    // Parse contents of the node - children, data etc.
+    static void parse_node_contents(Ch *&text, parse_function parse_element_function)
+    {
+        // For all children and text
+        while (1)
+        {
+            // Skip whitespace between > and node contents
+            Ch *contents_start = text;      // Store start of node contents before whitespace is skipped
+            skip<whitespace_pred>(text);
+            std::remove_const_t<Ch> next_char = *text;
+
+        // After data nodes, instead of continuing the loop, control jumps here.
+        // This is because zero termination inside parse_and_append_data() function
+        // would wreak havoc with the above code.
+        // Also, skipping whitespace after data nodes is unnecessary.
+        after_data_node:    
+            
+            // Determine what comes next: node closing, child node, data node, or 0?
+            switch (next_char)
+            {
+            
+            // Node closing or child node
+            case Ch('<'):
+                if (text[1] == Ch('/'))
+                {
+                    // Node closing
+                    text += 2;      // Skip '</'
+                    // No validation, just skip name
+                    skip<node_name_pred>(text);
+                    // Skip remaining whitespace after node name
+                    skip<whitespace_pred>(text);
+                    if (*text != Ch('>'))
+                        RAPIDXML_PARSE_ERROR("expected >", text);
+                    ++text;     // Skip '>'
+                    return;     // Node closed, finished parsing contents
+                }
+                else
+                {
+                    // Child node
                     ++text;     // Skip '<'
+
                     // BEGIN INLINING parse_node
                     // Parse proper node type
                     switch (text[0])
                     {
 
                     // <...
-                    default:
+                    default: 
                     {
                         // Parse and append element node
                         // BEGIN INLINING parse_element_function
@@ -505,637 +897,71 @@ namespace rapidxml
                     }
                     // END INLINING parse_node
                 }
+                break;
+
+            // End of data - error
+            case Ch('\0'):
+                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+
+            // Data node
+            default:
+                next_char = parse_and_append_data(text, contents_start);
+                goto after_data_node;   // Bypass regular processing after data nodes
+
+            }
+        }
+    }
+    
+    // Parse XML attributes of the node
+    static void parse_XXX_node_attributes(Ch *&text)
+    {
+        // For all attributes 
+        while (attribute_name_pred::test(*text))
+        {
+            // Extract attribute name
+            Ch *name = text;
+            ++text;     // Skip first character of attribute name
+            skip<attribute_name_pred>(text);
+            size_t attribute_size = text - name;
+
+            // Skip whitespace after attribute name
+            skip<whitespace_pred>(text);
+
+            // Skip =
+            if (*text != Ch('='))
+                RAPIDXML_PARSE_ERROR("expected =", text);
+            ++text;
+
+            // Skip whitespace after =
+            skip<whitespace_pred>(text);
+
+            // Skip quote and remember if it was ' or "
+            Ch quote = *text;
+            if (quote != Ch('\'') && quote != Ch('"'))
+                RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+            ++text;
+
+            // Extract attribute value
+            switch (attribute_size) {
+              /* TODO autogenerated code here */
+              default: {
+                if (quote == Ch('\''))
+                    skip<attribute_value_pred<Ch('\'')>>(text);
                 else
-                    RAPIDXML_PARSE_ERROR("expected <", text);
-            }
-
-        }
-        
-    private:
-
-        ///////////////////////////////////////////////////////////////////////
-        // Internal character utility functions
-        
-        // Detect whitespace character
-        struct whitespace_pred
-        {
-            static unsigned char test(Ch ch)
-            {
-                return internal::lookup_tables<0>::lookup_whitespace[static_cast<unsigned char>(ch)];
-            }
-        };
-
-        // Detect node name character
-        struct node_name_pred
-        {
-            static unsigned char test(Ch ch)
-            {
-                return internal::lookup_tables<0>::lookup_node_name[static_cast<unsigned char>(ch)];
-            }
-        };
-
-        // Detect attribute name character
-        struct attribute_name_pred
-        {
-            static unsigned char test(Ch ch)
-            {
-                return internal::lookup_tables<0>::lookup_attribute_name[static_cast<unsigned char>(ch)];
-            }
-        };
-
-        // Detect text character (PCDATA)
-        struct text_pred
-        {
-            static unsigned char test(Ch ch)
-            {
-                return internal::lookup_tables<0>::lookup_text[static_cast<unsigned char>(ch)];
-            }
-        };
-
-        // Detect text character (PCDATA) that does not require processing
-        struct text_pure_no_ws_pred
-        {
-            static unsigned char test(Ch ch)
-            {
-                return internal::lookup_tables<0>::lookup_text_pure_no_ws[static_cast<unsigned char>(ch)];
-            }
-        };
-
-        // Detect text character (PCDATA) that does not require processing
-        struct text_pure_with_ws_pred
-        {
-            static unsigned char test(Ch ch)
-            {
-                return internal::lookup_tables<0>::lookup_text_pure_with_ws[static_cast<unsigned char>(ch)];
-            }
-        };
-
-        // Detect attribute value character
-        template<Ch Quote>
-        struct attribute_value_pred
-        {
-            static unsigned char test(Ch ch)
-            {
-                if (Quote == Ch('\''))
-                    return internal::lookup_tables<0>::lookup_attribute_data_1[static_cast<unsigned char>(ch)];
-                if (Quote == Ch('\"'))
-                    return internal::lookup_tables<0>::lookup_attribute_data_2[static_cast<unsigned char>(ch)];
-                return 0;       // Should never be executed, to avoid warnings on Comeau
-            }
-        };
-
-        // Detect attribute value character
-        template<Ch Quote>
-        struct attribute_value_pure_pred
-        {
-            static unsigned char test(Ch ch)
-            {
-                if (Quote == Ch('\''))
-                    return internal::lookup_tables<0>::lookup_attribute_data_1_pure[static_cast<unsigned char>(ch)];
-                if (Quote == Ch('\"'))
-                    return internal::lookup_tables<0>::lookup_attribute_data_2_pure[static_cast<unsigned char>(ch)];
-                return 0;       // Should never be executed, to avoid warnings on Comeau
-            }
-        };
-
-        // Insert coded character, using UTF8 or 8-bit ASCII
-        static void insert_coded_character(Ch *&text, unsigned long code)
-        {
-            // Insert UTF8 sequence
-            if (code < 0x80)    // 1 byte sequence
-            {
-                    text[0] = static_cast<unsigned char>(code);
-                text += 1;
-            }
-            else if (code < 0x800)  // 2 byte sequence
-            {
-                    text[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-                    text[0] = static_cast<unsigned char>(code | 0xC0);
-                text += 2;
-            }
-                else if (code < 0x10000)    // 3 byte sequence
-            {
-                    text[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-                    text[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-                    text[0] = static_cast<unsigned char>(code | 0xE0);
-                text += 3;
-            }
-                else if (code < 0x110000)   // 4 byte sequence
-            {
-                    text[3] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-                    text[2] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-                    text[1] = static_cast<unsigned char>((code | 0x80) & 0xBF); code >>= 6;
-                    text[0] = static_cast<unsigned char>(code | 0xF0);
-                text += 4;
-            }
-            else    // Invalid, only codes up to 0x10FFFF are allowed in Unicode
-            {
-                RAPIDXML_PARSE_ERROR("invalid numeric character entity", text);
-            }
-        }
-
-        // Skip characters until predicate evaluates to true
-        template<class StopPred>
-        static void skip(Ch *&text)
-        {
-            Ch *tmp = text;
-            while (StopPred::test(*tmp))
-                ++tmp;
-            text = tmp;
-        }
-
-        // Skip characters until predicate evaluates to true while
-        // replacing XML character entity references with proper characters (&apos; &amp; &quot; &lt; &gt; &#...;)
-        template<class StopPred, class StopPredPure, int Flags>
-        static size_t copy_and_expand_character_refs(Ch *&src, std::remove_const_t<Ch> *dest)
-        {
-            Ch *dest_start = dest;
-
-            // Use simple skip until first modification is detected
-            while (StopPredPure::test(*src))
-                *dest++ = *src++;
-
-            // Use translation skip
-            while (StopPred::test(*src))
-            {
-                // Test if replacement is needed
-                if (src[0] == Ch('&'))
-                {
-                    switch (src[1])
-                    {
-
-                    // &amp; &apos;
-                    case Ch('a'): 
-                        if (src[2] == Ch('m') && src[3] == Ch('p') && src[4] == Ch(';'))
-                        {
-                            *dest = Ch('&');
-                            ++dest;
-                            src += 5;
-                            continue;
-                        }
-                        if (src[2] == Ch('p') && src[3] == Ch('o') && src[4] == Ch('s') && src[5] == Ch(';'))
-                        {
-                            *dest = Ch('\'');
-                            ++dest;
-                            src += 6;
-                            continue;
-                        }
-                        break;
-
-                    // &quot;
-                    case Ch('q'): 
-                        if (src[2] == Ch('u') && src[3] == Ch('o') && src[4] == Ch('t') && src[5] == Ch(';'))
-                        {
-                            *dest = Ch('"');
-                            ++dest;
-                            src += 6;
-                            continue;
-                        }
-                        break;
-
-                    // &gt;
-                    case Ch('g'): 
-                        if (src[2] == Ch('t') && src[3] == Ch(';'))
-                        {
-                            *dest = Ch('>');
-                            ++dest;
-                            src += 4;
-                            continue;
-                        }
-                        break;
-
-                    // &lt;
-                    case Ch('l'): 
-                        if (src[2] == Ch('t') && src[3] == Ch(';'))
-                        {
-                            *dest = Ch('<');
-                            ++dest;
-                            src += 4;
-                            continue;
-                        }
-                        break;
-
-                    // &#...; - assumes ASCII
-                    case Ch('#'): 
-                        if (src[2] == Ch('x'))
-                        {
-                            unsigned long code = 0;
-                            src += 3;   // Skip &#x
-                            while (1)
-                            {
-                                unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
-                                if (digit == 0xFF)
-                                    break;
-                                code = code * 16 + digit;
-                                ++src;
-                            }
-                            insert_coded_character(dest, code);    // Put character in output
-                        }
-                        else
-                        {
-                            unsigned long code = 0;
-                            src += 2;   // Skip &#
-                            while (1)
-                            {
-                                unsigned char digit = internal::lookup_tables<0>::lookup_digits[static_cast<unsigned char>(*src)];
-                                if (digit == 0xFF)
-                                    break;
-                                code = code * 10 + digit;
-                                ++src;
-                            }
-                            insert_coded_character(dest, code);    // Put character in output
-                        }
-                        if (*src == Ch(';'))
-                            ++src;
-                        else
-                            RAPIDXML_PARSE_ERROR("expected ;", src);
-                        continue;
-
-                    // Something else
-                    default:
-                        // Ignore, just copy '&' verbatim
-                        break;
-
-                    }
-                }
-
-                // No replacement, only copy character
-                *dest++ = *src++;
-
-            }
-
-            return dest - dest_start;
-        }
-
-        ///////////////////////////////////////////////////////////////////////
-        // Internal parsing functions
-        
-        // Parse BOM, if any
-        static void parse_bom(Ch *&text)
-        {
-            // UTF-8?
-            if (static_cast<unsigned char>(text[0]) == 0xEF && 
-                static_cast<unsigned char>(text[1]) == 0xBB && 
-                static_cast<unsigned char>(text[2]) == 0xBF)
-            {
-                text += 3;      // Skup utf-8 bom
-            }
-        }
-
-        // Parse XML declaration (<?xml...)
-        static void parse_xml_declaration(Ch *&text)
-        {
-            // Skip until end of declaration
-            while (text[0] != Ch('?') || text[1] != Ch('>'))
-            {
-                if (!text[0])
-                    RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-                ++text;
-            }
-            text += 2;    // Skip '?>'
-        }
-
-        // Parse XML comment (<!--...)
-        static void parse_comment(Ch *&text)
-        {
-            // Skip until end of comment
-            while (text[0] != Ch('-') || text[1] != Ch('-') || text[2] != Ch('>'))
-            {
-                if (!text[0])
-                    RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-                ++text;
-            }
-            text += 3;     // Skip '-->'
-        }
-
-        // Parse DOCTYPE
-        static void parse_doctype(Ch *&text)
-        {
-            // Remember value start
-            Ch *value = text;
-
-            // Skip to >
-            while (*text != Ch('>'))
-            {
-                // Determine character type
-                switch (*text)
-                {
-                
-                // If '[' encountered, scan for matching ending ']' using naive algorithm with depth
-                // This works for all W3C test files except for 2 most wicked
-                case Ch('['):
-                {
-                    ++text;     // Skip '['
-                    int depth = 1;
-                    while (depth > 0)
-                    {
-                        switch (*text)
-                        {
-                            case Ch('['): ++depth; break;
-                            case Ch(']'): --depth; break;
-                            case 0: RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-                        }
-                        ++text;
-                    }
-                    break;
-                }
-                
-                // Error on end of text
-                case Ch('\0'):
-                    RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-                
-                // Other character, skip it
-                default:
-                    ++text;
-
-                }
+                    skip<attribute_value_pred<Ch('"')>>(text);
+                break;
+              }
             }
             
-            text += 1;      // skip '>'
+            // Make sure that end quote is present
+            if (*text != quote)
+                RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+            ++text;     // Skip quote
+
+            // Skip whitespace after attribute value
+            skip<whitespace_pred>(text);
         }
-
-        // Parse PI
-        static void parse_pi(Ch *&text)
-        {
-            // Skip to '?>'
-            while (text[0] != Ch('?') || text[1] != Ch('>'))
-            {
-                if (*text == Ch('\0'))
-                    RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-                ++text;
-            }
-            text += 2;    // Skip '?>'
-        }
-
-        // Parse and append data
-        // Return character that ends data.
-        // This is necessary because this character might have been overwritten by a terminating 0
-        static Ch parse_and_append_data(Ch *&text, Ch *contents_start)
-        {
-            // Backup to contents start if whitespace trimming is disabled
-            text = contents_start;     
-            
-            // Skip until end of data
-            Ch *value = text;
-            skip<text_pred>(text);
-
-            // Return character that ends data
-            return *text;
-        }
-
-        // Parse CDATA
-        static void parse_cdata(Ch *&text)
-        {
-            // Skip until end of cdata
-            while (text[0] != Ch(']') || text[1] != Ch(']') || text[2] != Ch('>'))
-            {
-                if (!text[0])
-                    RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-                ++text;
-            }
-            text += 3;      // Skip ]]>
-        }
-        
-        // Parse element node
-        static void parse_XXX_element(Ch *&text)
-        {
-            // Parse attributes, if any
-            parse_XXX_node_attributes(text);
-
-            // Determine ending type
-            if (*text == Ch('>'))
-            {
-                ++text;
-                parse_node_contents(text, [](Ch *&text) {
-                  // Extract element name
-                  Ch *name = text;
-                  skip<node_name_pred>(text);
-                  if (text == name)
-                      RAPIDXML_PARSE_ERROR("expected element name", text);
-
-                  // Skip whitespace between element name and attributes or >
-                  skip<whitespace_pred>(text);
-
-                  size_t name_size = text - name;
-                  switch (name_size) {
-                    /* TODO: autogenerated code here */
-                    default: {
-                      parse_XXX_element(text);
-                      break;
-                    }
-                  }
-                });
-            }
-            else if (*text == Ch('/'))
-            {
-                ++text;
-                if (*text != Ch('>'))
-                    RAPIDXML_PARSE_ERROR("expected >", text);
-                ++text;
-            }
-            else
-                RAPIDXML_PARSE_ERROR("expected >", text);
-        }
-
-        using parse_function = void (*)(Ch *&);
-
-        // Parse contents of the node - children, data etc.
-        static void parse_node_contents(Ch *&text, parse_function parse_element_function)
-        {
-            // For all children and text
-            while (1)
-            {
-                // Skip whitespace between > and node contents
-                Ch *contents_start = text;      // Store start of node contents before whitespace is skipped
-                skip<whitespace_pred>(text);
-                std::remove_const_t<Ch> next_char = *text;
-
-            // After data nodes, instead of continuing the loop, control jumps here.
-            // This is because zero termination inside parse_and_append_data() function
-            // would wreak havoc with the above code.
-            // Also, skipping whitespace after data nodes is unnecessary.
-            after_data_node:    
-                
-                // Determine what comes next: node closing, child node, data node, or 0?
-                switch (next_char)
-                {
-                
-                // Node closing or child node
-                case Ch('<'):
-                    if (text[1] == Ch('/'))
-                    {
-                        // Node closing
-                        text += 2;      // Skip '</'
-                        // No validation, just skip name
-                        skip<node_name_pred>(text);
-                        // Skip remaining whitespace after node name
-                        skip<whitespace_pred>(text);
-                        if (*text != Ch('>'))
-                            RAPIDXML_PARSE_ERROR("expected >", text);
-                        ++text;     // Skip '>'
-                        return;     // Node closed, finished parsing contents
-                    }
-                    else
-                    {
-                        // Child node
-                        ++text;     // Skip '<'
-
-                        // BEGIN INLINING parse_node
-                        // Parse proper node type
-                        switch (text[0])
-                        {
-
-                        // <...
-                        default: 
-                            // Parse and append element node
-                            parse_element_function(text);
-                            continue;
-
-                        // <?...
-                        case Ch('?'): 
-                            ++text;     // Skip ?
-                            if ((text[0] == Ch('x') || text[0] == Ch('X')) &&
-                                (text[1] == Ch('m') || text[1] == Ch('M')) && 
-                                (text[2] == Ch('l') || text[2] == Ch('L')) &&
-                                whitespace_pred::test(text[3]))
-                            {
-                                // '<?xml ' - xml declaration
-                                text += 4;      // Skip 'xml '
-                                parse_xml_declaration(text);
-                                continue;
-                            }
-                            else
-                            {
-                                // Parse PI
-                                parse_pi(text);
-                                continue;
-                            }
-
-                        // <!...
-                        case Ch('!'): 
-
-                            // Parse proper subset of <! node
-                            switch (text[1])    
-                            {
-
-                            // <!-
-                            case Ch('-'):
-                                if (text[2] == Ch('-'))
-                                {
-                                    // '<!--' - xml comment
-                                    text += 3;     // Skip '!--'
-                                    parse_comment(text);
-                                    continue;
-                                }
-                                break;
-
-                            // <![
-                            case Ch('['):
-                                if (text[2] == Ch('C') && text[3] == Ch('D') && text[4] == Ch('A') && 
-                                    text[5] == Ch('T') && text[6] == Ch('A') && text[7] == Ch('['))
-                                {
-                                    // '<![CDATA[' - cdata
-                                    text += 8;     // Skip '![CDATA['
-                                    parse_cdata(text);
-                                    continue;
-                                }
-                                break;
-
-                            // <!D
-                            case Ch('D'):
-                                if (text[2] == Ch('O') && text[3] == Ch('C') && text[4] == Ch('T') && 
-                                    text[5] == Ch('Y') && text[6] == Ch('P') && text[7] == Ch('E') && 
-                                    whitespace_pred::test(text[8]))
-                                {
-                                    // '<!DOCTYPE ' - doctype
-                                    text += 9;      // skip '!DOCTYPE '
-                                    parse_doctype(text);
-                                    continue;
-                                }
-
-                            }   // switch
-
-                            // Attempt to skip other, unrecognized node types starting with <!
-                            ++text;     // Skip !
-                            while (*text != Ch('>'))
-                            {
-                                if (*text == 0)
-                                    RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-                                ++text;
-                            }
-                            ++text;     // Skip '>'
-                            continue;   // No node recognized
-
-                        }
-                        // END INLINING parse_node
-                    }
-                    break;
-
-                // End of data - error
-                case Ch('\0'):
-                    RAPIDXML_PARSE_ERROR("unexpected end of data", text);
-
-                // Data node
-                default:
-                    next_char = parse_and_append_data(text, contents_start);
-                    goto after_data_node;   // Bypass regular processing after data nodes
-
-                }
-            }
-        }
-        
-        // Parse XML attributes of the node
-        static void parse_XXX_node_attributes(Ch *&text)
-        {
-            // For all attributes 
-            while (attribute_name_pred::test(*text))
-            {
-                // Extract attribute name
-                Ch *name = text;
-                ++text;     // Skip first character of attribute name
-                skip<attribute_name_pred>(text);
-                size_t attribute_size = text - name;
-
-                // Skip whitespace after attribute name
-                skip<whitespace_pred>(text);
-
-                // Skip =
-                if (*text != Ch('='))
-                    RAPIDXML_PARSE_ERROR("expected =", text);
-                ++text;
-
-                // Skip whitespace after =
-                skip<whitespace_pred>(text);
-
-                // Skip quote and remember if it was ' or "
-                Ch quote = *text;
-                if (quote != Ch('\'') && quote != Ch('"'))
-                    RAPIDXML_PARSE_ERROR("expected ' or \"", text);
-                ++text;
-
-                // Extract attribute value
-                switch (attribute_size) {
-                  /* TODO autogenerated code here */
-                  default: {
-                    if (quote == Ch('\''))
-                        skip<attribute_value_pred<Ch('\'')>>(text);
-                    else
-                        skip<attribute_value_pred<Ch('"')>>(text);
-                    break;
-                  }
-                }
-                
-                // Make sure that end quote is present
-                if (*text != quote)
-                    RAPIDXML_PARSE_ERROR("expected ' or \"", text);
-                ++text;     // Skip quote
-
-                // Skip whitespace after attribute value
-                skip<whitespace_pred>(text);
-            }
-        }
-
-    };
+    }
 
     //! \cond internal
     namespace internal
