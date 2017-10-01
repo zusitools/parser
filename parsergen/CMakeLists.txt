@@ -4,4 +4,5 @@ project(parsergen)
 
 add_executable(parsergen parsergen.cpp)
 set_property(TARGET parsergen PROPERTY CXX_STANDARD 17)
-target_link_libraries(parsergen pugixml)
+set_property(TARGET parsergen PROPERTY CXX_STANDARD_REQUIRED TRUE)
+target_link_libraries(parsergen pugixml stdc++fs)
