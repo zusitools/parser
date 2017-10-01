@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace fs = std::experimental::filesystem;
@@ -34,6 +35,7 @@ struct Child {
 };
 
 struct ElementType {
+  std::string base;
   std::vector<Attribute> attributes;
   std::vector<Child> children;
 };
@@ -81,32 +83,54 @@ class ParserGenerator {
   }
 
   void GenerateTypeDefinitions() {
-    for (auto&& [ typeName, elementType ] : m_element_types) {
-      std::cout << "struct " << typeName << " {" << std::endl;
+    // poor man's topological sort
+    std::unordered_set<std::string> done;
+    bool changed;
+    do {
+      changed = false;
 
-      for (const auto& attribute : elementType.attributes) {
-        std::cout << "  ";
-        switch (attribute.type) {
-          case AttributeType::Int32: std::cout << "int32_t"; break;
-          case AttributeType::Int64: std::cout << "int64_t"; break;
-          case AttributeType::Boolean: std::cout << "bool"; break;
-          case AttributeType::String: std::cout << "std::string"; break;
-          case AttributeType::Float: std::cout << "float"; break;
-          case AttributeType::DateTime: std::cout << "std::string"; break;  // TODO
-          case AttributeType::HexInt32: std::cout << "int32_t"; break;
+      for (auto&& [ typeName, elementType ] : m_element_types) {
+        if (done.find(typeName) != std::end(done) || (elementType.base.size() > 0 && done.find(elementType.base) == std::end(done))) {
+          continue;
         }
-        std::cout << " " << attribute.name << ";" << std::endl;
-      }
 
-      for (const auto& child : elementType.children) {
-        if (child.multiple) {
-          std::cout << "  std::vector<std::unique_ptr<struct " << child.type << ">> children_" << child.name << ";" << std::endl;
-        } else {
-          std::cout << "  std::unique_ptr<struct " << child.type << "> " << child.name << ";" << std::endl;
+        done.insert(typeName);
+        changed = true;
+
+        std::cout << "struct " << typeName;
+        if (elementType.base.size() > 0) {
+          std::cout << " : " << elementType.base;
         }
-      }
+        std::cout << " {" << std::endl;
 
-      std::cout << "};" << std::endl;
+        for (const auto& attribute : elementType.attributes) {
+          std::cout << "  ";
+          switch (attribute.type) {
+            case AttributeType::Int32: std::cout << "int32_t"; break;
+            case AttributeType::Int64: std::cout << "int64_t"; break;
+            case AttributeType::Boolean: std::cout << "bool"; break;
+            case AttributeType::String: std::cout << "std::string"; break;
+            case AttributeType::Float: std::cout << "float"; break;
+            case AttributeType::DateTime: std::cout << "std::string"; break;  // TODO
+            case AttributeType::HexInt32: std::cout << "int32_t"; break;
+          }
+          std::cout << " " << attribute.name << ";" << std::endl;
+        }
+
+        for (const auto& child : elementType.children) {
+          if (child.multiple) {
+            std::cout << "  std::vector<std::unique_ptr<struct " << child.type << ">> children_" << child.name << ";" << std::endl;
+          } else {
+            std::cout << "  std::unique_ptr<struct " << child.type << "> " << child.name << ";" << std::endl;
+          }
+        }
+
+        std::cout << "};" << std::endl;
+      }
+    } while (changed);
+
+    if (done.size() != m_element_types.size()) {
+      std::cerr << "Circular type dependency" << std::endl;
     }
   }
 
@@ -149,6 +173,12 @@ class ParserGenerator {
     }
 
     FindChildTypes(&elementType, complexTypeNode);
+
+    auto extension = complexTypeNode.child("xs:extension");
+    if (extension) {
+      elementType.base = extension.attribute("base").as_string();
+      complexTypeNode = extension;
+    }
 
     for (const auto& child : complexTypeNode.children()) {
       if (child.name() != std::string("xs:attribute")) {
