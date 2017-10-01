@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:simpleType name="boolean">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="Dateiverknuepfung">
+    <xs:attribute name="Dateiname" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="de">
+          Dateipfade sind entweder
+          - Pfade relativ zum Zusi-Datenverzeichnis (RollingStock\Deutschland\Lok.ls3), wobei ein führender Backslash erlaubt ist und ignoriert wird, oder
+          - wenn sie keinen Backslash enthalten, Dateien im selben Verzeichnis wie die Datei, in der der Pfad steht.
+          Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenverzeichnis liegen, nicht referenziert werden.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="NurInfo" type="boolean"/>
+  </xs:complexType>
+  <xs:complexType name="Vec2">
+    <xs:attribute name="X" type="xs:float"/>
+    <xs:attribute name="Y" type="xs:float"/>
+  </xs:complexType>
+  <xs:complexType name="Vec3">
+    <xs:attribute name="X" type="xs:float"/>
+    <xs:attribute name="Y" type="xs:float"/>
+    <xs:attribute name="Z" type="xs:float"/>
+  </xs:complexType>
+  <xs:complexType name="Quaternion">
+    <xs:attribute name="W" type="xs:float"/>
+    <xs:attribute name="X" type="xs:float"/>
+    <xs:attribute name="Y" type="xs:float"/>
+    <xs:attribute name="Z" type="xs:float"/>
+  </xs:complexType>
+  <xs:element name="UTM">
+    <xs:complexType>
+      <xs:attribute name="UTM_NS" use="required" type="xs:int"/>
+      <xs:attribute name="UTM_WE" use="required" type="xs:int"/>
+      <xs:attribute name="UTM_Zone" use="required" type="xs:int"/>
+      <xs:attribute name="UTM_Zone2" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Huellkurve">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="PunktXYZ" type="Vec3" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Ereignis">
+    <xs:complexType>
+      <xs:attribute name="Beschr" type="xs:string"/>
+      <xs:attribute name="Er" type="xs:int"/>
+      <xs:attribute name="Wert" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Sound">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+      </xs:all>
+      <xs:attribute name="Autostart" type="boolean"/>
+      <xs:attribute name="GeschwAendern" type="boolean"/>
+      <xs:attribute name="Lautstaerke" type="xs:float"/>
+      <xs:attribute name="Loop" type="boolean"/>
+      <xs:attribute name="MaxRadius" type="xs:float"/>
+      <xs:attribute name="MinRadius" type="xs:float"/>
+      <xs:attribute name="PosAnlauf" type="xs:int"/>
+      <xs:attribute name="PosAuslauf" type="xs:int"/>
+      <xs:attribute name="dreiD" type="boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Abhaengigkeit">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="Kennfeld"/>
+      </xs:all>
+      <xs:attribute name="LautstaerkeAbh" type="boolean"/>
+      <xs:attribute name="PhysikGroesse" type="xs:int"/>
+      <xs:attribute name="SoundGeschwAbh" type="boolean"/>
+      <xs:attribute name="SoundOperator" type="xs:int"/>
+      <xs:attribute name="Trigger" type="xs:int"/>
+      <xs:attribute name="TriggerGrenze" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Kennfeld">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="Pkt"/>
+        <xs:element ref="Stufe"/>
+      </xs:all>
+      <xs:attribute name="Beschreibung" type="xs:string"/>
+      <xs:attribute name="xText" type="xs:string"/>
+      <xs:attribute name="yText" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="SoundMitAbhaengigkeit">
+    <xs:sequence>
+      <xs:element ref="Sound"/>
+      <xs:element ref="Abhaengigkeit"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

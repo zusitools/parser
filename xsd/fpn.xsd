@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="Fahrplan">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="BefehlsKonfiguration" type="Dateiverknuepfung" maxOccurs="1"/>
+        <xs:element name="Begruessungsdatei" type="Dateiverknuepfung" maxOccurs="1"/>
+        <xs:element name="Zug" type="FahrplanZugVerknuepfung" maxOccurs="unbounded"/>
+        <xs:element ref="StrModul" maxOccurs="unbounded"/>
+        <xs:element ref="UTM" maxOccurs="1"/>
+      </xs:all>
+      <xs:attribute name="AnfangsZeit" type="dateTime"/>
+      <xs:attribute name="Zeitmodus" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="FahrplanZugVerknuepfung">
+    <xs:all>
+      <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="StrModul">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="p" type="Vec3" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="phi" type="Vec3" minOccurs="0" maxOccurs="1"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="Zug">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+        <xs:element name="BuchfahrplanRohDatei" type="Dateiverknuepfung"/>
+        <xs:element name="BuchfahrplanBMPDatei" type="Dateiverknuepfung"/>
+        <xs:element name="Anfangsbefehl" type="Dateiverknuepfung"/>
+        <xs:element ref="Aufgleisreferenz"/>
+        <xs:element ref="FahrplanEintrag"/>
+        <xs:element ref="FahrzeugVarianten"/>
+      </xs:all>
+      <xs:attribute name="Gattung" type="xs:string"/>
+      <xs:attribute name="Nummer" type="xs:string"/>
+      <xs:attribute name="Zuglauf" type="xs:string"/>
+      <xs:attribute name="BRAngabe" type="xs:string"/>
+      <xs:attribute name="Prio" type="xs:int"/>
+      <xs:attribute name="Standortmodus" type="xs:int"/>
+      <xs:attribute name="StartVorschubweg" type="xs:int"/>
+      <xs:attribute name="Bremsstellung" type="xs:int"/>
+      <xs:attribute name="EnergieVorgabe" type="xs:float"/>
+      <xs:attribute name="spAnfang" type="xs:float"/>
+      <xs:attribute name="MBrh" type="xs:float"/>
+      <xs:attribute name="spZugNiedriger" type="xs:float"/>
+      <xs:attribute name="KeineVorplanKorrektur" type="boolean"/>
+      <xs:attribute name="Dekozug" type="boolean"/>
+      <xs:attribute name="LODzug" type="xs:int"/>
+      <xs:attribute name="ReisendenDichte" type="xs:float"/>
+      <xs:attribute name="FahrplanGruppe" type="xs:string"/>
+      <xs:attribute name="Rekursionstiefe" type="xs:int"/>
+      <xs:attribute name="ZugsicherungStartmodus" type="xs:int"/>
+      <xs:attribute name="FahrstrName" type="xs:string"/>
+      <xs:attribute name="Zugtyp" type="xs:int"/>
+      <xs:attribute name="BuchfahrplanEinfach" type="boolean"/>
+      <xs:attribute name="Buchfahrplandll" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Aufgleisreferenz">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="ReferenzNr" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrplanEintrag">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="FahrplanSignalEintrag"/>
+        <xs:element ref="FahrplanFahrstrasseEintrag"/>
+        <xs:element name="FahrplanVorgangEreignisse" type="FahrplanVorgang"/>
+        <xs:element name="FahrplanVorgangFahrstrasse" type="FahrplanVorgang"/>
+      </xs:all>
+      <xs:attribute name="Abf" type="dateTime"/>
+      <xs:attribute name="Ank" type="dateTime"/>
+      <xs:attribute name="Betrst" type="xs:string"/>
+      <xs:attribute name="ErsatzsignalzeilePlus1" type="xs:int"/>
+      <xs:attribute name="FplEintrag" type="xs:int"/>
+      <xs:attribute name="FzgVerbandAktion" type="xs:int"/>
+      <xs:attribute name="FzgVerbandAktionWendesignal" type="boolean"/>
+      <xs:attribute name="FzgVerbandWendeSignalabstand" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrplanSignalEintrag">
+    <xs:complexType>
+      <xs:attribute name="FahrplanSignal" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrplanFahrstrasseEintrag">
+    <xs:complexType>
+      <xs:attribute name="FahrplanFahrstrasse" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="FahrplanVorgang">
+    <xs:all>
+      <xs:element name="AbhAbhaengigkeit" type="FahrplanVorgangAbhaengigkeit" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:all>
+    <xs:attribute name="Beschreibung" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="FahrplanVorgangAbhaengigkeit">
+    <xs:attribute name="AbhBedingung" type="xs:int"/>
+    <xs:attribute name="AbhOperator" type="xs:int"/>
+    <xs:attribute name="AbhParameter" type="xs:float"/>
+  </xs:complexType>
+  <xs:element name="FahrzeugVarianten">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="FahrzeugInfo"/>
+        <xs:element ref="FahrzeugVarianten"/>
+      </xs:all>
+      <xs:attribute name="Bezeichnung" type="xs:string"/>
+      <xs:attribute name="FzgPosition" type="xs:int"/>
+      <xs:attribute name="PerZufallUebernehmen" type="boolean"/>
+      <xs:attribute name="ZufallsWert" type="xs:float"/>
+      <xs:attribute name="spZugNiedriger" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrzeugInfo">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="Bremsstellung" type="xs:int"/>
+      <xs:attribute name="DotraModus" type="xs:int"/>
+      <xs:attribute name="EigeneBremsstellung" type="boolean"/>
+      <xs:attribute name="EigeneZugart" type="boolean"/>
+      <xs:attribute name="FahrzeugZusatzinfo" type="xs:string"/>
+      <xs:attribute name="Gedreht" type="boolean"/>
+      <xs:attribute name="IDHaupt" type="xs:int"/>
+      <xs:attribute name="IDNeben" type="xs:int"/>
+      <xs:attribute name="SASchaltung" type="xs:int"/>
+      <xs:attribute name="Tuerignorieren" type="boolean"/>
+      <xs:attribute name="Zugart" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

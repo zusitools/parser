@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="DateiInfo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+      <xs:attribute name="DateiInfoAdminNoetig" type="boolean"/>
+      <xs:attribute name="DateiInfoDateiArt" type="xs:int"/>
+      <xs:attribute name="DateiInfoDateibedingung" type="xs:string"/>
+      <xs:attribute name="DateiInfoVersion" type="xs:string"/>
+      <xs:attribute name="DateiInfoVersionAlt" type="xs:string"/>
+      <xs:attribute name="Datum" type="dateTime"/>
+      <xs:attribute name="Groesse" type="xs:int"/>
+      <xs:attribute name="Hashwert" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Verschieben">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="AlterName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="NeuerName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="BasisPfad" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NurVerschieben">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="AlterName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="NeuerName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NeuerLink">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="AlterName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="NeuerName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="BasisPfad" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Loeschen">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

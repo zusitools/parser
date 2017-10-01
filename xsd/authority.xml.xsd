@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="authority">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="Zuordnung"/>
+        <xs:element name="AbfrageFormular" type="Varianten"/>
+        <xs:element name="AbfrageStart" type="Varianten"/>
+        <xs:element name="AbfrageWeg" type="Varianten"/>
+        <xs:element name="AbfrageZiel" type="Varianten"/>
+        <xs:element name="Signalbezeichnungen" type="Varianten"/>
+        <xs:element ref="ZugSchlussLaterne" type="Dateiverknuepfung"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Zuordnung">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:sequence>
+      <xs:attribute name="IDStart" use="required" type="xs:hexBinary"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="Varianten">
+    <xs:sequence>
+      <xs:element ref="Variante"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Variante">
+    <xs:complexType>
+      <xs:attribute name="Text" use="required" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

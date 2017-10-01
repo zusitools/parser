@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="Landschaft">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="Verknuepfte" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="lsb" type="Dateiverknuepfung" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">
+                    Wenn das lsb-Element vorhanden ist, dann liegen die Vertex- und Face-Daten dieser ls3-Datei ausschließlich in Form einer lsb-Datei vor. Die SubSet-Elemente enthalten dann keine Elemente vom Typ Vertex oder Face.
+                    Das Dateiname-Attribut gibt den Pfad zur lsb-Datei an. Es ist "required", weil die Zusi-Dateiverwaltung sonst bei Export- und Prüfvorgängen die lsb-Datei nicht als zur ls3-Datei zugehörig identifiziert. Deshalb ist es auch nicht sinnvoll, das "NurInfo"-Attribut der Datei auf 1 zu setzen.
+                    
+                    Simulator und 3D-Editor ignorieren den Dateinamen und laden zu einer Datei 'Dateiname.ls3' immer die lsb-Datei 'Dateiname.lsb' im selben Verzeichnis.
+                  </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="SubSet" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Ankerpunkt" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="Animation" type="AnimationsDeklaration" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="LandschaftSound" type="SoundMitAbhaengigkeit" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="MeshAnimation" type="AnimationsDefinition" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="VerknAnimation" type="AnimationsDefinition" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Verknuepfte">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+        <xs:element name="p" type="Vec3" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="phi" type="Vec3" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="sk" type="Vec3" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">
+                        Das sk-Element regelt die Skalierung der verknüpften ls3-Datei entlang der drei Achsen.
+                        Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu einem auf 100 % Größe skalierten Objekt. Bei allen anderen Werten wird das Objekt um den angegebenen Faktor skaliert.
+                    </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:all>
+      <xs:attribute name="BoundingR" type="xs:float"/>
+      <xs:attribute name="Flags" type="xs:long"/>
+      <xs:attribute name="GruppenName" type="xs:string"/>
+      <xs:attribute name="Helligkeit" type="xs:float"/>
+      <xs:attribute name="LODbit" type="xs:int"/>
+      <xs:attribute name="SichtbarAb" type="xs:float"/>
+      <xs:attribute name="SichtbarBis" type="xs:float"/>
+      <xs:attribute name="Vorlade" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SubSet">
+    <xs:annotation>
+      <xs:documentation xml:lang="de">
+              Für Farbangaben gibt es aus historischen Gründen zwei Formate. 
+              Die Attribute C, CA und E sind veraltet und wurden durch Cd, Ca und Ce ersetzt.
+              Die Farbe wurde in C, CA und E als String "0AABBGGRR" kodiert.
+              In den neuen Attributen Cd, Ca und Ce wird die Farbe als String "AARRGGBB" kodiert.
+              RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grün-/Blau-/Alpha-Farbanteils als Zahl zwischen 0 und 255.
+          </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="RenderFlags" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Textur" minOccurs="0" maxOccurs="2"/>
+        <xs:element ref="Vertex" minOccurs="0" maxOccurs="65536"/>
+        <xs:element ref="Face" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:all>
+      <xs:attribute name="BeleuchtungTyp" type="xs:int"/>
+      <xs:attribute name="Blink" type="xs:float"/>
+      <xs:attribute name="Ca" type="xs:hexBinary"/>
+      <xs:attribute name="Cd" type="xs:hexBinary"/>
+      <xs:attribute name="Ce" type="xs:hexBinary"/>
+      <xs:attribute name="C" type="xs:hexBinary"/>
+      <xs:attribute name="CA" type="xs:hexBinary"/>
+      <xs:attribute name="E" type="xs:hexBinary"/>
+      <xs:attribute name="DoppeltRendern" type="boolean"/>
+      <xs:attribute name="GruppenName" type="xs:string"/>
+      <xs:attribute name="MeshI" type="xs:int"/>
+      <xs:attribute name="MeshV" type="xs:int"/>
+      <xs:attribute name="MeterProTex" type="xs:float"/>
+      <xs:attribute name="MeterProTex2" type="xs:float"/>
+      <xs:attribute name="NachtEinstellung" type="xs:int"/>
+      <xs:attribute name="Nachtumschaltung" type="xs:float"/>
+      <xs:attribute name="TypGF" type="xs:int"/>
+      <xs:attribute name="TypLs3" type="xs:int"/>
+      <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
+      <xs:attribute name="zBias" type="xs:int"/>
+      <xs:attribute name="zZoom" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Vertex">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="p" type="Vec3"/>
+        <xs:element name="n" type="Vec3"/>
+      </xs:all>
+      <xs:attribute name="U" type="xs:float"/>
+      <xs:attribute name="U2" type="xs:float"/>
+      <xs:attribute name="V" type="xs:float"/>
+      <xs:attribute name="V2" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Face">
+    <xs:complexType>
+      <xs:attribute name="i" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Ankerpunkt">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="p" type="Vec3" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="phi" type="Vec3" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:all>
+      <xs:attribute name="AnkerKat" type="xs:int"/>
+      <xs:attribute name="AnkerTyp" type="xs:int"/>
+      <xs:attribute name="Beschreibung" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AniNrs">
+    <xs:complexType>
+      <xs:attribute name="AniNr" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="AnimationsDeklaration">
+    <xs:all>
+      <xs:element ref="AniNrs" minOccurs="0" maxOccurs="unbounded"/>
+      <!-- ToDo: Sicher? -->
+    </xs:all>
+    <xs:attribute name="AniBeschreibung" type="xs:string"/>
+    <xs:attribute name="AniID" type="xs:int"/>
+    <xs:attribute name="AniLoopen" type="boolean"/>
+  </xs:complexType>
+  <xs:complexType name="AnimationsDefinition">
+    <xs:all>
+      <xs:element ref="AniPunkt" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:all>
+    <xs:attribute name="AniGeschw" type="xs:float"/>
+    <xs:attribute name="AniIndex" type="xs:int"/>
+    <xs:attribute name="AniNr" type="xs:int"/>
+  </xs:complexType>
+  <xs:element name="AniPunkt">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="p" type="Vec3" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="q" type="Quaternion" minOccurs="0" maxOccurs="1"/>
+      </xs:all>
+      <xs:attribute name="AniDimmung" type="xs:float"/>
+      <xs:attribute name="AniZeit" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

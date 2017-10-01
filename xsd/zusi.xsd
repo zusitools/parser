@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:annotation>
+    <xs:documentation xml:lang="de">
+        XML Schema Definition für das ls3-Datenformat des Zugsimulators Zusi 3 von Carsten Hölscher. Elemente und Attribute, die als veraltet gelten und von der Referenzimplementation (Zusi3DEditor.exe) zwar noch gelesen werden können, aber nicht mehr geschrieben werden, sind nicht alle in diesem Schema enthalten.
+
+        Allgemeine Hinweise zu Zusi-XML-Datenformaten:
+
+        Bei Attributen existiert für jeden Typ ein Standardwert, der verwendet wird, wenn das Attribut nicht vorhanden ist. Es folgt daraus, dass das Attribut auch beim Schreiben weggelassen werden kann, wenn sein Wert dem Standardwert entspricht. Zusi macht das konsequent so. Der Standardwert ist
+        - bei Ganzzahlen (integer, integer 64 bit, integer enum, bool) der Wert 0.
+        - bei Gleitkommazahlen (single) der Wert 0.0.
+        - bei Zeichenketten (string) die leere Zeichenkette.
+        - bei Farben (D3DColor) die Farbe R=G=B=A=0.
+        - bei Datums-/Zeitangaben (date,time) der 30. Dezember 1899, 00:00:00.
+
+        Damit sind theoretisch keine Attribute "required". Trotzdem werden Attribute, die in einer sinnvoll benutzbaren Zusi-XML-Datei nicht den Standardwert haben sollten, als benötigt markiert.
+
+        Programmseitig generierte XML-Dateien, die UTF-8-kodiert sind, sollten eine Byte Order Mark (0xEF,0xBB,0xBF) am Anfang enthalten, damit Texteditoren sie zuverlässig als UTF-8 erkennen.
+      </xs:documentation>
+  </xs:annotation>
+  <xs:element name="Info">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="AutorEintrag" minOccurs="1" maxOccurs="unbounded"/>
+        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">
+                Beschreibt Dateien, die von dieser Datei benötigt werden, aber nicht in Knoten vom Typ "Dateiverknuepfung" auftauchen (sondern beispielsweise in Textfeldern von Ereignissen).              </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:all>
+      <xs:attribute name="Beschreibung" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+              Freitext-Beschreibung des Landschaftsobjekts, die von Editoren ggfs. dem Benutzer angezeigt werden kann. Mehrere Zeilen werden mit Semikolon getrennt.
+            </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="DateiKategorie" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+              Frei vergebene Kategorisierung der Datei. Das Attribut wird derzeit normalerweise nicht genutzt. Für einheitliche Vorgaben zur Kategorisierung ist zukünftig die bei Zusi 3 mitgelieferte Datei _Setup/categories.txt vorgesehen.
+            </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="DateiTyp" type="xs:string" use="required"/>
+      <xs:attribute name="EinsatzAb" type="dateTime">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+              EinsatzAb und EinsatzBis können dem Benutzer Hinweise geben, in welcher Epoche das Objekt zeitlich sinnvoll einsetzbar ist.
+            </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="EinsatzBis" type="dateTime">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+              EinsatzAb und EinsatzBis können dem Benutzer Hinweise geben, in welcher Epoche das Objekt zeitlich sinnvoll einsetzbar ist.
+            </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="MinVersion" type="xs:string" use="required" fixed="A.1">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+              MinVersion und Version müssen im aktuellen ls3-Dateiformat immer 'A.1' sein. Das ältere A.0-Dateiformat ist nicht Gegenstand dieser xsd-Datei. A.0 wird seit April 2007 von den Zusi-Editoren nicht mehr neu geschrieben und sollte deshalb nicht mehr in freier Wildbahn vorkommen.
+            </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="ObjektID" type="xs:int">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+              Eine Nummer für das Objekt. Das Attribut wird derzeit normalerweise nicht genutzt. Hier könnte es sein, dass zukünftig eine zentral vorgegebene Nummerierung eingeführt wird.
+            </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="Version" type="xs:string" use="required" fixed="A.1"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AutorEintrag">
+    <xs:annotation>
+      <xs:documentation xml:lang="de">
+            </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="AutorAufwand" type="xs:float">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+                  Der zur Erstellung des Objekts benötigte Zeitaufwand, gemessen in 'Haus-Einheiten'. 1 Haus-Einheit entspricht dem Zeitaufwand zur Erstellung eines durchschnittlichen 3D-Hauses.
+                </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="AutorBeschreibung" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+                  Dient vor allem bei Gemeinschaftsproduktionen der näheren Beschreibung, was genau der Autor zum Objekt beigetragen hat.
+                </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="AutorEmail" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+                  Optionale Angabe einer Mailadresse des Autors.
+                </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="AutorID" type="xs:int" use="required">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+                  Die durch die Firma Hölscher vergebene Autoren-ID. Autor-IDs mit negativen Werten werden an Programme vergeben, die selbstständig ohne großen menschlichen Input Zusi-Inhalte generieren.
+                </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="AutorLizenz" type="xs:int">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+                  Lizenz, unter der das Objekt steht und die die Verteilung der Einnahmen aus der kommerziellen Nutzung der Zusi-Objekte regelt. Es gilt: 0 = Einnahmen an den Autor [Standard], 1 = Einnahmen auf alle anderen Autoren im Pool verteilen, 2 = Einnahmen gehen an Firma Carsten Hölscher Software, 3 = Objekt ist in der Public Domain (Autor verzichtet auf seine Autorenrechte), 4 = Private nicht zur Veröffentlichung vorgesehene Datei, 5 = Kommerzielle Sondernutzung
+                </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="AutorName" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">
+                  Der Name des Autors. Bei Autoren mit AutorenID der Firma Hölscher muss die genaue Schreibweise des AutorNamens mit Firma Hölscher abgestimmt sein, da dort eine Plausibilitätsprüfung stattfindet (= passt die ID zum Namen?)
+                </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

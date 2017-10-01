@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:include schemaLocation="st3.xsd"/>
+  <xs:complexType name="Signalvorlage">
+    <xs:extension base="Signal">
+      <xs:all>
+        <xs:element name="p" type="Vec3"/>
+        <xs:element name="phi" type="Vec3"/>
+        <xs:element ref="SigAssiPosition"/>
+        <xs:element ref="SigAssiCheck" maxOccurs="unbounded"/>
+        <xs:element ref="SigAssiRadio" maxOccurs="unbounded"/>
+        <xs:element ref="SigAssiText" maxOccurs="unbounded"/>
+      </xs:all>
+      <xs:attribute name="SigAssiErgaenzen" type="boolean">
+        <xs:annotation>
+          <xs:documentation lang="de">
+      </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SigAssiGrundZeile" type="xs:int">
+        <xs:annotation>
+          <xs:documentation lang="de">
+      </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SigAssiKeineGrunddaten" type="boolean">
+        <xs:annotation>
+          <xs:documentation lang="de">Wird hinter SigAssiRadio benutzt, wenn Formulare vor der eigentlichen Positionierung des Signals mit SigAssiPosition benutzt werden.
+      </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SigAssiKeineKODiff" type="boolean">
+        <xs:annotation>
+          <xs:documentation lang="de">Wird eingesetzt, wenn das Signal in eine vorhandene Signalmatrix integriert werden soll, aber etwaige durch SigAssiPosition vorgegebene Verschiebungen des Signalstandorts nicht mitmachen soll, sondern auf jeden Fall an den vorgesehenen Koordinaten eingebaut werden soll. Anwendungsfall: Zum Beispiel PZB-Magnete, die unabhängig vom Standort des Hauptsignals (links/rechts vom Gleis) auf jeden Fall an der rechten Schiene positioniert werden sollen.
+      </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:extension>
+  </xs:complexType>
+  <xs:element name="SigAssiPosition">
+    <xs:complexType>
+      <xs:all>
+        <xs:element maxOccurs="unbounded" ref="SigAssiEintrag"/>
+      </xs:all>
+      <xs:attribute name="SigAssiTitel" type="xs:string"/>
+      <xs:attribute name="SigAssiVorbelegung" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SigAssiCheck">
+    <xs:annotation>
+      <xs:documentation xml:lang="de">
+				SigAssiCheck generiert im Formular des Signalassistenten ein Ankreuzfeld. Eine Signaloption kann damit an- und abgewählt werden.
+			</xs:documentation>
+    </xs:annotation>
+    <xs:complexType><xs:all><xs:element maxOccurs="unbounded" ref="SigAssiEintrag"/></xs:all><xs:attribute name="SigAssiPassiv" type="boolean"><xs:annotation><xs:documentation lang="de">
+      </xs:documentation></xs:annotation></xs:attribute><xs:attribute name="SigAssiTitel" type="xs:string"><xs:annotation><xs:documentation lang="de">
+      </xs:documentation></xs:annotation></xs:attribute><xs:attribute name="SigAssiVorbelegung" type="boolean"><xs:annotation><xs:documentation lang="de">
+      </xs:documentation></xs:annotation></xs:attribute>
+				SigAssiPassiv: Die Checkbox wird ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.
+				SigAssiTitel: Hat bei SigAssiCheck anders als bei SigAssiRadio keine Funktion und wird vom 3D-Editor ignoriert.
+				SigAssiVorbelegung: Die Checkbox ist nicht angekreuzt, wenn das Attribut den Wert 0 hat. Sie ist angekreuzt, wenn es den Wert 1 hat.
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SigAssiRadio">
+    <xs:annotation>
+      <xs:documentation xml:lang="de">
+				SigAssiRadio generiert im Formular des Signalassistenten eine Wahlmöglichkeit mit Radiobuttons (genau eine der angebotenen Optionen muss vom Streckenbauer ausgewählt werden)
+				SigAssiPassiv: Die Radiobuttons werden ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.
+				SigAssiTitel: Definiert die Überschrift über den Radiobuttons.
+				SigAssiVorbelegung: Definiert, welcher Radiobutton vorausgewählt ist.
+			</xs:documentation>
+    </xs:annotation>
+    <xs:complexType mixed="true">
+      <xs:all>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="SigAssiEintrag"/>
+      </xs:all>
+      <xs:attribute name="SigAssiPassiv" type="xs:int">
+        <xs:annotation>
+          <xs:documentation lang="de">
+      </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SigAssiTitel" type="xs:string">
+        <xs:annotation>
+          <xs:documentation lang="de">
+      </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SigAssiVorbelegung" type="xs:int">
+        <xs:annotation>
+          <xs:documentation lang="de">
+      </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SigAssiText">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="SigAssiEintrag"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SigAssiEintrag">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="SigAssiBild" type="Dateiverknuepfung">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">Das Element SigAssiBild gibt eine bmp-Datei an, die im Signalassistenten als Vorschaubild für den gewählten SigAssiEintrag angezeigt wird. Der Farbwert des Pixels unten links in der Datei wird immer als Transparenzfarbwert interpretiert.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element maxOccurs="unbounded" ref="SigAssiDateiEintrag"/>
+      </xs:all>
+      <xs:attribute name="SigAssiBezeichnung" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SigAssiDateiEintrag">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+        <xs:element name="p" type="Vec3"/>
+        <xs:element name="phi" type="Vec3"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

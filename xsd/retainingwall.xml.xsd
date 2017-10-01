@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:include schemaLocation="material.xsd"/>
+  <xs:element name="RetainingWall">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Mauer" type="Material"/>
+        <xs:element name="Abschluss" type="Material"/>
+        <xs:element name="AbschlussSenkr" type="Material"/>
+      </xs:sequence>
+      <xs:attribute name="CheckBoxBoeschungEinfach" use="required" type="boolean"/>
+      <xs:attribute name="CheckBoxDEMEinfach" use="required" type="boolean"/>
+      <xs:attribute name="CheckBoxMatUebernehmen" use="required" type="boolean"/>
+      <xs:attribute name="LabeledEditCHAbstand" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHBoeschungHoeheAnf" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHBoeschungHoeheEnde" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHBoeschungNeigung" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHBreite" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHHoehe" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHHoeheAbschluss" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHHoeheAnf" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHHoeheEnde" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHNeigung" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHTexturkanteAbschluss" use="required" type="xs:float"/>
+      <xs:attribute name="RadioButtonAbstOberbau" use="required" type="boolean"/>
+      <xs:attribute name="RadioButtonBoeschungDEM" use="required" type="boolean"/>
+      <xs:attribute name="RadioButtonBoeschungKeine" use="required" type="boolean"/>
+      <xs:attribute name="RadioButtonBoeschungManuell" use="required" type="boolean"/>
+      <xs:attribute name="RadioButtonDEM" use="required" type="boolean"/>
+      <xs:attribute name="RadioButtonHoeheManuell" use="required" type="boolean"/>
+      <xs:attribute name="RadioButtonLageManuell" use="required" type="boolean"/>
+      <xs:attribute name="RadioGroupBauart" use="required" type="boolean"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

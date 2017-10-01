@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:include schemaLocation="material.xsd"/>
+  <xs:element name="root_Material">
+    <xs:complexType>
+      <xs:element name="Material" type="Material"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="Gleisplan">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="HGBilder"/>
+        <xs:element ref="Lageplan"/>
+        <xs:element ref="HoehenProfil" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="HGBilder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Bild"/>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Bild">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:sequence>
+      <xs:attribute name="Sichtbar" type="boolean"/>
+      <xs:attribute name="Transparenz" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Lageplan">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="UTM"/>
+        <xs:element ref="Huellkurve"/>
+        <xs:element ref="DEM"/>
+        <xs:element ref="Gerade"/>
+        <xs:element ref="Klothoide"/>
+        <xs:element ref="Kreisbogen"/>
+        <xs:element ref="Weiche"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DEM">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Weiche">
+    <xs:complexType>
+      <xs:extension base="GleisplanElement">
+        <xs:sequence>
+          <xs:element ref="Elemente"/>
+          <xs:element ref="PunktWinkel"/>
+          <xs:element name="Datei" type="Dateiverknuepfung"/>
+          <xs:element ref="Biegung"/>
+        </xs:sequence>
+        <xs:attribute name="Beschreibung" type="xs:string"/>
+        <xs:attribute name="Signalname" type="xs:string"/>
+        <xs:attribute name="st3Datei" type="xs:string"/>
+      </xs:extension>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Elemente">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="Gerade"/>
+        <xs:element ref="Klothoide"/>
+        <xs:element ref="Kreisbogen"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Biegung">
+    <xs:complexType>
+      <xs:attribute name="BiegeKruemmung" type="xs:float"/>
+      <xs:attribute name="BiegeLaenge" type="xs:float"/>
+      <xs:attribute name="BiegeUeberh" type="xs:float"/>
+      <xs:attribute name="BiegeWinkel" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="HoehenProfil">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="StuetzPkt"/>
+      </xs:sequence>
+      <xs:attribute name="ProfilAbstandHorizontKm" type="xs:float"/>
+      <xs:attribute name="ProfilFarbe" type="xs:hexBinary"/>
+      <xs:attribute name="ProfilGleisElementeZeichnen" type="boolean"/>
+      <xs:attribute name="ProfilHorizont" type="xs:float"/>
+      <xs:attribute name="ProfilName" type="xs:string"/>
+      <xs:attribute name="ProfilNeigungPromille" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StuetzPkt">
+    <xs:complexType>
+      <xs:attribute name="Kategorie" type="xs:string"/>
+      <xs:attribute name="Radius" type="xs:float"/>
+      <xs:attribute name="X" type="xs:float"/>
+      <xs:attribute name="Y" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="GleisplanElement">
+    <xs:sequence>
+      <xs:element ref="PunktWinkel" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="Oberbau" type="xs:string"/>
+    <xs:attribute name="ProfilName" type="xs:string"/>
+    <xs:attribute name="spTrass" type="xs:float"/>
+  </xs:complexType>
+  <xs:complexType name="GleisplanElementPrimitiv">
+    <xs:extension base="GleisplanElement">
+      <xs:attribute name="st2Typ" type="xs:int"/>
+    </xs:extension>
+  </xs:complexType>
+  <xs:element name="Gerade">
+    <xs:complexType>
+      <xs:extension base="GleisplanElementPrimitiv"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Klothoide">
+    <xs:complexType>
+      <xs:extension base="GleisplanElementPrimitiv">
+        <xs:attribute name="KrAnf" type="xs:float"/>
+        <xs:attribute name="L" type="xs:float"/>
+        <xs:attribute name="R" type="xs:float"/>
+        <xs:attribute name="Versatz" type="xs:float"/>
+      </xs:extension>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Kreisbogen">
+    <xs:complexType>
+      <xs:extension base="GleisplanElementPrimitiv">
+        <xs:sequence>
+          <xs:element ref="Punkt"/>
+        </xs:sequence>
+        <xs:attribute name="KKruemmung" type="xs:string"/>
+        <xs:attribute name="WinkelAnf" type="xs:float"/>
+        <xs:attribute name="WinkelLauf" type="xs:float"/>
+        <xs:attribute name="kr" type="xs:float"/>
+      </xs:extension>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PunktWinkel">
+    <xs:complexType>
+      <xs:attribute name="Ueberh" type="xs:float"/>
+      <xs:attribute name="W" type="xs:float"/>
+      <xs:attribute name="X" type="xs:float"/>
+      <xs:attribute name="Y" type="xs:float"/>
+      <xs:attribute name="km" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

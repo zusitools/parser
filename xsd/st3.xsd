@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="Strecke">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">
+              Die zur Strecke gehörende Landschaftsdatei.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="LoeschFahrstrasse" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="HintergrundDatei" type="Dateiverknuepfung" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="BefehlsKonfiguration" type="Dateiverknuepfung" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="Kachelpfad" type="Dateiverknuepfung" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Beschreibung" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="UTM" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Huellkurve" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Skybox" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="SkyDome" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="StreckenStandort" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="ModulDateien" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="ReferenzElemente" type="ReferenzElement" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="StrElement" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Fahrstrasse" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:all>
+      <xs:attribute name="Himmelsmodell" type="xs:int"/>
+      <xs:attribute name="RekTiefe" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LoeschFahrstrasse">
+    <xs:complexType>
+      <xs:attribute name="FahrstrName" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Beschreibung">
+    <xs:complexType>
+      <xs:attribute name="Beschreibung" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Skybox">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Skybox0" type="Dateiverknuepfung"/>
+        <xs:element name="Skybox1" type="Dateiverknuepfung"/>
+        <xs:element name="Skybox2" type="Dateiverknuepfung"/>
+        <xs:element name="Skybox3" type="Dateiverknuepfung"/>
+        <xs:element name="Skybox4" type="Dateiverknuepfung"/>
+        <xs:element name="Skybox5" type="Dateiverknuepfung"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SkyDome">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="HimmelTex" type="Dateiverknuepfung"/>
+        <xs:element name="SonneTex" type="Dateiverknuepfung"/>
+        <xs:element name="SonneHorizontTex" type="Dateiverknuepfung"/>
+        <xs:element name="MondTex" type="Dateiverknuepfung"/>
+        <xs:element name="SternTex" type="Dateiverknuepfung"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StreckenStandort">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="p" type="Vec3"/>
+        <xs:element name="lookat" type="Vec3"/>
+        <xs:element name="up" type="Vec3"/>
+      </xs:all>
+      <xs:attribute name="StrInfo" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ModulDateien">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="ReferenzElement">
+    <xs:attribute name="Info" type="xs:string"/>
+    <xs:attribute name="RefTyp" type="xs:int"/>
+    <xs:attribute name="ReferenzNr" type="xs:int"/>
+    <xs:attribute name="StrElement" type="xs:int"/>
+    <xs:attribute name="StrNorm" type="boolean"/>
+  </xs:complexType>
+  <xs:element name="StrElement">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="g" type="Vec3"/>
+        <xs:element name="b" type="Vec3"/>
+        <xs:element name="InfoNormRichtung" type="StreckenelementRichtungsInfo"/>
+        <xs:element name="InfoGegenRichtung" type="StreckenelementRichtungsInfo"/>
+        <xs:element name="NachNorm" type="NachfolgerSelbesModul"/>
+        <xs:element name="NachGegen" type="NachfolgerSelbesModul"/>
+        <xs:element name="NachNormModul" type="NachfolgerAnderesModul"/>
+        <xs:element name="NachGegenModul" type="NachfolgerAnderesModul"/>
+      </xs:all>
+      <xs:attribute name="Anschluss" type="xs:int"/>
+      <xs:attribute name="Drahthoehe" type="xs:float"/>
+      <xs:attribute name="Fkt" type="xs:int"/>
+      <xs:attribute name="Nr" type="xs:int"/>
+      <xs:attribute name="Oberbau" type="xs:string"/>
+      <xs:attribute name="Ueberh" type="xs:float"/>
+      <xs:attribute name="Volt" type="xs:int"/>
+      <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
+      <xs:attribute name="kr" type="xs:float"/>
+      <xs:attribute name="spTrass" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="StreckenelementRichtungsInfo">
+    <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="Ereignis"/>
+      <xs:element ref="Signal"/>
+    </xs:all>
+    <xs:attribute name="KoppelWeicheNorm" type="boolean"/>
+    <xs:attribute name="KoppelWeicheNr" type="xs:int"/>
+    <xs:attribute name="Reg" type="xs:int"/>
+    <xs:attribute name="km" type="xs:float"/>
+    <xs:attribute name="pos" type="boolean"/>
+    <xs:attribute name="vMax" type="xs:float"/>
+  </xs:complexType>
+  <xs:complexType name="NachfolgerSelbesModul">
+    <xs:attribute name="Nr" type="xs:int"/>
+  </xs:complexType>
+  <xs:complexType name="NachfolgerAnderesModul">
+    <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Datei" type="Dateiverknuepfung"/>
+    </xs:all>
+    <xs:attribute name="Nr" type="xs:int"/>
+  </xs:complexType>
+  <xs:element name="Fahrstrasse">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="FahrstrStart"/>
+        <xs:element ref="FahrstrZiel"/>
+        <xs:element ref="FahrstrRegister"/>
+        <xs:element ref="FahrstrAufloesung"/>
+        <xs:element ref="FahrstrTeilaufloesung"/>
+        <xs:element ref="FahrstrSigHaltfall"/>
+        <xs:element ref="FahrstrWeiche"/>
+        <xs:element ref="FahrstrSignal"/>
+        <xs:element ref="FahrstrVSignal"/>
+      </xs:all>
+      <xs:attribute name="FahrstrName" type="xs:string"/>
+      <xs:attribute name="FahrstrStrecke" type="xs:string"/>
+      <xs:attribute name="FahrstrTyp" type="xs:string"/>
+      <xs:attribute name="Laenge" type="xs:float"/>
+      <xs:attribute name="RglGgl" type="xs:int"/>
+      <xs:attribute name="ZufallsWert" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrstrStart">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="Ref" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrstrZiel">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="Ref" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrstrRegister">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="Ref" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrstrAufloesung">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="Ref" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrstrTeilaufloesung">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="Ref" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrstrSigHaltfall">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="Ref" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrstrWeiche">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="FahrstrWeichenlage" type="xs:int"/>
+      <xs:attribute name="Ref" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrstrSignal">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="FahrstrSignalErsatzsignal" type="boolean"/>
+      <xs:attribute name="FahrstrSignalZeile" type="xs:int"/>
+      <xs:attribute name="Ref" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrstrVSignal">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="FahrstrSignalSpalte" type="xs:int"/>
+      <xs:attribute name="Ref" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Signal">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="p" type="Vec3"/>
+        <xs:element name="phi" type="Vec3"/>
+        <xs:element ref="KoppelSignal"/>
+        <xs:element ref="SignalFrame"/>
+        <xs:element ref="HsigBegriff"/>
+        <xs:element ref="VsigBegriff"/>
+        <xs:element ref="MatrixEintrag"/>
+        <xs:element ref="Ersatzsignal"/>
+      </xs:all>
+      <xs:attribute name="BoundingR" type="xs:int"/>
+      <xs:attribute name="NameBetriebsstelle" type="xs:string"/>
+      <xs:attribute name="SigAssiErgaenzen" type="boolean"/>
+      <xs:attribute name="SigAssiGrundZeile" type="xs:int"/>
+      <xs:attribute name="SigAssiKeineGrunddaten" type="boolean"/>
+      <xs:attribute name="SigAssiKeineKODiff" type="boolean"/>
+      <xs:attribute name="SignalFlags" type="xs:int"/>
+      <xs:attribute name="SignalTyp" type="xs:int"/>
+      <xs:attribute name="Signalname" type="xs:string"/>
+      <xs:attribute name="Stellwerk" type="xs:string"/>
+      <xs:attribute name="WeichenGrundstellung" type="xs:int"/>
+      <xs:attribute name="Weichenbauart" type="xs:int"/>
+      <xs:attribute name="ZufallsWert" type="xs:float"/>
+      <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="KoppelSignal">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="ReferenzNr" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SignalFrame">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="p" type="Vec3" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="phi" type="Vec3" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:all>
+      <xs:attribute name="WeichenbaugruppeBeschreibung" type="xs:string"/>
+      <xs:attribute name="WeichenbaugruppeIndex" type="xs:int"/>
+      <xs:attribute name="WeichenbaugruppeNr" type="xs:int"/>
+      <xs:attribute name="WeichenbaugruppePos0" type="boolean"/>
+      <xs:attribute name="WeichenbaugruppePos1" type="boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="HsigBegriff">
+    <xs:complexType>
+      <xs:attribute name="FahrstrTyp" type="xs:int"/>
+      <xs:attribute name="HsigGeschw" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VsigBegriff">
+    <xs:complexType>
+      <xs:attribute name="VsigGeschw" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Ersatzsignal">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="MatrixEintrag"/>
+      </xs:all>
+      <xs:attribute name="ErsatzsigBezeichnung" type="xs:string"/>
+      <xs:attribute name="ErsatzsigID" type="xs:hexBinary"/>
+      <xs:attribute name="SigAssiErgaenzen" type="boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="MatrixEintrag">
+    <xs:complexType>
+      <xs:all minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="Ereignis"/>
+      </xs:all>
+      <xs:attribute name="MatrixGeschw" type="xs:float"/>
+      <xs:attribute name="SignalID" type="xs:int"/>
+      <xs:attribute name="Signalbild" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
