@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
-
   <xs:include schemaLocation="authority.xml.xsd"/>
   <xs:include schemaLocation="font.xml.xsd"/>
   <xs:include schemaLocation="forest.xml.xsd"/>
@@ -24,38 +23,36 @@
   <xs:include schemaLocation="travellers.xml.xsd"/>
   <xs:include schemaLocation="trn.xsd"/>
   <xs:include schemaLocation="zusi2files.xml.xsd"/>
-
   <xs:include schemaLocation="zusi.xsd"/>
-
   <xs:element name="Zusi">
     <xs:complexType>
-      <xs:all>
+      <!--<xs:all>
         <xs:element ref="Info" minOccurs="1" maxOccurs="1"/>
-        <xs:choice minOccurs="1" maxOccurs="1">
-          <xs:element ref="authority"/>
-          <xs:element ref="Font"/>
-          <xs:element ref="Forest"/>
-          <xs:element ref="Fahrplan"/>
-          <xs:element ref="Fuehrerstand"/>
-          <xs:element ref="GPA"/>
-          <xs:element ref="levelcrossing"/>
-          <xs:element ref="Landschaft"/>
-          <xs:element name="Material" type="root_Material"/>
-          <xs:element ref="Platform"/>
-          <xs:element ref="RetainingWall"/>
-          <xs:element ref="Fahrzeug"/>
-          <xs:element ref="VerwaltungsSkript"/>
-          <xs:element ref="Formkurve"/>
-          <xs:element ref="Signal"/>
-          <xs:element ref="Signals"/>
-          <xs:element ref="Gleisplan"/>
-          <xs:element ref="Strecke"/>
-          <xs:element ref="Buchfahrplan"/>
-          <xs:element ref="travellers"/>
-          <xs:element ref="Zug"/>
-          <xs:element name="Zusi2Tausch" type="root_Zusi2Tausch"/>
-        </xs:choice>
-      </xs:all>
+      </xs:all>-->
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element ref="authority"/>
+        <xs:element ref="Font"/>
+        <xs:element ref="Forest"/>
+        <xs:element ref="Fahrplan"/>
+        <xs:element ref="Fuehrerstand"/>
+        <xs:element ref="GPA"/>
+        <xs:element ref="levelcrossing"/>
+        <xs:element ref="Landschaft"/>
+        <xs:element name="Material" type="root_Material"/>
+        <xs:element ref="Platform"/>
+        <xs:element ref="RetainingWall"/>
+        <xs:element ref="Fahrzeug"/>
+        <xs:element ref="VerwaltungsScript"/>
+        <xs:element ref="Formkurve"/>
+        <xs:element name="Signal" type="Signalvorlage"/>
+        <xs:element ref="Signals"/>
+        <xs:element ref="Gleisplan"/>
+        <xs:element ref="Strecke"/>
+        <xs:element ref="Buchfahrplan"/>
+        <xs:element ref="travellers"/>
+        <xs:element ref="Zug"/>
+        <xs:element name="Zusi2Tausch" type="root_Zusi2Tausch"/>
+      </xs:choice>
     </xs:complexType>
   </xs:element>
 </xs:schema>

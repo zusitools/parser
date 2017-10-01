@@ -6,6 +6,11 @@
       <xs:maxInclusive value="1"/>
     </xs:restriction>
   </xs:simpleType>
+  <xs:simpleType name="dateTime">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
   <xs:complexType name="Dateiverknuepfung">
     <xs:attribute name="Dateiname" type="xs:string">
       <xs:annotation>
@@ -56,22 +61,20 @@
       <xs:attribute name="Wert" type="xs:float"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="Sound">
-    <xs:complexType>
-      <xs:all>
-        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
-      </xs:all>
-      <xs:attribute name="Autostart" type="boolean"/>
-      <xs:attribute name="GeschwAendern" type="boolean"/>
-      <xs:attribute name="Lautstaerke" type="xs:float"/>
-      <xs:attribute name="Loop" type="boolean"/>
-      <xs:attribute name="MaxRadius" type="xs:float"/>
-      <xs:attribute name="MinRadius" type="xs:float"/>
-      <xs:attribute name="PosAnlauf" type="xs:int"/>
-      <xs:attribute name="PosAuslauf" type="xs:int"/>
-      <xs:attribute name="dreiD" type="boolean"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="Sound">
+    <xs:all>
+      <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
+    </xs:all>
+    <xs:attribute name="Autostart" type="boolean"/>
+    <xs:attribute name="GeschwAendern" type="boolean"/>
+    <xs:attribute name="Lautstaerke" type="xs:float"/>
+    <xs:attribute name="Loop" type="boolean"/>
+    <xs:attribute name="MaxRadius" type="xs:float"/>
+    <xs:attribute name="MinRadius" type="xs:float"/>
+    <xs:attribute name="PosAnlauf" type="xs:int"/>
+    <xs:attribute name="PosAuslauf" type="xs:int"/>
+    <xs:attribute name="dreiD" type="boolean"/>
+  </xs:complexType>
   <xs:element name="Abhaengigkeit">
     <xs:complexType>
       <xs:all>
@@ -94,9 +97,20 @@
     <xs:attribute name="xText" type="xs:string"/>
     <xs:attribute name="yText" type="xs:string"/>
   </xs:complexType>
+  <xs:element name="Pkt">
+    <xs:complexType>
+      <xs:attribute name="PktX" type="xs:float"/>
+      <xs:attribute name="PktY" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Stufe">
+    <xs:complexType>
+      <xs:attribute name="StufenWert" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
   <xs:complexType name="SoundMitAbhaengigkeit">
     <xs:sequence>
-      <xs:element ref="Sound"/>
+      <xs:element name="Sound" type="Sound"/>
       <xs:element ref="Abhaengigkeit"/>
     </xs:sequence>
   </xs:complexType>

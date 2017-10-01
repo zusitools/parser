@@ -49,17 +49,19 @@
   </xs:element>
   <xs:element name="Weiche">
     <xs:complexType>
-      <xs:extension base="GleisplanElement">
-        <xs:sequence>
-          <xs:element ref="Elemente"/>
-          <xs:element ref="PunktWinkel"/>
-          <xs:element name="Datei" type="Dateiverknuepfung"/>
-          <xs:element ref="Biegung"/>
-        </xs:sequence>
-        <xs:attribute name="Beschreibung" type="xs:string"/>
-        <xs:attribute name="Signalname" type="xs:string"/>
-        <xs:attribute name="st3Datei" type="xs:string"/>
-      </xs:extension>
+      <xs:complexContent>
+        <xs:extension base="GleisplanElement">
+          <xs:sequence>
+            <xs:element ref="Elemente"/>
+            <xs:element ref="PunktWinkel"/>
+            <xs:element name="Datei" type="Dateiverknuepfung"/>
+            <xs:element ref="Biegung"/>
+          </xs:sequence>
+          <xs:attribute name="Beschreibung" type="xs:string"/>
+          <xs:attribute name="Signalname" type="xs:string"/>
+          <xs:attribute name="st3Datei" type="xs:string"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="Elemente">
@@ -109,36 +111,44 @@
     <xs:attribute name="spTrass" type="xs:float"/>
   </xs:complexType>
   <xs:complexType name="GleisplanElementPrimitiv">
-    <xs:extension base="GleisplanElement">
-      <xs:attribute name="st2Typ" type="xs:int"/>
-    </xs:extension>
+    <xs:complexContent>
+      <xs:extension base="GleisplanElement">
+        <xs:attribute name="st2Typ" type="xs:int"/>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
   <xs:element name="Gerade">
     <xs:complexType>
-      <xs:extension base="GleisplanElementPrimitiv"/>
+      <xs:complexContent>
+        <xs:extension base="GleisplanElementPrimitiv"/>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="Klothoide">
     <xs:complexType>
-      <xs:extension base="GleisplanElementPrimitiv">
-        <xs:attribute name="KrAnf" type="xs:float"/>
-        <xs:attribute name="L" type="xs:float"/>
-        <xs:attribute name="R" type="xs:float"/>
-        <xs:attribute name="Versatz" type="xs:float"/>
-      </xs:extension>
+      <xs:complexContent>
+        <xs:extension base="GleisplanElementPrimitiv">
+          <xs:attribute name="KrAnf" type="xs:float"/>
+          <xs:attribute name="L" type="xs:float"/>
+          <xs:attribute name="R" type="xs:float"/>
+          <xs:attribute name="Versatz" type="xs:float"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="Kreisbogen">
     <xs:complexType>
-      <xs:extension base="GleisplanElementPrimitiv">
-        <xs:sequence>
-          <xs:element ref="Punkt"/>
-        </xs:sequence>
-        <xs:attribute name="KKruemmung" type="xs:string"/>
-        <xs:attribute name="WinkelAnf" type="xs:float"/>
-        <xs:attribute name="WinkelLauf" type="xs:float"/>
-        <xs:attribute name="kr" type="xs:float"/>
-      </xs:extension>
+      <xs:complexContent>
+        <xs:extension base="GleisplanElementPrimitiv">
+          <xs:sequence>
+            <xs:element name="Punkt" type="Vec2"/>
+          </xs:sequence>
+          <xs:attribute name="KKruemmung" type="xs:string"/>
+          <xs:attribute name="WinkelAnf" type="xs:float"/>
+          <xs:attribute name="WinkelLauf" type="xs:float"/>
+          <xs:attribute name="kr" type="xs:float"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="PunktWinkel">

@@ -3,40 +3,42 @@
   <xs:include schemaLocation="typen.xsd"/>
   <xs:include schemaLocation="st3.xsd"/>
   <xs:complexType name="Signalvorlage">
-    <xs:extension base="Signal">
-      <xs:all>
-        <xs:element name="p" type="Vec3"/>
-        <xs:element name="phi" type="Vec3"/>
-        <xs:element ref="SigAssiPosition"/>
-        <xs:element ref="SigAssiCheck" maxOccurs="unbounded"/>
-        <xs:element ref="SigAssiRadio" maxOccurs="unbounded"/>
-        <xs:element ref="SigAssiText" maxOccurs="unbounded"/>
-      </xs:all>
-      <xs:attribute name="SigAssiErgaenzen" type="boolean">
-        <xs:annotation>
-          <xs:documentation lang="de">
+    <xs:complexContent>
+      <xs:extension base="Signal">
+        <xs:all>
+          <xs:element name="p" type="Vec3"/>
+          <xs:element name="phi" type="Vec3"/>
+          <xs:element ref="SigAssiPosition"/>
+          <xs:element ref="SigAssiCheck" maxOccurs="unbounded"/>
+          <xs:element ref="SigAssiRadio" maxOccurs="unbounded"/>
+          <xs:element ref="SigAssiText" maxOccurs="unbounded"/>
+        </xs:all>
+        <xs:attribute name="SigAssiErgaenzen" type="boolean">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">
       </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="SigAssiGrundZeile" type="xs:int">
-        <xs:annotation>
-          <xs:documentation lang="de">
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="SigAssiGrundZeile" type="xs:int">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">
       </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="SigAssiKeineGrunddaten" type="boolean">
-        <xs:annotation>
-          <xs:documentation lang="de">Wird hinter SigAssiRadio benutzt, wenn Formulare vor der eigentlichen Positionierung des Signals mit SigAssiPosition benutzt werden.
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="SigAssiKeineGrunddaten" type="boolean">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">Wird hinter SigAssiRadio benutzt, wenn Formulare vor der eigentlichen Positionierung des Signals mit SigAssiPosition benutzt werden.
       </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="SigAssiKeineKODiff" type="boolean">
-        <xs:annotation>
-          <xs:documentation lang="de">Wird eingesetzt, wenn das Signal in eine vorhandene Signalmatrix integriert werden soll, aber etwaige durch SigAssiPosition vorgegebene Verschiebungen des Signalstandorts nicht mitmachen soll, sondern auf jeden Fall an den vorgesehenen Koordinaten eingebaut werden soll. Anwendungsfall: Zum Beispiel PZB-Magnete, die unabhängig vom Standort des Hauptsignals (links/rechts vom Gleis) auf jeden Fall an der rechten Schiene positioniert werden sollen.
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="SigAssiKeineKODiff" type="boolean">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">Wird eingesetzt, wenn das Signal in eine vorhandene Signalmatrix integriert werden soll, aber etwaige durch SigAssiPosition vorgegebene Verschiebungen des Signalstandorts nicht mitmachen soll, sondern auf jeden Fall an den vorgesehenen Koordinaten eingebaut werden soll. Anwendungsfall: Zum Beispiel PZB-Magnete, die unabhängig vom Standort des Hauptsignals (links/rechts vom Gleis) auf jeden Fall an der rechten Schiene positioniert werden sollen.
       </xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-    </xs:extension>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
   <xs:element name="SigAssiPosition">
     <xs:complexType>
@@ -49,26 +51,32 @@
   </xs:element>
   <xs:element name="SigAssiCheck">
     <xs:annotation>
-      <xs:documentation xml:lang="de">
-				SigAssiCheck generiert im Formular des Signalassistenten ein Ankreuzfeld. Eine Signaloption kann damit an- und abgewählt werden.
-			</xs:documentation>
+      <xs:documentation xml:lang="de">Generiert im Formular des Signalassistenten ein Ankreuzfeld. Eine Signaloption kann damit an- und abgewählt werden.</xs:documentation>
     </xs:annotation>
-    <xs:complexType><xs:all><xs:element maxOccurs="unbounded" ref="SigAssiEintrag"/></xs:all><xs:attribute name="SigAssiPassiv" type="boolean"><xs:annotation><xs:documentation lang="de">
-      </xs:documentation></xs:annotation></xs:attribute><xs:attribute name="SigAssiTitel" type="xs:string"><xs:annotation><xs:documentation lang="de">
-      </xs:documentation></xs:annotation></xs:attribute><xs:attribute name="SigAssiVorbelegung" type="boolean"><xs:annotation><xs:documentation lang="de">
-      </xs:documentation></xs:annotation></xs:attribute>
-				SigAssiPassiv: Die Checkbox wird ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.
-				SigAssiTitel: Hat bei SigAssiCheck anders als bei SigAssiRadio keine Funktion und wird vom 3D-Editor ignoriert.
-				SigAssiVorbelegung: Die Checkbox ist nicht angekreuzt, wenn das Attribut den Wert 0 hat. Sie ist angekreuzt, wenn es den Wert 1 hat.
+    <xs:complexType>
+      <xs:all>
+        <xs:element maxOccurs="unbounded" ref="SigAssiEintrag"/>
+      </xs:all>
+      <xs:attribute name="SigAssiPassiv" type="boolean">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">Wenn aktiv: Die Checkbox wird ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SigAssiTitel" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">Hat bei SigAssiCheck anders als bei SigAssiRadio keine Funktion und wird vom 3D-Editor ignoriert.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SigAssiVorbelegung" type="boolean">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">Gibt an, ob die Checkbox standardmäßig angekreuzt ist.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
   <xs:element name="SigAssiRadio">
     <xs:annotation>
-      <xs:documentation xml:lang="de">
-				SigAssiRadio generiert im Formular des Signalassistenten eine Wahlmöglichkeit mit Radiobuttons (genau eine der angebotenen Optionen muss vom Streckenbauer ausgewählt werden)
-				SigAssiPassiv: Die Radiobuttons werden ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.
-				SigAssiTitel: Definiert die Überschrift über den Radiobuttons.
-				SigAssiVorbelegung: Definiert, welcher Radiobutton vorausgewählt ist.
+      <xs:documentation xml:lang="de">Generiert im Formular des Signalassistenten eine Wahlmöglichkeit mit Radiobuttons (genau eine der angebotenen Optionen muss vom Streckenbauer ausgewählt werden).
 			</xs:documentation>
     </xs:annotation>
     <xs:complexType mixed="true">
@@ -77,20 +85,17 @@
       </xs:all>
       <xs:attribute name="SigAssiPassiv" type="xs:int">
         <xs:annotation>
-          <xs:documentation lang="de">
-      </xs:documentation>
+          <xs:documentation xml:lang="de">Wenn aktiv: Die Radiobuttons werden ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="SigAssiTitel" type="xs:string">
         <xs:annotation>
-          <xs:documentation lang="de">
-      </xs:documentation>
+          <xs:documentation xml:lang="de">Definiert die Überschrift über den Radiobuttons.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="SigAssiVorbelegung" type="xs:int">
         <xs:annotation>
-          <xs:documentation lang="de">
-      </xs:documentation>
+          <xs:documentation xml:lang="de">Definiert, welcher Radiobutton vorausgewählt ist.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
     </xs:complexType>

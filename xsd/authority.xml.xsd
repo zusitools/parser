@@ -10,7 +10,7 @@
         <xs:element name="AbfrageWeg" type="Varianten"/>
         <xs:element name="AbfrageZiel" type="Varianten"/>
         <xs:element name="Signalbezeichnungen" type="Varianten"/>
-        <xs:element ref="ZugSchlussLaterne" type="Dateiverknuepfung"/>
+        <xs:element name="ZugSchlussLaterne" type="Dateiverknuepfung"/>
       </xs:all>
     </xs:complexType>
   </xs:element>

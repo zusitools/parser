@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
   <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="VerwaltungsScript">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element ref="DateiInfo" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Verschieben" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="NurVerschieben" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="NeuerLink" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Loeschen" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="DateiInfo">
     <xs:complexType>
       <xs:sequence>

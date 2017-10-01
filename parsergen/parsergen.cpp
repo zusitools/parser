@@ -174,6 +174,11 @@ class ParserGenerator {
 
     FindChildTypes(&elementType, complexTypeNode);
 
+    auto complexContent = complexTypeNode.child("xs:complexContent");
+    if (complexContent) {
+      complexTypeNode = complexContent;
+    }
+
     auto extension = complexTypeNode.child("xs:extension");
     if (extension) {
       elementType.base = extension.attribute("base").as_string();

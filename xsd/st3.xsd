@@ -113,8 +113,8 @@
   </xs:element>
   <xs:complexType name="StreckenelementRichtungsInfo">
     <xs:all minOccurs="0" maxOccurs="unbounded">
-      <xs:element ref="Ereignis"/>
-      <xs:element ref="Signal"/>
+      <xs:element ref="Ereignis" maxOccurs="unbounded"/>
+      <xs:element name="Signal" type="Signal"/>
     </xs:all>
     <xs:attribute name="KoppelWeicheNorm" type="boolean"/>
     <xs:attribute name="KoppelWeicheNr" type="xs:int"/>
@@ -229,34 +229,28 @@
       <xs:attribute name="Ref" type="xs:int"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="Signal">
-    <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="p" type="Vec3"/>
-        <xs:element name="phi" type="Vec3"/>
-        <xs:element ref="KoppelSignal"/>
-        <xs:element ref="SignalFrame"/>
-        <xs:element ref="HsigBegriff"/>
-        <xs:element ref="VsigBegriff"/>
-        <xs:element ref="MatrixEintrag"/>
-        <xs:element ref="Ersatzsignal"/>
-      </xs:all>
-      <xs:attribute name="BoundingR" type="xs:int"/>
-      <xs:attribute name="NameBetriebsstelle" type="xs:string"/>
-      <xs:attribute name="SigAssiErgaenzen" type="boolean"/>
-      <xs:attribute name="SigAssiGrundZeile" type="xs:int"/>
-      <xs:attribute name="SigAssiKeineGrunddaten" type="boolean"/>
-      <xs:attribute name="SigAssiKeineKODiff" type="boolean"/>
-      <xs:attribute name="SignalFlags" type="xs:int"/>
-      <xs:attribute name="SignalTyp" type="xs:int"/>
-      <xs:attribute name="Signalname" type="xs:string"/>
-      <xs:attribute name="Stellwerk" type="xs:string"/>
-      <xs:attribute name="WeichenGrundstellung" type="xs:int"/>
-      <xs:attribute name="Weichenbauart" type="xs:int"/>
-      <xs:attribute name="ZufallsWert" type="xs:float"/>
-      <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="Signal">
+    <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="p" type="Vec3"/>
+      <xs:element name="phi" type="Vec3"/>
+      <xs:element ref="KoppelSignal"/>
+      <xs:element ref="SignalFrame"/>
+      <xs:element ref="HsigBegriff"/>
+      <xs:element ref="VsigBegriff"/>
+      <xs:element ref="MatrixEintrag"/>
+      <xs:element ref="Ersatzsignal"/>
+    </xs:all>
+    <xs:attribute name="BoundingR" type="xs:int"/>
+    <xs:attribute name="NameBetriebsstelle" type="xs:string"/>
+    <xs:attribute name="SignalFlags" type="xs:int"/>
+    <xs:attribute name="SignalTyp" type="xs:int"/>
+    <xs:attribute name="Signalname" type="xs:string"/>
+    <xs:attribute name="Stellwerk" type="xs:string"/>
+    <xs:attribute name="WeichenGrundstellung" type="xs:int"/>
+    <xs:attribute name="Weichenbauart" type="xs:int"/>
+    <xs:attribute name="ZufallsWert" type="xs:float"/>
+    <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
+  </xs:complexType>
   <xs:element name="KoppelSignal">
     <xs:complexType>
       <xs:all minOccurs="0">

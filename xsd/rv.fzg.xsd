@@ -75,8 +75,8 @@
   </xs:element>
   <xs:complexType name="SchlusssignalPos">
     <xs:sequence>
-      <xs:element ref="p"/>
-      <xs:element ref="phi"/>
+      <xs:element name="p" type="Vec3"/>
+      <xs:element name="phi" type="Vec3"/>
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Luftpresser">
@@ -268,8 +268,8 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="Bremse">
-          <xs:element name="Kennfeld" type="Kennfeld"/>
           <xs:sequence>
+            <xs:element name="Kennfeld" type="Kennfeld"/>
             <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="ErgBremse"/>
             <xs:element name="BremseH" type="Bremsgewicht"/>
@@ -414,8 +414,8 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="Bremse">
-          <xs:element name="Kennfeld" type="Kennfeld"/>
           <xs:sequence>
+            <xs:element name="Kennfeld" type="Kennfeld"/>
             <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="ErgBremse"/>
           </xs:sequence>
@@ -440,9 +440,9 @@
   <xs:element name="DynbremseElektrReihenschluss">
     <xs:complexType>
       <xs:complexContent>
-        <xs:element name="Kennfeld" type="Kennfeld"/>
         <xs:extension base="Bremse">
           <xs:sequence>
+            <xs:element name="Kennfeld" type="Kennfeld"/>
             <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="ErgBremse"/>
           </xs:sequence>
@@ -511,21 +511,21 @@
   </xs:element>
   <xs:element name="ErgBremse">
     <xs:complexType>
-      <xs:complexContent>
+      <xs:all>
         <xs:element name="Kennfeld" type="Kennfeld"/>
-        <xs:attribute name="ErgBremseFaktorGBB" type="xs:float"/>
-        <xs:attribute name="ErgBremseFaktorGSB" type="xs:float"/>
-        <xs:attribute name="ErgBremseFaktorPBB" type="xs:float"/>
-        <xs:attribute name="ErgBremseFaktorPSB" type="xs:float"/>
-        <xs:attribute name="ErgBremseFaktorRBB" type="xs:float"/>
-        <xs:attribute name="ErgBremseFaktorRSB" type="xs:float"/>
-        <xs:attribute name="ErgBremseIndexGBB" type="xs:int"/>
-        <xs:attribute name="ErgBremseIndexGSB" type="xs:int"/>
-        <xs:attribute name="ErgBremseIndexPBB" type="xs:int"/>
-        <xs:attribute name="ErgBremseIndexPSB" type="xs:int"/>
-        <xs:attribute name="ErgBremseIndexRBB" type="xs:int"/>
-        <xs:attribute name="ErgBremseIndexRSB" type="xs:int"/>
-      </xs:complexContent>
+      </xs:all>
+      <xs:attribute name="ErgBremseFaktorGBB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorGSB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorPBB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorPSB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorRBB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorRSB" type="xs:float"/>
+      <xs:attribute name="ErgBremseIndexGBB" type="xs:int"/>
+      <xs:attribute name="ErgBremseIndexGSB" type="xs:int"/>
+      <xs:attribute name="ErgBremseIndexPBB" type="xs:int"/>
+      <xs:attribute name="ErgBremseIndexPSB" type="xs:int"/>
+      <xs:attribute name="ErgBremseIndexRBB" type="xs:int"/>
+      <xs:attribute name="ErgBremseIndexRSB" type="xs:int"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Dieselmotor">
