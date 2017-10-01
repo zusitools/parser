@@ -27,9 +27,15 @@ struct Attribute {
   AttributeType type;
 };
 
+struct Child {
+  std::string name;
+  std::string type;
+  bool multiple;
+};
+
 struct ElementType {
-  std::vector<pugi::xml_node> children;
   std::vector<Attribute> attributes;
+  std::vector<Child> children;
 };
 
 class ParserGenerator {
@@ -53,20 +59,7 @@ class ParserGenerator {
 
     // Parse complex types
     for (const auto& complexType : document->select_nodes("//xs:complexType")) {
-      const auto& complexTypeNode = complexType.node();
-      auto nameAttribute = complexTypeNode.attribute("name");
-      if (!nameAttribute) {
-        const auto& parentNode = complexTypeNode.parent();
-        assert(!strcmp(parentNode.name(), "xs:element"));
-        nameAttribute = parentNode.attribute("name");
-      }
-      assert(nameAttribute);
-      std::string typeName = nameAttribute.as_string();
-
-      const auto [ elementType, inserted ] = m_element_types.emplace(std::make_pair(typeName, ElementType()));
-      if (!inserted) {
-        std::cerr << "Type " << typeName << " defined twice" << std::endl;
-      }
+      ParseComplexType(complexType.node());
     }
 
     m_docs_by_name.emplace(fileNameCanonical, std::move(document));
@@ -76,21 +69,80 @@ class ParserGenerator {
     }
   }
 
+  void GenerateIncludes() {
+    std::cout << "#include <vector>  // for std::vector" << std::endl;
+    std::cout << "#include <memory>  // for std::unique_ptr" << std::endl;
+  }
 
-  void GenerateTypes() {
+  void GenerateTypeDeclarations() {
     for (auto&& [ typeName, elementType ] : m_element_types) {
       std::cout << "struct " << typeName << ";" << std::endl;
+    }
+  }
+
+  void GenerateTypeDefinitions() {
+    for (auto&& [ typeName, elementType ] : m_element_types) {
+      std::cout << "struct " << typeName << " {" << std::endl;
+
+      for (const auto& child : elementType.children) {
+        if (child.multiple) {
+          std::cout << "  std::vector<std::unique_ptr<struct " << child.type << ">> children_" << child.name << ";" << std::endl;
+        } else {
+          std::cout << "  std::unique_ptr<struct " << child.type << "> " << child.name << ";" << std::endl;
+        }
+      }
+
+      std::cout << "};" << std::endl;
     }
   }
 
  private:
   std::unordered_map<std::string, std::unique_ptr<pugi::xml_document>> m_docs_by_name = {};
   std::map<std::string, ElementType> m_element_types = {};
+
+  void FindChildTypes(ElementType* elementType, pugi::xml_node node) {
+    for (const auto& child : node.children()) {
+      if (child.name() == std::string("xs:element")) {
+        bool multiple = child.attribute("maxOccurs") &&
+            (child.attribute("maxOccurs").as_string() == std::string("unbounded") || child.attribute("maxOccurs").as_int() > 1);
+        if (child.attribute("ref")) {
+          std::string childTypeName = child.attribute("ref").as_string();
+          elementType->children.push_back(Child { childTypeName, childTypeName, multiple });
+        } else {
+          elementType->children.push_back(Child { child.attribute("name").as_string(), child.attribute("type").as_string(), multiple });
+        }
+      } else {
+        FindChildTypes(elementType, child);
+      }
+    }
+  }
+
+  void ParseComplexType(pugi::xml_node complexTypeNode) {
+    auto nameAttribute = complexTypeNode.attribute("name");
+    if (!nameAttribute) {
+      const auto& parentNode = complexTypeNode.parent();
+      assert(parentNode.name() == std::string("xs:element"));
+      nameAttribute = parentNode.attribute("name");
+    }
+    assert(nameAttribute);
+    std::string typeName = nameAttribute.as_string();
+
+    auto [ it, inserted ] = m_element_types.emplace(std::make_pair(typeName, ElementType()));
+    auto& elementType = it->second;
+    if (!inserted) {
+      std::cerr << "Type " << typeName << " defined twice" << std::endl;
+      return;
+    }
+
+    FindChildTypes(&elementType, complexTypeNode);
+  }
 };
 
 int main(int argc, char** argv) {
   ParserGenerator generator;
   assert(argc >= 2);
   generator.AddXsdFile(argv[1]);
-  generator.GenerateTypes();
+  generator.GenerateIncludes();
+  generator.GenerateTypeDeclarations();
+  generator.GenerateTypeDefinitions();
 }
