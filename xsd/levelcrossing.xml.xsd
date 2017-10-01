@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="levelcrossing">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="LabeledEditCHDateiSchranke" type="Dateiverknuepfung"/>
+        <xs:element name="LabeledEditCHDateiAnkuendiger" type="Dateiverknuepfung"/>
+        <xs:element name="LabeledEditCHDateiEinschaltsignal" type="Dateiverknuepfung"/>
+      </xs:sequence>
+      <xs:attribute name="CheckBoxAnkAnimiert" type="boolean"/>
+      <xs:attribute name="LabeledEditCHAbstandEinschaltsignal" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHVorlaufzeit" type="xs:float"/>
+      <xs:attribute name="RadioGroupBueTyp" type="boolean"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

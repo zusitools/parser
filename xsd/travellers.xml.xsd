@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="travellers">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="StringGridCHReisende" type="Dateiverknuepfung"/>
+      </xs:sequence>
+      <xs:attribute name="LabeledEditCHMindestabstand" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHRadius" type="xs:float"/>
+      <xs:attribute name="SpinEditCHAnzahlReisende" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

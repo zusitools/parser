@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:complexType name="root_Zusi2Tausch">
+    <xs:all minOccurs="0">
+      <xs:element ref="Zusi2Tausch" maxOccurs="unbounded"/>
+    </xs:all>
+  </xs:complexType>
+  <xs:element name="Zusi2Tausch">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element name="DateiAlt" type="Dateiverknuepfung"/>
+        <xs:element name="DateiNeu" type="Dateiverknuepfung"/>
+        <xs:element name="p" type="Vec3"/>
+        <xs:element name="phi" type="Vec3"/>
+        <xs:element name="ZufallXYZ" type="Vec3"/>
+        <xs:element name="ZufallphiXYZ" type="Vec3"/>
+      </xs:all>
+      <xs:attribute name="Zufall" type="xs:float"/>
+      <xs:attribute name="ZufallSkalierung" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

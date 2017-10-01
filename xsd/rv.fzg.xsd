@@ -268,7 +268,7 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="Bremse">
-          <xs:element ref="Kennfeld"/>
+          <xs:element name="Kennfeld" type="Kennfeld"/>
           <xs:sequence>
             <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="ErgBremse"/>
@@ -285,22 +285,26 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="Antriebsmodell">
+    <xs:all>
+      <xs:element name="Kennfeld" type="Kennfeld"/>
+      <xs:element ref="Nachlaufsteuerung"/>
+    </xs:all>
+    <xs:attribute name="Antriebsachsen" type="xs:int"/>
+    <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
+    <xs:attribute name="GrenzdruckHL" type="xs:float"/>
+    <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
+    <xs:attribute name="Leistung" type="xs:float"/>
+    <xs:attribute name="Reibmasse" type="xs:float"/>
+  </xs:complexType>
   <xs:element name="AntriebsmodellDieselElektrischDrehstrom">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="Bremse">
-          <xs:element ref="Kennfeld"/>
+        <xs:extension base="Antriebsmodell">
           <xs:sequence>
-            <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="Dieselmotor"/>
             <xs:element ref="Drehstrommotor"/>
           </xs:sequence>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -308,20 +312,12 @@
   <xs:element name="AntriebsmodellDieselHydraulisch">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="Bremse">
-          <xs:element ref="Kennfeld"/>
+        <xs:extension base="Antriebsmodell">
           <xs:sequence>
-            <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="Dieselmotor"/>
             <xs:element ref="Kupplung"/>
             <xs:element ref="Wandler"/>
           </xs:sequence>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -329,8 +325,8 @@
   <xs:element name="Kupplung">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="SchaltenRauf" type="eta"/>
-        <xs:element name="SchaltenRunter" type="eta"/>
+        <xs:element name="SchaltenRauf" type="Kennfeld"/>
+        <xs:element name="SchaltenRunter" type="Kennfeld"/>
       </xs:sequence>
       <xs:attribute name="Fuelldauer" type="xs:float"/>
       <xs:attribute name="Ueberhoehung" type="xs:float"/>
@@ -340,8 +336,8 @@
   <xs:element name="Wandler">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="SchaltenRauf" type="eta"/>
-        <xs:element name="SchaltenRunter" type="eta"/>
+        <xs:element name="SchaltenRauf" type="Kennfeld"/>
+        <xs:element name="SchaltenRunter" type="Kennfeld"/>
       </xs:sequence>
       <xs:attribute name="Fuelldauer" type="xs:float"/>
       <xs:attribute name="Ueberhoehung" type="xs:float"/>
@@ -352,18 +348,10 @@
   <xs:element name="AntriebsmodellDieselMechanisch">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="Bremse">
-          <xs:element ref="Kennfeld"/>
+        <xs:extension base="Antriebsmodell">
           <xs:sequence>
-            <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="Dieselmotor"/>
           </xs:sequence>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -371,19 +359,11 @@
   <xs:element name="AntriebsmodellEinfach">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="Bremse">
-          <xs:element ref="Kennfeld"/>
+        <xs:extension base="Antriebsmodell">
           <xs:sequence>
-            <xs:element ref="Nachlaufsteuerung"/>
-            <xs:element name="eta_lastabh" type="eta"/>
-            <xs:element name="eta_geschwabh" type="eta"/>
+            <xs:element name="eta_lastabh" type="Kennfeld"/>
+            <xs:element name="eta_geschwabh" type="Kennfeld"/>
           </xs:sequence>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -391,21 +371,13 @@
   <xs:element name="AntriebsmodellElektrischDrehstrom">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="Bremse">
-          <xs:element ref="Kennfeld"/>
+        <xs:extension base="Antriebsmodell">
           <xs:sequence>
-            <xs:element ref="Nachlaufsteuerung"/>
             <xs:element name="SoundLuefter" type="Sound"/>
             <xs:element ref="Drehstrommotor"/>
           </xs:sequence>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
           <xs:attribute name="GrenzwertUeberwacht" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
           <xs:attribute name="MaxOberstrom" type="xs:float"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
           <xs:attribute name="Volt" type="xs:int"/>
           <xs:attribute name="etaTrafo" type="xs:float"/>
         </xs:extension>
@@ -415,21 +387,13 @@
   <xs:element name="AntriebsmodellElektrischReihenschluss">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="Bremse">
-          <xs:element ref="Kennfeld"/>
+        <xs:extension base="Antriebsmodell">
           <xs:sequence>
-            <xs:element ref="Nachlaufsteuerung"/>
             <xs:element name="SoundLuefter" type="Sound"/>
             <xs:element ref="Reihenschlussmotor"/>
           </xs:sequence>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
           <xs:attribute name="GrenzwertUeberwacht" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
           <xs:attribute name="MaxOberstrom" type="xs:float"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
           <xs:attribute name="Volt" type="xs:int"/>
           <xs:attribute name="etaTrafo" type="xs:float"/>
         </xs:extension>
@@ -450,7 +414,7 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="Bremse">
-          <xs:element ref="Kennfeld"/>
+          <xs:element name="Kennfeld" type="Kennfeld"/>
           <xs:sequence>
             <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="ErgBremse"/>
@@ -476,7 +440,7 @@
   <xs:element name="DynbremseElektrReihenschluss">
     <xs:complexType>
       <xs:complexContent>
-        <xs:element ref="Kennfeld"/>
+        <xs:element name="Kennfeld" type="Kennfeld"/>
         <xs:extension base="Bremse">
           <xs:sequence>
             <xs:element ref="Nachlaufsteuerung"/>
@@ -548,7 +512,7 @@
   <xs:element name="ErgBremse">
     <xs:complexType>
       <xs:complexContent>
-        <xs:element ref="Kennfeld"/>
+        <xs:element name="Kennfeld" type="Kennfeld"/>
         <xs:attribute name="ErgBremseFaktorGBB" type="xs:float"/>
         <xs:attribute name="ErgBremseFaktorGSB" type="xs:float"/>
         <xs:attribute name="ErgBremseFaktorPBB" type="xs:float"/>
@@ -567,7 +531,7 @@
   <xs:element name="Dieselmotor">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="eta" type="eta"/>
+        <xs:element name="eta" type="Kennfeld"/>
         <xs:element ref="GetrStufen"/>
       </xs:sequence>
       <xs:attribute name="FuellungsGeregelt" type="boolean"/>
@@ -579,15 +543,6 @@
       <xs:attribute name="nTraegheit" type="xs:float"/>
     </xs:complexType>
   </xs:element>
-  <xs:complexType name="eta">
-    <xs:sequence>
-      <xs:element ref="Pkt"/>
-      <xs:element ref="Stufe"/>
-    </xs:sequence>
-    <xs:attribute name="Beschreibung" type="xs:string"/>
-    <xs:attribute name="xText" type="xs:string"/>
-    <xs:attribute name="yText" type="xs:string"/>
-  </xs:complexType>
   <xs:element name="GetrStufen">
     <xs:complexType>
       <xs:sequence>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:include schemaLocation="material.xsd"/>
+  <xs:element name="Formkurve">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Punkt" type="FormkurvenPunkt"/>
+        <xs:element ref="Material"/>
+      </xs:sequence>
+      <xs:attribute name="DetailKachel" type="boolean"/>
+      <xs:attribute name="TexIstU" type="boolean"/>
+      <xs:attribute name="Ueberhg" type="boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="FormkurvenPunkt">
+    <xs:attribute name="X" type="xs:float"/>
+    <xs:attribute name="Y" type="xs:float"/>
+    <xs:attribute name="nX" type="xs:float"/>
+    <xs:attribute name="nY" type="xs:float"/>
+    <xs:attribute name="tex" type="xs:float"/>
+  </xs:complexType>
+</xs:schema>

@@ -75,7 +75,7 @@
   <xs:element name="Abhaengigkeit">
     <xs:complexType>
       <xs:all>
-        <xs:element ref="Kennfeld"/>
+        <xs:element name="Kennfeld" type="Kennfeld"/>
       </xs:all>
       <xs:attribute name="LautstaerkeAbh" type="boolean"/>
       <xs:attribute name="PhysikGroesse" type="xs:int"/>
@@ -85,17 +85,15 @@
       <xs:attribute name="TriggerGrenze" type="xs:float"/>
     </xs:complexType>
   </xs:element>
-  <xs:element name="Kennfeld">
-    <xs:complexType>
-      <xs:all>
-        <xs:element ref="Pkt"/>
-        <xs:element ref="Stufe"/>
-      </xs:all>
-      <xs:attribute name="Beschreibung" type="xs:string"/>
-      <xs:attribute name="xText" type="xs:string"/>
-      <xs:attribute name="yText" type="xs:string"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="Kennfeld">
+    <xs:all>
+      <xs:element ref="Pkt"/>
+      <xs:element ref="Stufe"/>
+    </xs:all>
+    <xs:attribute name="Beschreibung" type="xs:string"/>
+    <xs:attribute name="xText" type="xs:string"/>
+    <xs:attribute name="yText" type="xs:string"/>
+  </xs:complexType>
   <xs:complexType name="SoundMitAbhaengigkeit">
     <xs:sequence>
       <xs:element ref="Sound"/>

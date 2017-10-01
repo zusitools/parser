@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:include schemaLocation="material.xsd"/>
+  <xs:element name="Forest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Deckel" type="Material"/>
+        <xs:element name="Rand" type="Material"/>
+      </xs:sequence>
+      <xs:attribute name="CheckBoxDeckel" use="required" type="boolean"/>
+      <xs:attribute name="LabeledEditCHAnzahlStreifen" use="required" type="xs:int"/>
+      <xs:attribute name="LabeledEditCHHoehe" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHHoeheWaldrand" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHVersatz" use="required" type="xs:float"/>
+      <xs:attribute name="SpinEditCHStreifenNr" use="required" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

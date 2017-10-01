@@ -837,7 +837,7 @@
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSchalter">
           <xs:attribute name="NameSchalter" type="xs:string"/>
-          <xs:attribute name="TempomatTyp"/>
+          <xs:attribute name="TempomatTyp" type="xs:int"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -967,7 +967,7 @@
         <xs:attribute name="NullenFuellen" type="boolean"/>
         <xs:attribute name="KleinerGrenzwertDunkel" type="boolean"/>
         <xs:attribute name="KleinerGrenzwert" type="boolean"/>
-        <xs:attribute name="Farbe" type="hexBinary"/>
+        <xs:attribute name="Farbe" type="xs:hexBinary"/>
         <xs:attribute name="MinWert" type="xs:float"/>
         <xs:attribute name="MaxWert" type="xs:float"/>
         <xs:attribute name="MittelNr" type="xs:int"/>

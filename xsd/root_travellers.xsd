@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
   <xs:include schemaLocation="zusi.xsd"/>
-  <xs:include schemaLocation="ftd.xsd"/>
+  <xs:include schemaLocation="travellers.xml.xsd"/>
   <xs:element name="Zusi">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:all>
         <xs:element ref="Info" maxOccurs="1"/>
-        <xs:element ref="Fuehrerstand" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="travellers" minOccurs="1" maxOccurs="1"/>
       </xs:all>
     </xs:complexType>
   </xs:element>

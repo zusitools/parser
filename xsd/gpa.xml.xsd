@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="GPA">
+    <xs:complexType>
+      <xs:all minOccurs="0">
+        <xs:element ref="GPATyp" maxOccurs="unbounded"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GPATyp">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Datei" type="Dateiverknuepfung"/>
+      </xs:all>
+      <xs:attribute name="GPAAbstand" use="required" type="xs:float"/>
+      <xs:attribute name="GPAAbstand12" use="required" type="xs:float"/>
+      <xs:attribute name="GPAAbstand23" use="required" type="xs:float"/>
+      <xs:attribute name="GPAvalt" use="required" type="xs:float"/>
+      <xs:attribute name="GPAvneu" use="required" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
