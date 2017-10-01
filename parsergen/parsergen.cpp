@@ -84,6 +84,20 @@ class ParserGenerator {
     for (auto&& [ typeName, elementType ] : m_element_types) {
       std::cout << "struct " << typeName << " {" << std::endl;
 
+      for (const auto& attribute : elementType.attributes) {
+        std::cout << "  ";
+        switch (attribute.type) {
+          case AttributeType::Int32: std::cout << "int32_t"; break;
+          case AttributeType::Int64: std::cout << "int64_t"; break;
+          case AttributeType::Boolean: std::cout << "bool"; break;
+          case AttributeType::String: std::cout << "std::string"; break;
+          case AttributeType::Float: std::cout << "float"; break;
+          case AttributeType::DateTime: std::cout << "std::string"; break;  // TODO
+          case AttributeType::HexInt32: std::cout << "int32_t"; break;
+        }
+        std::cout << " " << attribute.name << ";" << std::endl;
+      }
+
       for (const auto& child : elementType.children) {
         if (child.multiple) {
           std::cout << "  std::vector<std::unique_ptr<struct " << child.type << ">> children_" << child.name << ";" << std::endl;
@@ -135,6 +149,35 @@ class ParserGenerator {
     }
 
     FindChildTypes(&elementType, complexTypeNode);
+
+    for (const auto& child : complexTypeNode.children()) {
+      if (child.name() != std::string("xs:attribute")) {
+        continue;
+      }
+
+      AttributeType attributeType;
+      std::string attributeTypeString = child.attribute("type").as_string();
+      if (attributeTypeString == "xs:int") {
+        attributeType = AttributeType::Int32;
+      } else if (attributeTypeString == "xs:long") {
+        attributeType = AttributeType::Int64;
+      } else if (attributeTypeString == "xs:float") {
+        attributeType = AttributeType::Float;
+      } else if (attributeTypeString == "xs:string") {
+        attributeType = AttributeType::String;
+      } else if (attributeTypeString == "boolean") {
+        attributeType = AttributeType::Boolean;
+      } else if (attributeTypeString == "xs:hexBinary") {
+        attributeType = AttributeType::HexInt32;
+      } else if (attributeTypeString == "dateTime") {
+        attributeType = AttributeType::DateTime;
+      } else {
+        std::cerr << "Unknown attribute type '" << attributeTypeString << "' of attribute '" << child.attribute("name").as_string() << "' of complex type '" << typeName << "'" << std::endl;
+        continue;
+      }
+
+      elementType.attributes.push_back(Attribute { child.attribute("name").as_string(), attributeType });
+    }
   }
 };
 
