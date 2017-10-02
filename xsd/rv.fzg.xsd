@@ -44,8 +44,8 @@
     <xs:complexType>
       <xs:all minOccurs="0">
         <xs:element name="DateiAussenansicht" type="Dateiverknuepfung"/>
-        <xs:element name="DateiFuehrerstand" type="Dateiverknuepfung"/>
-        <xs:element ref="ExterneDatei"/>
+        <xs:element name="DateiFuehrerstand" type="Dateiverknuepfung" minOccurs="0"/>
+        <xs:element ref="ExterneDatei" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="BR" type="xs:string"/>
       <xs:attribute name="Beschreibung" type="xs:string"/>
@@ -60,8 +60,8 @@
   <xs:element name="FahrzeugGrunddaten">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element name="SchlussVorne" type="SchlusssignalPos"/>
-        <xs:element name="SchlussHinten" type="SchlusssignalPos"/>
+        <xs:element name="SchlussVorne" type="SchlusssignalPos" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="SchlussHinten" type="SchlusssignalPos" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Achsstandsumme" type="xs:float"/>
       <xs:attribute name="FesselAnfg" type="xs:float"/>
@@ -97,7 +97,7 @@
   <xs:element name="Bremscomputer">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element ref="BremscomputerEintrag"/>
+        <xs:element ref="BremscomputerEintrag" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="BremskraftMax" type="xs:float"/>
       <xs:attribute name="SchaltgeschwAb" type="xs:float"/>
@@ -321,8 +321,8 @@
         <xs:extension base="Antriebsmodell">
           <xs:all minOccurs="0">
             <xs:element ref="Dieselmotor"/>
-            <xs:element name="Kupplung" type="Kupplung"/>
-            <xs:element ref="Wandler"/>
+            <xs:element name="Kupplung" type="Kupplung" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="Wandler" minOccurs="0" maxOccurs="unbounded"/>
           </xs:all>
         </xs:extension>
       </xs:complexContent>
@@ -492,8 +492,8 @@
   <xs:element name="BremsenKennungV">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element ref="Pkt"/>
-        <xs:element ref="Stufe"/>
+        <xs:element ref="Pkt" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Stufe" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Beschreibung" type="xs:string"/>
       <xs:attribute name="xText" type="xs:string"/>
@@ -517,7 +517,7 @@
   <xs:element name="ErgBremse">
     <xs:complexType>
       <xs:all>
-        <xs:element name="Kennfeld" type="Kennfeld"/>
+        <xs:element name="Kennfeld" type="Kennfeld" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="ErgBremseFaktorGBB" type="xs:float"/>
       <xs:attribute name="ErgBremseFaktorGSB" type="xs:float"/>

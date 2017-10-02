@@ -6,8 +6,8 @@
       <xs:all minOccurs="0">
         <xs:element name="Datei_fpn" type="Dateiverknuepfung"/>
         <xs:element name="Datei_trn" type="Dateiverknuepfung"/>
-        <xs:element ref="Fzg"/>
-        <xs:element ref="FplZeile"/>
+        <xs:element ref="Fzg" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplZeile" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="BR" type="xs:string"/>
       <xs:attribute name="Bremsh" type="xs:float"/>
@@ -30,19 +30,19 @@
   </xs:element>
   <xs:element name="FplZeile">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="FplvMax"/>
-        <xs:element ref="FplvMaxGNT"/>
-        <xs:element ref="Fplkm"/>
-        <xs:element ref="FplName"/>
-        <xs:element ref="FplSignaltyp"/>
-        <xs:element ref="FplIcon"/>
-        <xs:element ref="FplTunnel"/>
-        <xs:element ref="FplNameRechts"/>
-        <xs:element ref="FplSaegelinien"/>
-        <xs:element ref="FplAnk"/>
-        <xs:element ref="FplAbf"/>
-        <xs:element ref="FplRichtungswechsel"/>
+      <xs:all minOccurs="0">
+        <xs:element ref="FplvMax" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplvMaxGNT" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Fplkm" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplName" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplSignaltyp" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplIcon" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplTunnel" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplNameRechts" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplSaegelinien" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplAnk" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplAbf" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplRichtungswechsel" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="FahrstrStrecke" type="xs:string"/>
       <xs:attribute name="FplLaufweg" type="xs:float"/>

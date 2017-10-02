@@ -88,9 +88,9 @@
   </xs:complexType>
   <xs:element name="FahrzeugVarianten">
     <xs:complexType>
-      <xs:all>
-        <xs:element ref="FahrzeugInfo"/>
-        <xs:element ref="FahrzeugVarianten" maxOccurs="unbounded"/>
+      <xs:all minOccurs="0">
+        <xs:element ref="FahrzeugInfo" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FahrzeugVarianten" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Bezeichnung" type="xs:string"/>
       <xs:attribute name="FzgPosition" type="xs:int"/>

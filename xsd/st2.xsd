@@ -13,11 +13,20 @@
   <xs:element name="HGBilder">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element ref="Bild"/>
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
+        <xs:element ref="Bild" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="Datei" type="Hintergrundbild" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+          </xs:annotation>
+        </xs:element>
       </xs:all>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="Hintergrundbild">
+    <xs:attribute name="Datei" type="xs:string"/>
+    <xs:attribute name="Sichtbar" type="boolean"/>
+    <xs:attribute name="Transparenz" type="xs:int"/>
+  </xs:complexType>
   <xs:element name="Bild">
     <xs:complexType>
       <xs:all minOccurs="0">
@@ -31,13 +40,13 @@
     <xs:complexType>
       <xs:all minOccurs="0">
         <xs:element ref="UTM"/>
-        <xs:element ref="Huellkurve"/>
+        <xs:element ref="Huellkurve" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="DEM"/>
-        <xs:element ref="Gerade"/>
-        <xs:element ref="Klothoide"/>
-        <xs:element ref="Kreisbogen"/>
-        <xs:element ref="Weiche"/>
-        <xs:element ref="Punkt"/>
+        <xs:element ref="Gerade" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Klothoide" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Kreisbogen" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Weiche" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Punkt" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
     </xs:complexType>
   </xs:element>
@@ -54,9 +63,8 @@
         <xs:extension base="GleisplanElement">
           <xs:all minOccurs="0">
             <xs:element ref="Elemente"/>
-            <xs:element ref="PunktWinkel"/>
             <xs:element name="Datei" type="Dateiverknuepfung"/>
-            <xs:element ref="Biegung"/>
+            <xs:element ref="Biegung" minOccurs="0" maxOccurs="unbounded"/>
           </xs:all>
           <xs:attribute name="Beschreibung" type="xs:string"/>
           <xs:attribute name="Signalname" type="xs:string"/>
@@ -67,10 +75,10 @@
   </xs:element>
   <xs:element name="Elemente">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="Gerade"/>
-        <xs:element ref="Klothoide"/>
-        <xs:element ref="Kreisbogen"/>
+      <xs:all minOccurs="0">
+        <xs:element ref="Gerade" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Klothoide" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Kreisbogen" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
     </xs:complexType>
   </xs:element>
@@ -85,7 +93,7 @@
   <xs:element name="HoehenProfil">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element ref="StuetzPkt"/>
+        <xs:element ref="StuetzPkt" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="ProfilAbstandHorizontKm" type="xs:float"/>
       <xs:attribute name="ProfilFarbe" type="xs:hexBinary"/>
@@ -105,7 +113,7 @@
   </xs:element>
   <xs:complexType name="GleisplanElement">
     <xs:all minOccurs="0">
-      <xs:element ref="PunktWinkel" maxOccurs="unbounded"/>
+      <xs:element ref="PunktWinkel" minOccurs="1" maxOccurs="unbounded"/>
     </xs:all>
     <xs:attribute name="Oberbau" type="xs:string"/>
     <xs:attribute name="ProfilName" type="xs:string"/>

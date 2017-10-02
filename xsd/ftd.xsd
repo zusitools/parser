@@ -6,65 +6,65 @@
     <xs:complexType>
       <xs:all minOccurs="0">
         <xs:element ref="Funktionalitaeten"/>
-        <xs:element ref="Grafik"/>
+        <xs:element ref="Grafik" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="Funktionalitaeten">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element ref="IndusiI54"/>
-        <xs:element ref="PZB60"/>
-        <xs:element ref="IndusiI60M"/>
-        <xs:element ref="IndusiI60DR"/>
-        <xs:element ref="IndusiI60"/>
-        <xs:element ref="IndusiI60R"/>
-        <xs:element ref="IndusiI60R_ZUB122"/>
-        <xs:element ref="IndusiI60R_ZUB262"/>
-        <xs:element ref="PZB90I60R_V15"/>
-        <xs:element ref="PZB90I60R_V20"/>
-        <xs:element ref="PZB90_PZ80R_V20"/>
-        <xs:element ref="PZB90I60R_V20_ZUB122"/>
-        <xs:element ref="PZB90I60R_V20_ZUB262"/>
-        <xs:element ref="PZB90I60R_V20_SBahn"/>
-        <xs:element ref="PZ80"/>
-        <xs:element ref="LZB80_I80"/>
-        <xs:element ref="LZB80_I80_ZUB262"/>
-        <xs:element ref="LZB80_PZB90_20"/>
-        <xs:element ref="LZB80_PZB90_20_ZUB262"/>
-        <xs:element ref="Textmelder"/>
-        <xs:element ref="Sifa_ZeitZeit"/>
-        <xs:element ref="Sifa_RZM"/>
-        <xs:element ref="Sifa_ZeitWeg"/>
-        <xs:element ref="Sifa66"/>
-        <xs:element ref="Sifa86"/>
-        <xs:element ref="TuerenTB0"/>
-        <xs:element ref="TuerenSAT"/>
-        <xs:element ref="TuerenTAV"/>
-        <xs:element ref="TuerenSST"/>
-        <xs:element ref="TuerenUICWTB"/>
-        <xs:element ref="TuerenSBahn"/>
-        <xs:element ref="NotbremssystemUICNBUe"/>
-        <xs:element ref="NotbremsSystemNBUe2004"/>
-        <xs:element ref="NotbremsSystemSBahn"/>
-        <xs:element ref="Kombischalter" maxOccurs="unbounded"/>
-        <xs:element ref="MgBremseManuell"/>
-        <xs:element ref="Sander"/>
-        <xs:element ref="Pfeife"/>
-        <xs:element ref="Notaus"/>
-        <xs:element ref="LokbremseEntlueften"/>
-        <xs:element ref="Schleuderschutzbremse"/>
-        <xs:element ref="SchleuderschutzDrosselung"/>
-        <xs:element ref="SchleuderschutzElektr"/>
-        <xs:element ref="AFBEinAus"/>
-        <xs:element ref="TempomatEinAus"/>
-        <xs:element ref="Luefter"/>
-        <xs:element ref="FtdIndividuell" maxOccurs="unbounded"/>
-        <xs:element ref="Angleicher"/>
-        <xs:element ref="LuftpresserAus"/>
-        <xs:element ref="Bremsprobe"/>
-        <xs:element ref="FahrschalterLSSAus"/>
-        <xs:element ref="DynBremseLSSAus"/>
+        <xs:element ref="IndusiI54" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZB60" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="IndusiI60M" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="IndusiI60DR" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="IndusiI60" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="IndusiI60R" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="IndusiI60R_ZUB122" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="IndusiI60R_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZB90I60R_V15" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZB90I60R_V20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZB90_PZ80R_V20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZB90I60R_V20_ZUB122" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZB90I60R_V20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZB90I60R_V20_SBahn" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZ80" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_I80" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_I80_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Textmelder" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Sifa_ZeitZeit" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Sifa_RZM" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Sifa_ZeitWeg" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Sifa66" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Sifa86" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TuerenTB0" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TuerenSAT" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TuerenTAV" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TuerenSST" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TuerenUICWTB" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TuerenSBahn" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="NotbremssystemUICNBUe" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="NotbremsSystemNBUe2004" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="NotbremsSystemSBahn" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Kombischalter" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="MgBremseManuell" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Sander" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Pfeife" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Notaus" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LokbremseEntlueften" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Schleuderschutzbremse" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="SchleuderschutzDrosselung" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="SchleuderschutzElektr" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AFBEinAus" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TempomatEinAus" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Luefter" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FtdIndividuell" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Angleicher" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LuftpresserAus" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Bremsprobe" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FahrschalterLSSAus" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="DynBremseLSSAus" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="FuehrerstandSound" type="SoundMitAbhaengigkeit" maxOccurs="unbounded"/>
       </xs:all>
     </xs:complexType>
@@ -940,8 +940,8 @@
   <xs:complexType name="FtdInstrument">
     <xs:all minOccurs="0">
       <xs:element name="InstrPkt1" type="Vec2"/>
-      <xs:element ref="FstTextur"/>
-      <xs:element name="Ueberdeckend" type="Ueberdeckung"/>
+      <xs:element ref="FstTextur" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Ueberdeckend" type="Ueberdeckung" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
     <xs:attribute name="InstrName" type="xs:string"/>
     <xs:attribute name="PhysikGroesse" type="xs:int"/>
@@ -1048,7 +1048,7 @@
   <xs:element name="FstTextur">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element ref="EinzelTextur"/>
+        <xs:element ref="EinzelTextur" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
     </xs:complexType>
   </xs:element>

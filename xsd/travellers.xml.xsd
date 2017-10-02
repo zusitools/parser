@@ -4,7 +4,7 @@
   <xs:element name="travellers">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element name="StringGridCHReisende" type="Dateiverknuepfung"/>
+        <xs:element name="StringGridCHReisende" type="Dateiverknuepfung" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="LabeledEditCHMindestabstand" type="xs:float"/>
       <xs:attribute name="LabeledEditCHRadius" type="xs:float"/>

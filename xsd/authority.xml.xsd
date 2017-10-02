@@ -4,7 +4,7 @@
   <xs:element name="authority">
     <xs:complexType>
       <xs:all>
-        <xs:element ref="Zuordnung"/>
+        <xs:element ref="Zuordnung" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="AbfrageFormular" type="Varianten"/>
         <xs:element name="AbfrageStart" type="Varianten"/>
         <xs:element name="AbfrageWeg" type="Varianten"/>
@@ -20,11 +20,12 @@
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
       <xs:attribute name="IDStart" use="required" type="xs:hexBinary"/>
+      <xs:attribute name="IDWeg" use="required" type="xs:hexBinary"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="Varianten">
     <xs:all minOccurs="0">
-      <xs:element ref="Variante"/>
+      <xs:element ref="Variante" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
   </xs:complexType>
   <xs:element name="Variante">

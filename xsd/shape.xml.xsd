@@ -5,7 +5,7 @@
   <xs:element name="Formkurve">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element name="Punkt" type="FormkurvenPunkt"/>
+        <xs:element name="Punkt" type="FormkurvenPunkt" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="Material" type="Material"/>
       </xs:all>
       <xs:attribute name="DetailKachel" type="boolean"/>

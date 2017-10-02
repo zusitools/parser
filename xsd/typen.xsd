@@ -88,8 +88,8 @@ Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenv
   </xs:element>
   <xs:complexType name="Kennfeld">
     <xs:all>
-      <xs:element ref="Pkt"/>
-      <xs:element ref="Stufe"/>
+      <xs:element ref="Pkt" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Stufe" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
     <xs:attribute name="Beschreibung" type="xs:string"/>
     <xs:attribute name="xText" type="xs:string"/>
@@ -109,7 +109,7 @@ Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenv
   <xs:complexType name="SoundMitAbhaengigkeit">
     <xs:all minOccurs="0">
       <xs:element name="Sound" type="Sound"/>
-      <xs:element ref="Abhaengigkeit"/>
+      <xs:element ref="Abhaengigkeit" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
   </xs:complexType>
 </xs:schema>
