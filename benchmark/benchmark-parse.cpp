@@ -25,6 +25,9 @@
 #endif
 
 int main(int argc, char** argv) {
+#ifdef NDEBUG
+  (void)argc;
+#endif
   assert(argc == 2);
   auto start = std::chrono::high_resolution_clock::now();
 
@@ -56,7 +59,7 @@ int main(int argc, char** argv) {
       return 1;
     }
 
-    if (sb.st_size > MMAP_THRESHOLD_BYTES) {
+    if (sb.st_size > MMAP_THRESHOLD_BYTES && sb.st_size % getpagesize() != 0) {
       Ch* p = static_cast<Ch*>(mmap(
         nullptr,          // addr: kernel chooses mapping address
         sb.st_size,       // length
