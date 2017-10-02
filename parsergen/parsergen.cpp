@@ -4,6 +4,7 @@
 #include <cstring>
 #include <experimental/filesystem>
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <string>
@@ -74,19 +75,19 @@ class ParserGenerator {
     }
   }
 
-  void GenerateIncludes() {
-    std::cout << "#include <vector>  // for std::vector" << std::endl;
-    std::cout << "#include <memory>  // for std::unique_ptr" << std::endl;
+  void GenerateTypeIncludes(std::ostream& out) {
+    out << "#include <vector>  // for std::vector" << std::endl;
+    out << "#include <memory>  // for std::unique_ptr" << std::endl;
   }
 
-  void GenerateTypeDeclarations() {
+  void GenerateTypeDeclarations(std::ostream& out) {
     for (auto&& [ typeName, elementType ] : m_element_types) {
-      std::cout << "struct " << typeName << ";" << std::endl;
+      out << "struct " << typeName << ";" << std::endl;
       (void)elementType;
     }
   }
 
-  void GenerateTypeDefinitions() {
+  void GenerateTypeDefinitions(std::ostream& out) {
     // poor man's topological sort
     std::unordered_set<std::string> done;
     bool changed;
@@ -102,43 +103,43 @@ class ParserGenerator {
         changed = true;
 
         if (!elementType.documentation.empty()) {
-          std::cout << "/** " << elementType.documentation << "*/" << std::endl;
+          out << "/** " << elementType.documentation << "*/" << std::endl;
         }
-        std::cout << "struct " << typeName;
+        out << "struct " << typeName;
         if (elementType.base.size() > 0) {
-          std::cout << " : " << elementType.base;
+          out << " : " << elementType.base;
         }
-        std::cout << " {" << std::endl;
+        out << " {" << std::endl;
 
         for (const auto& attribute : elementType.attributes) {
           if (!attribute.documentation.empty()) {
-            std::cout << "  /** " << attribute.documentation << "*/" << std::endl;
+            out << "  /** " << attribute.documentation << "*/" << std::endl;
           }
-          std::cout << "  ";
+          out << "  ";
           switch (attribute.type) {
-            case AttributeType::Int32: std::cout << "int32_t"; break;
-            case AttributeType::Int64: std::cout << "int64_t"; break;
-            case AttributeType::Boolean: std::cout << "bool"; break;
-            case AttributeType::String: std::cout << "std::string"; break;
-            case AttributeType::Float: std::cout << "float"; break;
-            case AttributeType::DateTime: std::cout << "std::string"; break;  // TODO
-            case AttributeType::HexInt32: std::cout << "int32_t"; break;
+            case AttributeType::Int32: out << "int32_t"; break;
+            case AttributeType::Int64: out << "int64_t"; break;
+            case AttributeType::Boolean: out << "bool"; break;
+            case AttributeType::String: out << "std::string"; break;
+            case AttributeType::Float: out << "float"; break;
+            case AttributeType::DateTime: out << "std::string"; break;  // TODO
+            case AttributeType::HexInt32: out << "int32_t"; break;
           }
-          std::cout << " " << attribute.name << ";" << std::endl;
+          out << " " << attribute.name << ";" << std::endl;
         }
 
         for (const auto& child : elementType.children) {
           if (!child.documentation.empty()) {
-            std::cout << "  /** " << child.documentation << "*/" << std::endl;
+            out << "  /** " << child.documentation << "*/" << std::endl;
           }
           if (child.multiple) {
-            std::cout << "  std::vector<std::unique_ptr<struct " << child.type << ">> children_" << child.name << ";" << std::endl;
+            out << "  std::vector<std::unique_ptr<struct " << child.type << ">> children_" << child.name << ";" << std::endl;
           } else {
-            std::cout << "  std::unique_ptr<struct " << child.type << "> " << child.name << ";" << std::endl;
+            out << "  std::unique_ptr<struct " << child.type << "> " << child.name << ";" << std::endl;
           }
         }
 
-        std::cout << "};" << std::endl;
+        out << "};" << std::endl;
       }
     } while (changed);
 
@@ -238,7 +239,9 @@ int main(int argc, char** argv) {
   ParserGenerator generator;
   assert(argc >= 2);
   generator.AddXsdFile(argv[1]);
-  generator.GenerateIncludes();
-  generator.GenerateTypeDeclarations();
-  generator.GenerateTypeDefinitions();
+
+  std::ofstream out(argv[2]);
+  generator.GenerateTypeIncludes(out);
+  generator.GenerateTypeDeclarations(out);
+  generator.GenerateTypeDefinitions(out);
 }
