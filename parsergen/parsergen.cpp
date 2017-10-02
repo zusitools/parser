@@ -29,6 +29,10 @@ struct Attribute {
   std::string name;
   AttributeType type;
   std::string documentation;
+
+  bool deprecated() const {
+    return documentation.find("@deprecated") != std::string::npos;
+  }
 };
 
 struct Child {
@@ -36,6 +40,10 @@ struct Child {
   std::string type;
   bool multiple;
   std::string documentation;
+
+  bool deprecated() const {
+    return documentation.find("@deprecated") != std::string::npos;
+  }
 };
 
 struct ElementType {
@@ -113,6 +121,9 @@ class ParserGenerator {
         out << " {" << std::endl;
 
         for (const auto& attribute : elementType.attributes) {
+          if (attribute.deprecated()) {
+            continue;
+          }
           if (!attribute.documentation.empty()) {
             out << "  /** " << attribute.documentation << "*/" << std::endl;
           }
@@ -130,6 +141,9 @@ class ParserGenerator {
         }
 
         for (const auto& child : elementType.children) {
+          if (child.deprecated()) {
+            continue;
+          }
           if (!child.documentation.empty()) {
             out << "  /** " << child.documentation << "*/" << std::endl;
           }
@@ -153,7 +167,9 @@ class ParserGenerator {
     std::unordered_set<std::string> result = { "Zusi" };
     for (auto&& [ typeName, elementType ] : m_element_types) {
       for (const auto& child : elementType.children) {
-        result.emplace(child.type);
+        if (!child.deprecated()) {
+          result.emplace(child.type);
+        }
       }
       (void)typeName;
     }
@@ -191,6 +207,12 @@ class ParserGenerator {
 
       for (const auto& child : allChildren) {
         parse_children << "else if (name_size == " << child.name.size() << " && !memcmp(name, \"" << child.name << "\", " << child.name.size() << ")) {" << std::endl;
+        if (child.deprecated()) {
+          parse_children << "  // deprecated" << std::endl;
+          parse_children << "  parse_element<void>(text, nullptr);" << std::endl;
+          parse_children << "}" << std::endl;
+          continue;
+        }
         parse_children << "  std::unique_ptr<" << child.type << "> childResult(new " << child.type << ");" << std::endl;
         parse_children << "  " << child.type << "* childResultRaw = childResult.get();" << std::endl;
         if (child.multiple) {
@@ -258,6 +280,15 @@ class ParserGenerator {
 
       for (const auto& attr : allAttributes) {
         parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
+        if (attr.deprecated()) {
+          parse_attributes << "          // deprecated" << std::endl;
+          parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+          parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+          parse_attributes << "          else" << std::endl;
+          parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+          parse_attributes << "        }" << std::endl;
+          continue;
+        }
         switch (attr.type) {
           case AttributeType::Int32:
             parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
