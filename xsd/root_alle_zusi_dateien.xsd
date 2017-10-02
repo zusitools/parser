@@ -7,6 +7,7 @@
   <xs:include schemaLocation="fpn.xsd"/>
   <xs:include schemaLocation="ftd.xsd"/>
   <xs:include schemaLocation="gpa.xml.xsd"/>
+  <xs:include schemaLocation="input.xml.xsd"/>
   <xs:include schemaLocation="levelcrossing.xml.xsd"/>
   <xs:include schemaLocation="ls3.xsd"/>
   <xs:include schemaLocation="material.xml.xsd"/>
@@ -38,6 +39,7 @@
         <xs:element ref="Fahrplan"/>
         <xs:element ref="Fuehrerstand"/>
         <xs:element ref="GPA"/>
+        <xs:element ref="Input"/>
         <xs:element ref="levelcrossing"/>
         <xs:element ref="Landschaft"/>
         <xs:element name="Material" type="root_Material"/>

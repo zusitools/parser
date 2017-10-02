@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="typen.xsd"/>
+  <xs:element name="Input">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="T1" type="Tastaturzuordnung"/>
+        <xs:element name="T2" type="Tastaturzuordnung"/>
+        <xs:element name="T3" type="Tastaturzuordnung"/>
+        <xs:element name="T4" type="Tastaturzuordnung"/>
+        <xs:element name="T5" type="Tastaturzuordnung"/>
+        <xs:element name="T6" type="Tastaturzuordnung"/>
+        <xs:element name="T7" type="Tastaturzuordnung"/>
+        <xs:element name="T8" type="Tastaturzuordnung"/>
+        <xs:element name="T9" type="Tastaturzuordnung"/>
+        <xs:element name="T10" type="Tastaturzuordnung"/>
+        <xs:element name="T11" type="Tastaturzuordnung"/>
+        <xs:element name="T12" type="Tastaturzuordnung"/>
+        <xs:element name="T13" type="Tastaturzuordnung"/>
+        <xs:element name="T14" type="Tastaturzuordnung"/>
+        <xs:element name="T15" type="Tastaturzuordnung"/>
+        <xs:element name="T16" type="Tastaturzuordnung"/>
+        <xs:element name="T17" type="Tastaturzuordnung"/>
+        <xs:element name="T18" type="Tastaturzuordnung"/>
+        <xs:element name="T19" type="Tastaturzuordnung"/>
+        <xs:element name="T20" type="Tastaturzuordnung"/>
+        <xs:element name="T21" type="Tastaturzuordnung"/>
+        <xs:element name="T22" type="Tastaturzuordnung"/>
+        <xs:element name="T23" type="Tastaturzuordnung"/>
+        <xs:element name="T24" type="Tastaturzuordnung"/>
+        <xs:element name="T25" type="Tastaturzuordnung"/>
+        <xs:element name="T26" type="Tastaturzuordnung"/>
+        <xs:element name="T27" type="Tastaturzuordnung"/>
+        <xs:element name="T28" type="Tastaturzuordnung"/>
+        <xs:element name="T29" type="Tastaturzuordnung"/>
+        <xs:element name="T30" type="Tastaturzuordnung"/>
+        <xs:element name="T31" type="Tastaturzuordnung"/>
+        <xs:element name="T32" type="Tastaturzuordnung"/>
+        <xs:element name="T33" type="Tastaturzuordnung"/>
+        <xs:element name="T34" type="Tastaturzuordnung"/>
+        <xs:element name="T35" type="Tastaturzuordnung"/>
+        <xs:element name="T36" type="Tastaturzuordnung"/>
+        <xs:element name="T37" type="Tastaturzuordnung"/>
+        <xs:element name="T38" type="Tastaturzuordnung"/>
+        <xs:element name="T39" type="Tastaturzuordnung"/>
+        <xs:element name="T40" type="Tastaturzuordnung"/>
+        <xs:element name="T41" type="Tastaturzuordnung"/>
+        <xs:element name="T42" type="Tastaturzuordnung"/>
+        <xs:element name="T43" type="Tastaturzuordnung"/>
+        <xs:element name="T44" type="Tastaturzuordnung"/>
+        <xs:element name="T45" type="Tastaturzuordnung"/>
+        <xs:element name="T46" type="Tastaturzuordnung"/>
+        <xs:element name="T47" type="Tastaturzuordnung"/>
+        <xs:element name="T48" type="Tastaturzuordnung"/>
+        <xs:element name="T49" type="Tastaturzuordnung"/>
+        <xs:element name="T50" type="Tastaturzuordnung"/>
+        <xs:element name="T51" type="Tastaturzuordnung"/>
+        <xs:element name="T52" type="Tastaturzuordnung"/>
+        <xs:element name="T53" type="Tastaturzuordnung"/>
+        <xs:element name="T54" type="Tastaturzuordnung"/>
+        <xs:element name="T55" type="Tastaturzuordnung"/>
+        <xs:element name="T56" type="Tastaturzuordnung"/>
+        <xs:element name="T57" type="Tastaturzuordnung"/>
+        <xs:element name="T58" type="Tastaturzuordnung"/>
+        <xs:element name="T59" type="Tastaturzuordnung"/>
+        <xs:element name="T60" type="Tastaturzuordnung"/>
+        <xs:element name="T61" type="Tastaturzuordnung"/>
+        <xs:element name="T62" type="Tastaturzuordnung"/>
+        <xs:element name="T63" type="Tastaturzuordnung"/>
+        <xs:element name="T64" type="Tastaturzuordnung"/>
+        <xs:element name="T65" type="Tastaturzuordnung"/>
+        <xs:element name="T66" type="Tastaturzuordnung"/>
+        <xs:element name="T67" type="Tastaturzuordnung"/>
+        <xs:element name="T68" type="Tastaturzuordnung"/>
+        <xs:element name="T69" type="Tastaturzuordnung"/>
+        <xs:element name="T70" type="Tastaturzuordnung"/>
+        <xs:element name="T71" type="Tastaturzuordnung"/>
+        <xs:element name="T72" type="Tastaturzuordnung"/>
+        <xs:element name="T73" type="Tastaturzuordnung"/>
+        <xs:element name="T74" type="Tastaturzuordnung"/>
+        <xs:element name="T75" type="Tastaturzuordnung"/>
+        <xs:element name="T76" type="Tastaturzuordnung"/>
+        <xs:element name="T77" type="Tastaturzuordnung"/>
+        <xs:element name="T78" type="Tastaturzuordnung"/>
+        <xs:element name="T79" type="Tastaturzuordnung"/>
+        <xs:element name="T80" type="Tastaturzuordnung"/>
+        <xs:element name="T81" type="Tastaturzuordnung"/>
+        <xs:element name="T82" type="Tastaturzuordnung"/>
+        <xs:element name="T83" type="Tastaturzuordnung"/>
+        <xs:element name="T84" type="Tastaturzuordnung"/>
+        <xs:element name="T85" type="Tastaturzuordnung"/>
+        <xs:element name="T86" type="Tastaturzuordnung"/>
+        <xs:element name="T87" type="Tastaturzuordnung"/>
+        <xs:element name="T88" type="Tastaturzuordnung"/>
+        <xs:element name="T89" type="Tastaturzuordnung"/>
+        <xs:element name="T90" type="Tastaturzuordnung"/>
+        <xs:element name="T91" type="Tastaturzuordnung"/>
+        <xs:element name="T92" type="Tastaturzuordnung"/>
+        <xs:element name="T93" type="Tastaturzuordnung"/>
+      </xs:sequence>
+      <xs:attribute name="Benutzen" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="Tastaturzuordnung">
+    <xs:attribute name="T0" type="xs:int"/>
+    <xs:attribute name="T1" type="xs:int"/>
+    <xs:attribute name="T2" type="xs:int"/>
+    <xs:attribute name="T3" type="xs:int"/>
+  </xs:complexType>
+</xs:schema>

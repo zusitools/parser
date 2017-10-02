@@ -13,6 +13,7 @@ set(xsd_sources
   xsd/fpn.xsd
   xsd/ftd.xsd
   xsd/gpa.xml.xsd
+  xsd/input.xml.xsd
   xsd/levelcrossing.xml.xsd
   xsd/ls3.xsd
   xsd/material.xml.xsd
@@ -28,6 +29,7 @@ set(xsd_sources
   xsd/root_fpn.xsd
   xsd/root_ftd.xsd
   xsd/root_gpa.xml.xsd
+  xsd/root_input.xml.xsd
   xsd/root_levelcrossing.xml.xsd
   xsd/root_ls3.xsd
   xsd/root_material.xml.xsd

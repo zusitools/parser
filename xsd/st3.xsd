@@ -58,6 +58,11 @@
         <xs:element name="SonneHorizontTex" type="Dateiverknuepfung"/>
         <xs:element name="MondTex" type="Dateiverknuepfung"/>
         <xs:element name="SternTex" type="Dateiverknuepfung"/>
+        <xs:element name="NebelTex" type="Dateiverknuepfung">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+          </xs:annotation>
+        </xs:element>
       </xs:all>
     </xs:complexType>
   </xs:element>

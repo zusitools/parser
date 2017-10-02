@@ -30,6 +30,12 @@
         <xs:element ref="ExterneDatei" maxOccurs="unbounded"/>
         <xs:element ref="FktIndividuell" maxOccurs="unbounded"/>
         <xs:element name="FahrzeugSound" type="SoundMitAbhaengigkeit" maxOccurs="unbounded"/>
+        <xs:element ref="FzgTuersystemSAT"/>
+        <xs:element ref="FzgTuersystemSST"/>
+        <xs:element ref="FzgTuersystemTAV"/>
+        <xs:element ref="FzgTuersystemTB0"/>
+        <xs:element ref="FzgTuersystemTB5"/>
+        <xs:element ref="FzgTuersystemUICWTB"/>
       </xs:all>
       <xs:attribute name="MaxIDHaupt" type="xs:int"/>
     </xs:complexType>
@@ -413,6 +419,8 @@
             <xs:element name="Kennfeld" type="Kennfeld"/>
             <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="ErgBremse"/>
+            <xs:element name="BremseE" type="Bremsgewicht"/>
+            <xs:element name="BremseE160" type="Bremsgewicht"/>
           </xs:all>
           <xs:attribute name="Antriebsachsen" type="xs:int"/>
           <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
@@ -440,6 +448,8 @@
             <xs:element name="Kennfeld" type="Kennfeld"/>
             <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="ErgBremse"/>
+            <xs:element name="BremseE" type="Bremsgewicht"/>
+            <xs:element name="BremseE160" type="Bremsgewicht"/>
           </xs:all>
           <xs:attribute name="Antriebsachsen" type="xs:int"/>
           <xs:attribute name="Bremswiderstand" type="xs:float"/>
@@ -561,5 +571,23 @@
       <xs:attribute name="Motorkonstante" type="xs:float"/>
       <xs:attribute name="spUmschalt" type="xs:float"/>
     </xs:complexType>
+  </xs:element>
+  <xs:element name="FzgTuersystemSAT">
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="FzgTuersystemSST">
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="FzgTuersystemTAV">
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="FzgTuersystemTB0">
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="FzgTuersystemTB5">
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="FzgTuersystemUICWTB">
+    <xs:complexType/>
   </xs:element>
 </xs:schema>
