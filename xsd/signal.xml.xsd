@@ -6,8 +6,6 @@
     <xs:complexContent>
       <xs:extension base="Signal">
         <xs:all>
-          <xs:element name="p" type="Vec3"/>
-          <xs:element name="phi" type="Vec3"/>
           <xs:element ref="SigAssiPosition"/>
           <xs:element ref="SigAssiCheck" maxOccurs="unbounded"/>
           <xs:element ref="SigAssiRadio" maxOccurs="unbounded"/>
@@ -27,14 +25,12 @@
         </xs:attribute>
         <xs:attribute name="SigAssiKeineGrunddaten" type="boolean">
           <xs:annotation>
-            <xs:documentation xml:lang="de">Wird hinter SigAssiRadio benutzt, wenn Formulare vor der eigentlichen Positionierung des Signals mit SigAssiPosition benutzt werden.
-      </xs:documentation>
+            <xs:documentation xml:lang="de">Wird hinter SigAssiRadio benutzt, wenn Formulare vor der eigentlichen Positionierung des Signals mit SigAssiPosition benutzt werden.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="SigAssiKeineKODiff" type="boolean">
           <xs:annotation>
-            <xs:documentation xml:lang="de">Wird eingesetzt, wenn das Signal in eine vorhandene Signalmatrix integriert werden soll, aber etwaige durch SigAssiPosition vorgegebene Verschiebungen des Signalstandorts nicht mitmachen soll, sondern auf jeden Fall an den vorgesehenen Koordinaten eingebaut werden soll. Anwendungsfall: Zum Beispiel PZB-Magnete, die unabhängig vom Standort des Hauptsignals (links/rechts vom Gleis) auf jeden Fall an der rechten Schiene positioniert werden sollen.
-      </xs:documentation>
+            <xs:documentation xml:lang="de">Wird eingesetzt, wenn das Signal in eine vorhandene Signalmatrix integriert werden soll, aber etwaige durch SigAssiPosition vorgegebene Verschiebungen des Signalstandorts nicht mitmachen soll, sondern auf jeden Fall an den vorgesehenen Koordinaten eingebaut werden soll. Anwendungsfall: Zum Beispiel PZB-Magnete, die unabhängig vom Standort des Hauptsignals (links/rechts vom Gleis) auf jeden Fall an der rechten Schiene positioniert werden sollen.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
       </xs:extension>
@@ -76,8 +72,7 @@
   </xs:element>
   <xs:element name="SigAssiRadio">
     <xs:annotation>
-      <xs:documentation xml:lang="de">Generiert im Formular des Signalassistenten eine Wahlmöglichkeit mit Radiobuttons (genau eine der angebotenen Optionen muss vom Streckenbauer ausgewählt werden).
-			</xs:documentation>
+      <xs:documentation xml:lang="de">Generiert im Formular des Signalassistenten eine Wahlmöglichkeit mit Radiobuttons (genau eine der angebotenen Optionen muss vom Streckenbauer ausgewählt werden).</xs:documentation>
     </xs:annotation>
     <xs:complexType mixed="true">
       <xs:all>

@@ -4,10 +4,10 @@
   <xs:include schemaLocation="material.xsd"/>
   <xs:element name="Forest">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Deckel" type="Material"/>
         <xs:element name="Rand" type="Material"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="CheckBoxDeckel" use="required" type="boolean"/>
       <xs:attribute name="LabeledEditCHAnzahlStreifen" use="required" type="xs:int"/>
       <xs:attribute name="LabeledEditCHHoehe" use="required" type="xs:float"/>

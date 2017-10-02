@@ -4,10 +4,10 @@
   <xs:include schemaLocation="material.xsd"/>
   <xs:element name="Platform">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="BstgKante" type="Material"/>
         <xs:element name="BstgBelag" type="Material"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="LabeledEditCHBreiteBstgKante" type="xs:float"/>
       <xs:attribute name="LabeledEditCHFesteBreite" type="xs:float"/>
       <xs:attribute name="LabeledEditCHGleisAbstand" type="xs:float"/>

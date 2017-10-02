@@ -7,12 +7,11 @@
         <xs:element ref="Verknuepfte" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="lsb" type="Dateiverknuepfung" minOccurs="0" maxOccurs="1">
           <xs:annotation>
-            <xs:documentation xml:lang="de">
-                    Wenn das lsb-Element vorhanden ist, dann liegen die Vertex- und Face-Daten dieser ls3-Datei ausschließlich in Form einer lsb-Datei vor. Die SubSet-Elemente enthalten dann keine Elemente vom Typ Vertex oder Face.
-                    Das Dateiname-Attribut gibt den Pfad zur lsb-Datei an. Es ist "required", weil die Zusi-Dateiverwaltung sonst bei Export- und Prüfvorgängen die lsb-Datei nicht als zur ls3-Datei zugehörig identifiziert. Deshalb ist es auch nicht sinnvoll, das "NurInfo"-Attribut der Datei auf 1 zu setzen.
+            <xs:documentation xml:lang="de">Wenn das lsb-Element vorhanden ist, dann liegen die Vertex- und Face-Daten dieser ls3-Datei ausschließlich in Form einer lsb-Datei vor. Die SubSet-Elemente enthalten dann keine Elemente vom Typ Vertex oder Face.
+
+Das Dateiname-Attribut gibt den Pfad zur lsb-Datei an. Es ist "required", weil die Zusi-Dateiverwaltung sonst bei Export- und Prüfvorgängen die lsb-Datei nicht als zur ls3-Datei zugehörig identifiziert. Deshalb ist es auch nicht sinnvoll, das "NurInfo"-Attribut der Datei auf 1 zu setzen.
                     
-                    Simulator und 3D-Editor ignorieren den Dateinamen und laden zu einer Datei 'Dateiname.ls3' immer die lsb-Datei 'Dateiname.lsb' im selben Verzeichnis.
-                  </xs:documentation>
+Simulator und 3D-Editor ignorieren den Dateinamen und laden zu einer Datei 'Dateiname.ls3' immer die lsb-Datei 'Dateiname.lsb' im selben Verzeichnis.</xs:documentation>
           </xs:annotation>
         </xs:element>
         <xs:element ref="SubSet" minOccurs="0" maxOccurs="unbounded"/>
@@ -32,10 +31,9 @@
         <xs:element name="phi" type="Vec3" minOccurs="0" maxOccurs="1"/>
         <xs:element name="sk" type="Vec3" minOccurs="0" maxOccurs="1">
           <xs:annotation>
-            <xs:documentation xml:lang="de">
-                        Das sk-Element regelt die Skalierung der verknüpften ls3-Datei entlang der drei Achsen.
-                        Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu einem auf 100 % Größe skalierten Objekt. Bei allen anderen Werten wird das Objekt um den angegebenen Faktor skaliert.
-                    </xs:documentation>
+            <xs:documentation xml:lang="de">Das sk-Element regelt die Skalierung der verknüpften ls3-Datei entlang der drei Achsen.
+
+Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu einem auf 100 % Größe skalierten Objekt. Bei allen anderen Werten wird das Objekt um den angegebenen Faktor skaliert.</xs:documentation>
           </xs:annotation>
         </xs:element>
       </xs:all>
@@ -51,13 +49,11 @@
   </xs:element>
   <xs:element name="SubSet">
     <xs:annotation>
-      <xs:documentation xml:lang="de">
-              Für Farbangaben gibt es aus historischen Gründen zwei Formate. 
-              Die Attribute C, CA und E sind veraltet und wurden durch Cd, Ca und Ce ersetzt.
-              Die Farbe wurde in C, CA und E als String "0AABBGGRR" kodiert.
-              In den neuen Attributen Cd, Ca und Ce wird die Farbe als String "AARRGGBB" kodiert.
-              RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grün-/Blau-/Alpha-Farbanteils als Zahl zwischen 0 und 255.
-          </xs:documentation>
+      <xs:documentation xml:lang="de">Für Farbangaben gibt es aus historischen Gründen zwei Formate. 
+Die Attribute C, CA und E sind veraltet und wurden durch Cd, Ca und Ce ersetzt.
+Die Farbe wurde in C, CA und E als String "0AABBGGRR" kodiert.
+In den neuen Attributen Cd, Ca und Ce wird die Farbe als String "AARRGGBB" kodiert.
+RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grün-/Blau-/Alpha-Farbanteils als Zahl zwischen 0 und 255.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:all>
@@ -126,7 +122,6 @@
   <xs:complexType name="AnimationsDeklaration">
     <xs:all>
       <xs:element ref="AniNrs" minOccurs="0" maxOccurs="unbounded"/>
-      <!-- ToDo: Sicher? -->
     </xs:all>
     <xs:attribute name="AniBeschreibung" type="xs:string"/>
     <xs:attribute name="AniID" type="xs:int"/>

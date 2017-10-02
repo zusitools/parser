@@ -3,33 +3,33 @@
   <xs:include schemaLocation="typen.xsd"/>
   <xs:element name="Gleisplan">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element ref="HGBilder"/>
         <xs:element ref="Lageplan"/>
         <xs:element ref="HoehenProfil" minOccurs="0" maxOccurs="unbounded"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="HGBilder">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element ref="Bild"/>
         <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="Bild">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="Sichtbar" type="boolean"/>
       <xs:attribute name="Transparenz" type="xs:int"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Lageplan">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element ref="UTM"/>
         <xs:element ref="Huellkurve"/>
         <xs:element ref="DEM"/>
@@ -37,26 +37,26 @@
         <xs:element ref="Klothoide"/>
         <xs:element ref="Kreisbogen"/>
         <xs:element ref="Weiche"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="DEM">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="Weiche">
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="GleisplanElement">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element ref="Elemente"/>
             <xs:element ref="PunktWinkel"/>
             <xs:element name="Datei" type="Dateiverknuepfung"/>
             <xs:element ref="Biegung"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="Beschreibung" type="xs:string"/>
           <xs:attribute name="Signalname" type="xs:string"/>
           <xs:attribute name="st3Datei" type="xs:string"/>
@@ -83,9 +83,9 @@
   </xs:element>
   <xs:element name="HoehenProfil">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element ref="StuetzPkt"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="ProfilAbstandHorizontKm" type="xs:float"/>
       <xs:attribute name="ProfilFarbe" type="xs:hexBinary"/>
       <xs:attribute name="ProfilGleisElementeZeichnen" type="boolean"/>
@@ -103,9 +103,9 @@
     </xs:complexType>
   </xs:element>
   <xs:complexType name="GleisplanElement">
-    <xs:sequence>
+    <xs:all minOccurs="0">
       <xs:element ref="PunktWinkel" maxOccurs="unbounded"/>
-    </xs:sequence>
+    </xs:all>
     <xs:attribute name="Oberbau" type="xs:string"/>
     <xs:attribute name="ProfilName" type="xs:string"/>
     <xs:attribute name="spTrass" type="xs:float"/>
@@ -140,9 +140,9 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="GleisplanElementPrimitiv">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="Punkt" type="Vec2"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="KKruemmung" type="xs:string"/>
           <xs:attribute name="WinkelAnf" type="xs:float"/>
           <xs:attribute name="WinkelLauf" type="xs:float"/>

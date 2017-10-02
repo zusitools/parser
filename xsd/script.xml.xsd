@@ -14,9 +14,9 @@
   </xs:element>
   <xs:element name="DateiInfo">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="DateiInfoAdminNoetig" type="boolean"/>
       <xs:attribute name="DateiInfoDateiArt" type="xs:int"/>
       <xs:attribute name="DateiInfoDateibedingung" type="xs:string"/>
@@ -29,35 +29,35 @@
   </xs:element>
   <xs:element name="Verschieben">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="AlterName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
         <xs:element name="NeuerName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
         <xs:element name="BasisPfad" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="NurVerschieben">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="AlterName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
         <xs:element name="NeuerName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="NeuerLink">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="AlterName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
         <xs:element name="NeuerName" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
         <xs:element name="BasisPfad" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="Loeschen">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
 </xs:schema>

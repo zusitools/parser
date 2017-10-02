@@ -4,10 +4,10 @@
   <xs:include schemaLocation="material.xsd"/>
   <xs:element name="Formkurve">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Punkt" type="FormkurvenPunkt"/>
         <xs:element name="Material" type="Material"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="DetailKachel" type="boolean"/>
       <xs:attribute name="TexIstU" type="boolean"/>
       <xs:attribute name="Ueberhg" type="boolean"/>

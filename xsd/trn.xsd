@@ -9,7 +9,7 @@
         <xs:element name="BuchfahrplanBMPDatei" type="Dateiverknuepfung"/>
         <xs:element name="Anfangsbefehl" type="Dateiverknuepfung"/>
         <xs:element ref="Aufgleisreferenz"/>
-        <xs:element ref="FahrplanEintrag"/>
+        <xs:element ref="FahrplanEintrag" maxOccurs="unbounded"/>
         <xs:element ref="FahrzeugVarianten"/>
       </xs:all>
       <xs:attribute name="Gattung" type="xs:string"/>
@@ -48,10 +48,10 @@
   <xs:element name="FahrplanEintrag">
     <xs:complexType>
       <xs:all>
-        <xs:element ref="FahrplanSignalEintrag"/>
-        <xs:element ref="FahrplanFahrstrasseEintrag"/>
-        <xs:element name="FahrplanVorgangEreignisse" type="FahrplanVorgang"/>
-        <xs:element name="FahrplanVorgangFahrstrasse" type="FahrplanVorgang"/>
+        <xs:element ref="FahrplanSignalEintrag" maxOccurs="unbounded"/>
+        <xs:element ref="FahrplanFahrstrasseEintrag" maxOccurs="unbounded"/>
+        <xs:element name="FahrplanVorgangEreignisse" type="FahrplanVorgang" maxOccurs="unbounded"/>
+        <xs:element name="FahrplanVorgangFahrstrasse" type="FahrplanVorgang" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Abf" type="dateTime"/>
       <xs:attribute name="Ank" type="dateTime"/>
@@ -89,7 +89,7 @@
     <xs:complexType>
       <xs:all>
         <xs:element ref="FahrzeugInfo"/>
-        <xs:element ref="FahrzeugVarianten"/>
+        <xs:element ref="FahrzeugVarianten" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Bezeichnung" type="xs:string"/>
       <xs:attribute name="FzgPosition" type="xs:int"/>

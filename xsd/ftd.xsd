@@ -4,15 +4,15 @@
   <xs:include schemaLocation="material.xsd"/>
   <xs:element name="Fuehrerstand">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element ref="Funktionalitaeten"/>
         <xs:element ref="Grafik"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="Funktionalitaeten">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element ref="IndusiI54"/>
         <xs:element ref="PZB60"/>
         <xs:element ref="IndusiI60M"/>
@@ -66,7 +66,7 @@
         <xs:element ref="FahrschalterLSSAus"/>
         <xs:element ref="DynBremseLSSAus"/>
         <xs:element name="FuehrerstandSound" type="SoundMitAbhaengigkeit" maxOccurs="unbounded"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="FtdFunktionalitaet">
@@ -219,11 +219,11 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="ZUB"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="LM1000Hz" type="xs:string"/>
           <xs:attribute name="LM500Hz" type="xs:string"/>
           <xs:attribute name="LMBefehl" type="xs:string"/>
@@ -238,10 +238,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="LM1000Hz" type="xs:string"/>
           <xs:attribute name="LM500Hz" type="xs:string"/>
           <xs:attribute name="LMBefehl" type="xs:string"/>
@@ -256,10 +256,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="LM1000Hz" type="xs:string"/>
           <xs:attribute name="LM500Hz" type="xs:string"/>
           <xs:attribute name="LMBefehl" type="xs:string"/>
@@ -274,10 +274,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="LM1000Hz" type="xs:string"/>
           <xs:attribute name="LM500Hz" type="xs:string"/>
           <xs:attribute name="LMBefehl" type="xs:string"/>
@@ -292,11 +292,11 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="ZUB"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="LM1000Hz" type="xs:string"/>
           <xs:attribute name="LM500Hz" type="xs:string"/>
           <xs:attribute name="LMBefehl" type="xs:string"/>
@@ -311,11 +311,11 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="ZUB"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="LM1000Hz" type="xs:string"/>
           <xs:attribute name="LM500Hz" type="xs:string"/>
           <xs:attribute name="LMBefehl" type="xs:string"/>
@@ -330,10 +330,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="LM1000Hz" type="xs:string"/>
           <xs:attribute name="LM500Hz" type="xs:string"/>
           <xs:attribute name="LMBefehl" type="xs:string"/>
@@ -366,14 +366,14 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="SoundIndusiSchnarre" type="Sound"/>
             <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="PZB"/>
             <xs:element name="SoundIndusiZB" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="BalkenLZBZielweg" type="xs:string"/>
           <xs:attribute name="InstrLZBAFBSollGeschw" type="xs:string"/>
           <xs:attribute name="InstrLZBSollGeschw" type="xs:string"/>
@@ -404,14 +404,14 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiSchnarre" type="Sound"/>
             <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="PZB"/>
             <xs:element name="SoundIndusiZB" type="Sound"/>
             <xs:element name="SoundIndusiHupe" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="BalkenLZBZielweg" type="xs:string"/>
           <xs:attribute name="InstrLZBAFBSollGeschw" type="xs:string"/>
           <xs:attribute name="InstrLZBSollGeschw" type="xs:string"/>
@@ -442,14 +442,14 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="SoundIndusiSchnarre" type="Sound"/>
             <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="PZB"/>
             <xs:element name="SoundIndusiZB" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="BalkenLZBZielweg" type="xs:string"/>
           <xs:attribute name="InstrLZBAFBSollGeschw" type="xs:string"/>
           <xs:attribute name="InstrLZBSollGeschw" type="xs:string"/>
@@ -480,14 +480,14 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundIndusiHupe" type="Sound"/>
             <xs:element name="SoundIndusiSchnarre" type="Sound"/>
             <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
             <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="PZB"/>
             <xs:element name="SoundIndusiZB" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="BalkenLZBZielweg" type="xs:string"/>
           <xs:attribute name="InstrLZBAFBSollGeschw" type="xs:string"/>
           <xs:attribute name="InstrLZBSollGeschw" type="xs:string"/>
@@ -523,9 +523,9 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSifa">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundSifaZB" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="Sprachausgabe" type="boolean"/>
         </xs:extension>
       </xs:complexContent>
@@ -568,9 +568,9 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundTB0" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="NameSchalter" type="xs:string"/>
           <xs:attribute name="Sprachausgabe" type="boolean"/>
         </xs:extension>
@@ -581,10 +581,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundErinnerung" type="Sound"/>
             <xs:element name="SoundSchliessvorgang" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="HaltebremseImmer" type="boolean"/>
           <xs:attribute name="LMLi" type="xs:string"/>
           <xs:attribute name="LMRe" type="xs:string"/>
@@ -603,10 +603,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundErinnerung" type="Sound"/>
             <xs:element name="SoundSchliessvorgang" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="HaltebremseImmer" type="boolean"/>
           <xs:attribute name="LMLi" type="xs:string"/>
           <xs:attribute name="LMRe" type="xs:string"/>
@@ -625,10 +625,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundErinnerung" type="Sound"/>
             <xs:element name="SoundSchliessvorgang" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="HaltebremseImmer" type="boolean"/>
           <xs:attribute name="LMLi" type="xs:string"/>
           <xs:attribute name="LMRe" type="xs:string"/>
@@ -676,9 +676,9 @@
   </xs:element>
   <xs:element name="NotbremssystemUICNBUe">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Sound" type="Sound"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="Invers" type="boolean"/>
       <xs:attribute name="NameLMBereit" type="xs:string"/>
       <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
@@ -688,9 +688,9 @@
   </xs:element>
   <xs:element name="NotbremsSystemNBUe2004">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Sound" type="Sound"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="Invers" type="boolean"/>
       <xs:attribute name="NameLMBereit" type="xs:string"/>
       <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
@@ -700,10 +700,10 @@
   </xs:element>
   <xs:element name="NotbremsSystemSBahn">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Sound" type="Sound"/>
         <xs:element name="SoundNotbremsung" type="Sound"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="NameLMBereit" type="xs:string"/>
       <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
       <xs:attribute name="NameSchalter" type="xs:string"/>
@@ -715,9 +715,9 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element ref="Raste" maxOccurs="unbounded"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="FedertOben" type="boolean"/>
           <xs:attribute name="FedertUnten" type="boolean"/>
           <xs:attribute name="Grundstellung" type="xs:int"/>
@@ -729,10 +729,10 @@
   </xs:element>
   <xs:element name="Raste">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element ref="Belegung" maxOccurs="unbounded"/>
         <xs:element ref="Koppelung" maxOccurs="unbounded"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="SperrZeit" type="xs:float"/>
       <xs:attribute name="SperreRauf" type="boolean"/>
       <xs:attribute name="SperreRunter" type="boolean"/>
@@ -773,10 +773,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundHoch" type="Sound"/>
             <xs:element name="SoundTief" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="NameSchalter" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
@@ -813,9 +813,9 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="Sound" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="NameLM" type="xs:string"/>
           <xs:attribute name="NameSchalter" type="xs:string"/>
         </xs:extension>
@@ -836,9 +836,9 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="Sound" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="BremsenHL" type="boolean"/>
           <xs:attribute name="NameSchalter" type="xs:string"/>
           <xs:attribute name="Sprachausgabe" type="boolean"/>
@@ -926,11 +926,11 @@
   </xs:element>
   <xs:element name="Grunddaten">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="p" type="Vec3"/>
         <xs:element name="lookat" type="Vec3"/>
         <xs:element name="up" type="Vec3"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="FtdHauptrichtung" type="xs:int"/>
       <xs:attribute name="FtdLfdNr" type="xs:int"/>
       <xs:attribute name="FtdQualitaet" type="xs:long"/>
@@ -938,11 +938,11 @@
     </xs:complexType>
   </xs:element>
   <xs:complexType name="FtdInstrument">
-    <xs:sequence>
+    <xs:all minOccurs="0">
       <xs:element name="InstrPkt1" type="Vec2"/>
       <xs:element ref="FstTextur"/>
       <xs:element name="Ueberdeckend" type="Ueberdeckung"/>
-    </xs:sequence>
+    </xs:all>
     <xs:attribute name="InstrName" type="xs:string"/>
     <xs:attribute name="PhysikGroesse" type="xs:int"/>
     <xs:attribute name="TCPTyp" type="xs:int"/>
@@ -957,12 +957,12 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdInstrument">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="InstrPkt2" type="Vec2"/>
             <xs:element name="InstrPkt3" type="Vec2"/>
             <xs:element name="InstrPkt4" type="Vec2"/>
             <xs:element name="Font" type="Dateiverknuepfung"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="MaxBildNr" type="xs:int"/>
           <xs:attribute name="Vorkomma" type="xs:int"/>
           <xs:attribute name="Nachkomma" type="xs:int"/>
@@ -988,9 +988,9 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdInstrument">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element ref="ZeigerStuetzpunkt" maxOccurs="unbounded"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="Zeigertyp" type="xs:int"/>
           <xs:attribute name="Segmente" type="xs:int"/>
           <xs:attribute name="Balkenursprung" type="xs:float"/>
@@ -1014,10 +1014,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaet">
-          <xs:sequence>
+          <xs:all minOccurs="0">
             <xs:element name="SoundGNT" type="Sound"/>
             <xs:element name="SoundGNTAchtung" type="Sound"/>
-          </xs:sequence>
+          </xs:all>
           <xs:attribute name="LMGNT" type="xs:string"/>
           <xs:attribute name="LMGNTG" type="xs:string"/>
           <xs:attribute name="LMGNTPruefen" type="xs:string"/>
@@ -1040,23 +1040,23 @@
   </xs:complexType>
   <xs:element name="PZB">
     <xs:complexType>
-      <xs:sequence minOccurs="0">
+      <xs:all minOccurs="0">
         <xs:element ref="ZUB"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="FstTextur">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element ref="EinzelTextur"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="EinzelTextur">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="TransparentFarbe" type="xs:hexBinary"/>
       <xs:attribute name="TransparentModus" type="xs:int"/>
       <xs:attribute name="Uol" type="xs:float"/>

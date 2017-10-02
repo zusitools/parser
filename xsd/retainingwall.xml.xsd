@@ -4,11 +4,11 @@
   <xs:include schemaLocation="material.xsd"/>
   <xs:element name="RetainingWall">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Mauer" type="Material"/>
         <xs:element name="Abschluss" type="Material"/>
         <xs:element name="AbschlussSenkr" type="Material"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="CheckBoxBoeschungEinfach" use="required" type="boolean"/>
       <xs:attribute name="CheckBoxDEMEinfach" use="required" type="boolean"/>
       <xs:attribute name="CheckBoxMatUebernehmen" use="required" type="boolean"/>

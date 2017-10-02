@@ -14,12 +14,10 @@
   <xs:complexType name="Dateiverknuepfung">
     <xs:attribute name="Dateiname" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="de">
-          Dateipfade sind entweder
-          - Pfade relativ zum Zusi-Datenverzeichnis (RollingStock\Deutschland\Lok.ls3), wobei ein führender Backslash erlaubt ist und ignoriert wird, oder
-          - wenn sie keinen Backslash enthalten, Dateien im selben Verzeichnis wie die Datei, in der der Pfad steht.
-          Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenverzeichnis liegen, nicht referenziert werden.
-        </xs:documentation>
+        <xs:documentation xml:lang="de">Dateipfade sind entweder
+- Pfade relativ zum Zusi-Datenverzeichnis (RollingStock\Deutschland\Lok.ls3), wobei ein führender Backslash erlaubt ist und ignoriert wird, oder
+- wenn sie keinen Backslash enthalten, Dateien im selben Verzeichnis wie die Datei, in der der Pfad steht.
+Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenverzeichnis liegen, nicht referenziert werden.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="NurInfo" type="boolean"/>
@@ -41,17 +39,17 @@
   </xs:complexType>
   <xs:element name="UTM">
     <xs:complexType>
-      <xs:attribute name="UTM_NS" use="required" type="xs:int"/>
-      <xs:attribute name="UTM_WE" use="required" type="xs:int"/>
-      <xs:attribute name="UTM_Zone" use="required" type="xs:int"/>
-      <xs:attribute name="UTM_Zone2" use="required" type="xs:string"/>
+      <xs:attribute name="UTM_NS" type="xs:int"/>
+      <xs:attribute name="UTM_WE" type="xs:int"/>
+      <xs:attribute name="UTM_Zone" type="xs:int"/>
+      <xs:attribute name="UTM_Zone2" type="xs:string"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Huellkurve">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="PunktXYZ" type="Vec3" minOccurs="0" maxOccurs="unbounded"/>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="Ereignis">
@@ -109,9 +107,9 @@
     </xs:complexType>
   </xs:element>
   <xs:complexType name="SoundMitAbhaengigkeit">
-    <xs:sequence>
+    <xs:all minOccurs="0">
       <xs:element name="Sound" type="Sound"/>
       <xs:element ref="Abhaengigkeit"/>
-    </xs:sequence>
+    </xs:all>
   </xs:complexType>
 </xs:schema>

@@ -3,12 +3,12 @@
   <xs:include schemaLocation="typen.xsd"/>
   <xs:element name="Buchfahrplan">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Datei_fpn" type="Dateiverknuepfung"/>
         <xs:element name="Datei_trn" type="Dateiverknuepfung"/>
         <xs:element ref="Fzg"/>
         <xs:element ref="FplZeile"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="BR" type="xs:string"/>
       <xs:attribute name="Bremsh" type="xs:float"/>
       <xs:attribute name="Bremsstellung" type="xs:int"/>

@@ -16,16 +16,16 @@
   </xs:element>
   <xs:element name="Zuordnung">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="IDStart" use="required" type="xs:hexBinary"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="Varianten">
-    <xs:sequence>
+    <xs:all minOccurs="0">
       <xs:element ref="Variante"/>
-    </xs:sequence>
+    </xs:all>
   </xs:complexType>
   <xs:element name="Variante">
     <xs:complexType>

@@ -6,9 +6,7 @@
       <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0" maxOccurs="1">
           <xs:annotation>
-            <xs:documentation xml:lang="de">
-              Die zur Strecke gehörende Landschaftsdatei.
-            </xs:documentation>
+            <xs:documentation xml:lang="de">Die zur Strecke gehörende Landschaftsdatei.</xs:documentation>
           </xs:annotation>
         </xs:element>
         <xs:element ref="LoeschFahrstrasse" minOccurs="0" maxOccurs="unbounded"/>
@@ -42,7 +40,7 @@
   </xs:element>
   <xs:element name="Skybox">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:all minOccurs="0">
         <xs:element name="Skybox0" type="Dateiverknuepfung"/>
         <xs:element name="Skybox1" type="Dateiverknuepfung"/>
         <xs:element name="Skybox2" type="Dateiverknuepfung"/>
@@ -54,7 +52,7 @@
   </xs:element>
   <xs:element name="SkyDome">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:all minOccurs="0">
         <xs:element name="HimmelTex" type="Dateiverknuepfung"/>
         <xs:element name="SonneTex" type="Dateiverknuepfung"/>
         <xs:element name="SonneHorizontTex" type="Dateiverknuepfung"/>
@@ -65,7 +63,7 @@
   </xs:element>
   <xs:element name="StreckenStandort">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:all minOccurs="0">
         <xs:element name="p" type="Vec3"/>
         <xs:element name="lookat" type="Vec3"/>
         <xs:element name="up" type="Vec3"/>
@@ -75,7 +73,7 @@
   </xs:element>
   <xs:element name="ModulDateien">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
     </xs:complexType>
@@ -89,15 +87,15 @@
   </xs:complexType>
   <xs:element name="StrElement">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:all minOccurs="0">
         <xs:element name="g" type="Vec3"/>
         <xs:element name="b" type="Vec3"/>
-        <xs:element name="InfoNormRichtung" type="StreckenelementRichtungsInfo"/>
-        <xs:element name="InfoGegenRichtung" type="StreckenelementRichtungsInfo"/>
-        <xs:element name="NachNorm" type="NachfolgerSelbesModul"/>
-        <xs:element name="NachGegen" type="NachfolgerSelbesModul"/>
-        <xs:element name="NachNormModul" type="NachfolgerAnderesModul"/>
-        <xs:element name="NachGegenModul" type="NachfolgerAnderesModul"/>
+        <xs:element name="InfoNormRichtung" type="StreckenelementRichtungsInfo" minOccurs="0"/>
+        <xs:element name="InfoGegenRichtung" type="StreckenelementRichtungsInfo" minOccurs="0"/>
+        <xs:element name="NachNorm" type="NachfolgerSelbesModul" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="NachGegen" type="NachfolgerSelbesModul" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="NachNormModul" type="NachfolgerAnderesModul" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="NachGegenModul" type="NachfolgerAnderesModul" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Anschluss" type="xs:int"/>
       <xs:attribute name="Drahthoehe" type="xs:float"/>
@@ -112,9 +110,9 @@
     </xs:complexType>
   </xs:element>
   <xs:complexType name="StreckenelementRichtungsInfo">
-    <xs:all minOccurs="0" maxOccurs="unbounded">
-      <xs:element ref="Ereignis" maxOccurs="unbounded"/>
-      <xs:element name="Signal" type="Signal"/>
+    <xs:all minOccurs="0">
+      <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="Signal" type="Signal" minOccurs="0"/>
     </xs:all>
     <xs:attribute name="KoppelWeicheNorm" type="boolean"/>
     <xs:attribute name="KoppelWeicheNr" type="xs:int"/>
@@ -127,23 +125,23 @@
     <xs:attribute name="Nr" type="xs:int"/>
   </xs:complexType>
   <xs:complexType name="NachfolgerAnderesModul">
-    <xs:all minOccurs="0" maxOccurs="unbounded">
+    <xs:all minOccurs="0">
       <xs:element name="Datei" type="Dateiverknuepfung"/>
     </xs:all>
     <xs:attribute name="Nr" type="xs:int"/>
   </xs:complexType>
   <xs:element name="Fahrstrasse">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:all minOccurs="0">
         <xs:element ref="FahrstrStart"/>
         <xs:element ref="FahrstrZiel"/>
-        <xs:element ref="FahrstrRegister"/>
-        <xs:element ref="FahrstrAufloesung"/>
-        <xs:element ref="FahrstrTeilaufloesung"/>
-        <xs:element ref="FahrstrSigHaltfall"/>
-        <xs:element ref="FahrstrWeiche"/>
-        <xs:element ref="FahrstrSignal"/>
-        <xs:element ref="FahrstrVSignal"/>
+        <xs:element ref="FahrstrRegister" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FahrstrAufloesung" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FahrstrTeilaufloesung" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FahrstrSigHaltfall" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FahrstrWeiche" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FahrstrSignal" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FahrstrVSignal" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="FahrstrName" type="xs:string"/>
       <xs:attribute name="FahrstrStrecke" type="xs:string"/>
@@ -230,15 +228,15 @@
     </xs:complexType>
   </xs:element>
   <xs:complexType name="Signal">
-    <xs:all minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="p" type="Vec3"/>
-      <xs:element name="phi" type="Vec3"/>
-      <xs:element ref="KoppelSignal"/>
-      <xs:element ref="SignalFrame"/>
-      <xs:element ref="HsigBegriff"/>
-      <xs:element ref="VsigBegriff"/>
-      <xs:element ref="MatrixEintrag"/>
-      <xs:element ref="Ersatzsignal"/>
+    <xs:all minOccurs="0">
+      <xs:element name="p" type="Vec3" minOccurs="0"/>
+      <xs:element name="phi" type="Vec3" minOccurs="0"/>
+      <xs:element ref="KoppelSignal" minOccurs="0"/>
+      <xs:element ref="SignalFrame" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="HsigBegriff" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="VsigBegriff" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="MatrixEintrag" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Ersatzsignal" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
     <xs:attribute name="BoundingR" type="xs:int"/>
     <xs:attribute name="NameBetriebsstelle" type="xs:string"/>
@@ -261,10 +259,10 @@
   </xs:element>
   <xs:element name="SignalFrame">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="p" type="Vec3" minOccurs="0" maxOccurs="1"/>
-        <xs:element name="phi" type="Vec3" minOccurs="0" maxOccurs="1"/>
-        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0" maxOccurs="1"/>
+      <xs:all minOccurs="0">
+        <xs:element name="p" type="Vec3" minOccurs="0"/>
+        <xs:element name="phi" type="Vec3" minOccurs="0"/>
+        <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0"/>
         <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="WeichenbaugruppeBeschreibung" type="xs:string"/>
@@ -287,7 +285,7 @@
   </xs:element>
   <xs:element name="Ersatzsignal">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
+      <xs:all minOccurs="0">
         <xs:element ref="MatrixEintrag"/>
       </xs:all>
       <xs:attribute name="ErsatzsigBezeichnung" type="xs:string"/>
@@ -297,8 +295,8 @@
   </xs:element>
   <xs:element name="MatrixEintrag">
     <xs:complexType>
-      <xs:all minOccurs="0" maxOccurs="unbounded">
-        <xs:element ref="Ereignis"/>
+      <xs:all minOccurs="0">
+        <xs:element ref="Ereignis" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="MatrixGeschw" type="xs:float"/>
       <xs:attribute name="SignalID" type="xs:int"/>

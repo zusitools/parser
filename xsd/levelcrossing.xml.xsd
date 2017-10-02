@@ -3,11 +3,11 @@
   <xs:include schemaLocation="typen.xsd"/>
   <xs:element name="levelcrossing">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="LabeledEditCHDateiSchranke" type="Dateiverknuepfung"/>
         <xs:element name="LabeledEditCHDateiAnkuendiger" type="Dateiverknuepfung"/>
         <xs:element name="LabeledEditCHDateiEinschaltsignal" type="Dateiverknuepfung"/>
-      </xs:sequence>
+      </xs:all>
       <xs:attribute name="CheckBoxAnkAnimiert" type="boolean"/>
       <xs:attribute name="LabeledEditCHAbstandEinschaltsignal" type="xs:float"/>
       <xs:attribute name="LabeledEditCHVorlaufzeit" type="xs:float"/>
