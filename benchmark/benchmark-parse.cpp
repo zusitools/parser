@@ -92,22 +92,19 @@ int main(int argc, char** argv) {
 
   auto ende_laden = std::chrono::high_resolution_clock::now();
 
-  decltype(ende_laden) ende_parsen;
-  {
-    std::vector<std::unique_ptr<Zusi>> results;
-    for (size_t i = 0; i < dateien.size(); i++) {
-      try {
-        results.push_back(rapidxml::parse<Zusi>(&dateien[i][0]));
-      } catch (rapidxml::parse_error& e) {
-        std::cerr << dateinamen[i] << ": " << e.what() << " @ char " << (e.where() - &dateien[i][0]) << std::endl;
-      }
+  std::vector<std::unique_ptr<Zusi>> results;
+  for (size_t i = 0; i < dateien.size(); i++) {
+    try {
+      results.push_back(rapidxml::parse<Zusi>(&dateien[i][0]));
+    } catch (rapidxml::parse_error& e) {
+      std::cerr << dateinamen[i] << ": " << e.what() << " @ char " << (e.where() - &dateien[i][0]) << std::endl;
     }
-    ende_parsen = std::chrono::high_resolution_clock::now();
-    std::cout << "Parsed " << results.size() << " files (" << total_size << " bytes)" << std::endl;
   }
+  auto ende_parsen = std::chrono::high_resolution_clock::now();
+  std::cout << "Parsed " << results.size() << " files (" << total_size << " bytes)" << std::endl;  // use results variable
 
-  auto ende_destruktor = std::chrono::high_resolution_clock::now();
   std::cout << " - load: " << std::chrono::duration_cast<std::chrono::milliseconds>(ende_laden - start).count() << " ms " << std::endl;
   std::cout << " - parse: " << std::chrono::duration_cast<std::chrono::milliseconds>(ende_parsen - ende_laden).count() << " ms " << std::endl;
-  std::cout << " - destroy: " << std::chrono::duration_cast<std::chrono::milliseconds>(ende_destruktor - ende_parsen).count() << " ms " << std::endl;
+
+  _exit(0);  // do not call destructors -- their time must not be taken into account when benchmarking
 }

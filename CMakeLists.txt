@@ -70,3 +70,4 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/zusi_types.hpp ${CMAKE_BINARY_DIR}
 add_executable(benchmark benchmark/benchmark-parse.cpp ${CMAKE_BINARY_DIR}/zusi_types.hpp ${CMAKE_BINARY_DIR}/zusi_parser.hpp ${CMAKE_BINARY_DIR}/zusi_parser_fwd.hpp)
 target_include_directories(benchmark PRIVATE ${CMAKE_BINARY_DIR} rapidxml-mod)
 target_compile_options(benchmark PRIVATE -Wall -Wextra)
+target_compile_definitions(benchmark PRIVATE -DUSE_MMAP)
