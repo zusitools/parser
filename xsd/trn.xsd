@@ -115,6 +115,11 @@
       <xs:attribute name="SASchaltung" type="xs:int"/>
       <xs:attribute name="Tuerignorieren" type="boolean"/>
       <xs:attribute name="Zugart" type="xs:string"/>
+      <xs:attribute name="VariantenIndex" type="xs:int">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 </xs:schema>

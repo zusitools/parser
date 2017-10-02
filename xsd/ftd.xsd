@@ -676,39 +676,51 @@
   </xs:element>
   <xs:element name="NotbremssystemUICNBUe">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Sound" type="Sound"/>
-      </xs:all>
-      <xs:attribute name="Invers" type="boolean"/>
-      <xs:attribute name="NameLMBereit" type="xs:string"/>
-      <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
-      <xs:attribute name="Sprachausgabe" type="boolean"/>
-      <xs:attribute name="Taster" type="boolean"/>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaet">
+          <xs:all minOccurs="0">
+            <xs:element name="Sound" type="Sound"/>
+          </xs:all>
+          <xs:attribute name="Invers" type="boolean"/>
+          <xs:attribute name="NameLMBereit" type="xs:string"/>
+          <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
+          <xs:attribute name="Sprachausgabe" type="boolean"/>
+          <xs:attribute name="Taster" type="boolean"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="NotbremsSystemNBUe2004">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Sound" type="Sound"/>
-      </xs:all>
-      <xs:attribute name="Invers" type="boolean"/>
-      <xs:attribute name="NameLMBereit" type="xs:string"/>
-      <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
-      <xs:attribute name="Sprachausgabe" type="boolean"/>
-      <xs:attribute name="Taster" type="boolean"/>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaet">
+          <xs:all minOccurs="0">
+            <xs:element name="Sound" type="Sound"/>
+          </xs:all>
+          <xs:attribute name="Invers" type="boolean"/>
+          <xs:attribute name="NameLMBereit" type="xs:string"/>
+          <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
+          <xs:attribute name="Sprachausgabe" type="boolean"/>
+          <xs:attribute name="Taster" type="boolean"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="NotbremsSystemSBahn">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Sound" type="Sound"/>
-        <xs:element name="SoundNotbremsung" type="Sound"/>
-      </xs:all>
-      <xs:attribute name="NameLMBereit" type="xs:string"/>
-      <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
-      <xs:attribute name="NameSchalter" type="xs:string"/>
-      <xs:attribute name="Sprachausgabe" type="boolean"/>
-      <xs:attribute name="Taster" type="boolean"/>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaet">
+          <xs:all minOccurs="0">
+            <xs:element name="Sound" type="Sound"/>
+            <xs:element name="SoundNotbremsung" type="Sound"/>
+          </xs:all>
+          <xs:attribute name="NameLMBereit" type="xs:string"/>
+          <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
+          <xs:attribute name="NameSchalter" type="xs:string"/>
+          <xs:attribute name="Sprachausgabe" type="boolean"/>
+          <xs:attribute name="Taster" type="boolean"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="Kombischalter">
@@ -970,7 +982,7 @@
           <xs:attribute name="Infotext" type="boolean"/>
           <xs:attribute name="NullenFuellen" type="boolean"/>
           <xs:attribute name="KleinerGrenzwertDunkel" type="boolean"/>
-          <xs:attribute name="KleinerGrenzwert" type="boolean"/>
+          <xs:attribute name="KleinerGrenzwert" type="xs:float"/>
           <xs:attribute name="Farbe" type="xs:hexBinary"/>
           <xs:attribute name="MinWert" type="xs:float"/>
           <xs:attribute name="MaxWert" type="xs:float"/>

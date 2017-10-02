@@ -102,7 +102,7 @@
       </xs:all>
       <xs:attribute name="Anschluss" type="xs:int"/>
       <xs:attribute name="Drahthoehe" type="xs:float"/>
-      <xs:attribute name="Fkt" type="xs:int"/>
+      <xs:attribute name="Fkt" type="xs:long"/>
       <xs:attribute name="Nr" type="xs:int"/>
       <xs:attribute name="Oberbau" type="xs:string"/>
       <xs:attribute name="Ueberh" type="xs:float"/>
@@ -277,7 +277,7 @@
   </xs:element>
   <xs:element name="HsigBegriff">
     <xs:complexType>
-      <xs:attribute name="FahrstrTyp" type="xs:int"/>
+      <xs:attribute name="FahrstrTyp" type="xs:long"/>
       <xs:attribute name="HsigGeschw" type="xs:float"/>
     </xs:complexType>
   </xs:element>
@@ -303,7 +303,7 @@
       </xs:all>
       <xs:attribute name="MatrixGeschw" type="xs:float"/>
       <xs:attribute name="SignalID" type="xs:int"/>
-      <xs:attribute name="Signalbild" type="xs:int"/>
+      <xs:attribute name="Signalbild" type="xs:long"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

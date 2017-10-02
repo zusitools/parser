@@ -24,7 +24,7 @@
       <xs:attribute name="DateiInfoVersionAlt" type="xs:string"/>
       <xs:attribute name="Datum" type="dateTime"/>
       <xs:attribute name="Groesse" type="xs:int"/>
-      <xs:attribute name="Hashwert" type="xs:int"/>
+      <xs:attribute name="Hashwert" type="xs:long"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Verschieben">

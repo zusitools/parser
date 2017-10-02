@@ -55,6 +55,11 @@
       <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
+      <xs:attribute name="Datei" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
   <xs:element name="Weiche">
@@ -118,25 +123,19 @@
     <xs:attribute name="Oberbau" type="xs:string"/>
     <xs:attribute name="ProfilName" type="xs:string"/>
     <xs:attribute name="spTrass" type="xs:float"/>
-  </xs:complexType>
-  <xs:complexType name="GleisplanElementPrimitiv">
-    <xs:complexContent>
-      <xs:extension base="GleisplanElement">
-        <xs:attribute name="st2Typ" type="xs:int"/>
-      </xs:extension>
-    </xs:complexContent>
+    <xs:attribute name="st2Typ" type="xs:int"/>
   </xs:complexType>
   <xs:element name="Gerade">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="GleisplanElementPrimitiv"/>
+        <xs:extension base="GleisplanElement"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="Klothoide">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="GleisplanElementPrimitiv">
+        <xs:extension base="GleisplanElement">
           <xs:attribute name="KrAnf" type="xs:float"/>
           <xs:attribute name="L" type="xs:float"/>
           <xs:attribute name="R" type="xs:float"/>
@@ -148,7 +147,7 @@
   <xs:element name="Kreisbogen">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="GleisplanElementPrimitiv">
+        <xs:extension base="GleisplanElement">
           <xs:all minOccurs="0">
             <xs:element name="Punkt" type="Vec2"/>
           </xs:all>
@@ -163,7 +162,7 @@
   <xs:element name="Punkt">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="GleisplanElementPrimitiv">
+        <xs:extension base="GleisplanElement">
           <xs:attribute name="Beschreibung" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
@@ -176,6 +175,16 @@
       <xs:attribute name="X" type="xs:float"/>
       <xs:attribute name="Y" type="xs:float"/>
       <xs:attribute name="km" type="xs:float"/>
+      <xs:attribute name="Ueb" type="xs:float">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="Hoehe" type="xs:float">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 </xs:schema>

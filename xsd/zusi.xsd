@@ -110,6 +110,11 @@
           <xs:documentation xml:lang="de">Der Name des Autors. Bei Autoren mit AutorenID der Firma Hölscher muss die genaue Schreibweise des AutorNamens mit Firma Hölscher abgestimmt sein, da dort eine Plausibilitätsprüfung stattfindet (= passt die ID zum Namen?)</xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="Bemerkung" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 </xs:schema>

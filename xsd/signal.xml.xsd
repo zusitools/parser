@@ -13,14 +13,12 @@
         </xs:all>
         <xs:attribute name="SigAssiErgaenzen" type="boolean">
           <xs:annotation>
-            <xs:documentation xml:lang="de">
-      </xs:documentation>
+            <xs:documentation xml:lang="de"/>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="SigAssiGrundZeile" type="xs:int">
           <xs:annotation>
-            <xs:documentation xml:lang="de">
-      </xs:documentation>
+            <xs:documentation xml:lang="de"/>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="SigAssiKeineGrunddaten" type="boolean">
@@ -31,6 +29,11 @@
         <xs:attribute name="SigAssiKeineKODiff" type="boolean">
           <xs:annotation>
             <xs:documentation xml:lang="de">Wird eingesetzt, wenn das Signal in eine vorhandene Signalmatrix integriert werden soll, aber etwaige durch SigAssiPosition vorgegebene Verschiebungen des Signalstandorts nicht mitmachen soll, sondern auf jeden Fall an den vorgesehenen Koordinaten eingebaut werden soll. Anwendungsfall: Zum Beispiel PZB-Magnete, die unabhängig vom Standort des Hauptsignals (links/rechts vom Gleis) auf jeden Fall an der rechten Schiene positioniert werden sollen.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="BeideRichtungen" type="boolean">
+          <xs:annotation>
+            <xs:documentation xml:lang="de">@deprecated</xs:documentation>
           </xs:annotation>
         </xs:attribute>
       </xs:extension>
