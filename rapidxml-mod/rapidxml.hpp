@@ -594,7 +594,7 @@ namespace rapidxml {
     }
 
     // Skip data.
-    static Ch parse_and_append_data(Ch *&text, Ch *contents_start)
+    static std::remove_const_t<Ch> parse_and_append_data(Ch *&text, Ch *contents_start)
     {
         // Backup to contents start if whitespace trimming is disabled
         text = contents_start;     
