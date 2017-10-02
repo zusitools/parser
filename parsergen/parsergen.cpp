@@ -26,18 +26,21 @@ enum class AttributeType {
 struct Attribute {
   std::string name;
   AttributeType type;
+  std::string documentation;
 };
 
 struct Child {
   std::string name;
   std::string type;
   bool multiple;
+  std::string documentation;
 };
 
 struct ElementType {
   std::string base;
   std::vector<Attribute> attributes;
   std::vector<Child> children;
+  std::string documentation;
 };
 
 class ParserGenerator {
@@ -79,6 +82,7 @@ class ParserGenerator {
   void GenerateTypeDeclarations() {
     for (auto&& [ typeName, elementType ] : m_element_types) {
       std::cout << "struct " << typeName << ";" << std::endl;
+      (void)elementType;
     }
   }
 
@@ -97,6 +101,9 @@ class ParserGenerator {
         done.insert(typeName);
         changed = true;
 
+        if (!elementType.documentation.empty()) {
+          std::cout << "/** " << elementType.documentation << "*/" << std::endl;
+        }
         std::cout << "struct " << typeName;
         if (elementType.base.size() > 0) {
           std::cout << " : " << elementType.base;
@@ -104,6 +111,9 @@ class ParserGenerator {
         std::cout << " {" << std::endl;
 
         for (const auto& attribute : elementType.attributes) {
+          if (!attribute.documentation.empty()) {
+            std::cout << "  /** " << attribute.documentation << "*/" << std::endl;
+          }
           std::cout << "  ";
           switch (attribute.type) {
             case AttributeType::Int32: std::cout << "int32_t"; break;
@@ -118,6 +128,9 @@ class ParserGenerator {
         }
 
         for (const auto& child : elementType.children) {
+          if (!child.documentation.empty()) {
+            std::cout << "  /** " << child.documentation << "*/" << std::endl;
+          }
           if (child.multiple) {
             std::cout << "  std::vector<std::unique_ptr<struct " << child.type << ">> children_" << child.name << ";" << std::endl;
           } else {
@@ -138,6 +151,10 @@ class ParserGenerator {
   std::unordered_map<std::string, std::unique_ptr<pugi::xml_document>> m_docs_by_name = {};
   std::map<std::string, ElementType> m_element_types = {};
 
+  std::string GetDocumentation(pugi::xml_node node) {
+    return node.select_node("xs:annotation/xs:documentation").node().text().get();
+  }
+
   void FindChildTypes(ElementType* elementType, pugi::xml_node node) {
     for (const auto& child : node.children()) {
       if (child.name() == std::string("xs:element")) {
@@ -145,9 +162,9 @@ class ParserGenerator {
             (child.attribute("maxOccurs").as_string() == std::string("unbounded") || child.attribute("maxOccurs").as_int() > 1);
         if (child.attribute("ref")) {
           std::string childTypeName = child.attribute("ref").as_string();
-          elementType->children.push_back(Child { childTypeName, childTypeName, multiple });
+          elementType->children.push_back(Child { childTypeName, childTypeName, multiple, GetDocumentation(child) });
         } else {
-          elementType->children.push_back(Child { child.attribute("name").as_string(), child.attribute("type").as_string(), multiple });
+          elementType->children.push_back(Child { child.attribute("name").as_string(), child.attribute("type").as_string(), multiple, GetDocumentation(child) });
         }
       } else {
         FindChildTypes(elementType, child);
@@ -172,6 +189,7 @@ class ParserGenerator {
       return;
     }
 
+    elementType.documentation = GetDocumentation(complexTypeNode);
     FindChildTypes(&elementType, complexTypeNode);
 
     auto complexContent = complexTypeNode.child("xs:complexContent");
@@ -211,7 +229,7 @@ class ParserGenerator {
         continue;
       }
 
-      elementType.attributes.push_back(Attribute { child.attribute("name").as_string(), attributeType });
+      elementType.attributes.push_back(Attribute { child.attribute("name").as_string(), attributeType, GetDocumentation(child) });
     }
   }
 };
