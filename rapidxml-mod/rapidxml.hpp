@@ -74,7 +74,7 @@ namespace rapidxml
     public:
     
         //! Constructs parse error
-        parse_error(const char *what, void *where)
+        parse_error(const char *what, const void *where)
             : m_what(what)
             , m_where(where)
         {
@@ -99,7 +99,7 @@ namespace rapidxml
     private:  
 
         const char *m_what;
-        void *m_where;
+        const void *m_where;
 
     };
 }
@@ -1562,7 +1562,7 @@ namespace rapidxml
                 // Skip whitespace between > and node contents
                 Ch *contents_start = text;      // Store start of node contents before whitespace is skipped
                 skip<whitespace_pred, Flags>(text);
-                Ch next_char = *text;
+                std::remove_const_t<Ch> next_char = *text;
 
             // After data nodes, instead of continuing the loop, control jumps here.
             // This is because zero termination inside parse_and_append_data() function
