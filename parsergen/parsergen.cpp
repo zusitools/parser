@@ -187,18 +187,25 @@ class ParserGenerator {
       auto allAttributes = GetAllAttributes(elementType);
 
       std::ostringstream parse_children;
-        parse_children << "if (false) {}" << std::endl;
+      parse_children << "if (false) { (void)parseResultTyped; }" << std::endl;
 
-        for (const auto& child : allChildren) {
-          parse_children << "else if (name_size == " << child.name.size() << " && !memcmp(name, \"" << child.name << "\", " << child.name.size() << ")) {" << std::endl;
-          parse_children << "  parse_element<" << child.type << ">(text, nullptr);" << std::endl;
-          parse_children << "}" << std::endl;
+      for (const auto& child : allChildren) {
+        parse_children << "else if (name_size == " << child.name.size() << " && !memcmp(name, \"" << child.name << "\", " << child.name.size() << ")) {" << std::endl;
+        parse_children << "  std::unique_ptr<" << child.type << "> childResult(new " << child.type << ");" << std::endl;
+        parse_children << "  " << child.type << "* childResultRaw = childResult.get();" << std::endl;
+        if (child.multiple) {
+          parse_children << "  parseResultTyped->children_" << child.name << ".push_back(std::move(childResult));" << std::endl;
+        } else {
+          parse_children << "  parseResultTyped->" << child.name << " = std::move(childResult);" << std::endl;
         }
-
-        parse_children << "else {" << std::endl;
-        parse_children << "  std::cerr << \"Unexpected child of node " << typeName << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
-        parse_children << "  parse_element<void>(text, nullptr);" << std::endl;
+        parse_children << "  parse_element<" << child.type << ">(text, childResultRaw);" << std::endl;
         parse_children << "}" << std::endl;
+      }
+
+      parse_children << "else {" << std::endl;
+      parse_children << "  std::cerr << \"Unexpected child of node " << typeName << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
+      parse_children << "  parse_element<void>(text, nullptr);" << std::endl;
+      parse_children << "}" << std::endl;
 
 #if 0
       parse_children << R""(switch (name_size) {
@@ -211,6 +218,7 @@ class ParserGenerator {
 #endif
 
       out << R""(  template<> void parse_element<)"" << typeName << R""(>(Ch *& text, void* parseResult) {
+
     // Parse attributes, if any
     parse_node_attributes<)"" << typeName << R""(>(text, parseResult);
 
@@ -219,6 +227,7 @@ class ParserGenerator {
     {
         ++text;
         parse_node_contents(text, [](Ch *&text, void* parseResult) {
+            )"" << typeName << R""(* parseResultTyped = static_cast<)"" << typeName << R""(*>(parseResult);
             (void)parseResult;
             // Extract element name
             Ch *name = text;
@@ -244,8 +253,74 @@ class ParserGenerator {
         RAPIDXML_PARSE_ERROR("expected >", text);
   })"" << std::endl;
 
+      std::ostringstream parse_attributes;
+      parse_attributes << "        if (false) { (void)parseResultTyped; }" << std::endl;
+
+      for (const auto& attr : allAttributes) {
+        parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
+        switch (attr.type) {
+          case AttributeType::Int32:
+            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+            parse_attributes << "          else" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            break;
+          case AttributeType::Int64:
+            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+            parse_attributes << "          else" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            break;
+          case AttributeType::Boolean:
+            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+            parse_attributes << "          else" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            break;
+          case AttributeType::String:
+            parse_attributes << "          Ch* value = text;" << std::endl;
+            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+            parse_attributes << "          else" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            parse_attributes << "          parseResultTyped->" << attr.name << ".resize(text - value);" << std::endl;
+            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+            parse_attributes << "            parseResultTyped->" << attr.name << ".resize(copy_and_expand_character_refs<attribute_value_pred<Ch('\\'')>, attribute_value_pure_pred<Ch('\\'')>>(value, &parseResultTyped->" << attr.name << "[0]));" << std::endl;
+            parse_attributes << "          else" << std::endl;
+            parse_attributes << "            parseResultTyped->" << attr.name << ".resize(copy_and_expand_character_refs<attribute_value_pred<Ch('\\\"')>, attribute_value_pure_pred<Ch('\\\"')>>(value, &parseResultTyped->" << attr.name << "[0]));" << std::endl;
+            break;
+          case AttributeType::Float:
+            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+            parse_attributes << "          else" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            break;
+          case AttributeType::DateTime:
+            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+            parse_attributes << "          else" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            break;
+          case AttributeType::HexInt32:
+            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+            parse_attributes << "          else" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            break;
+        }
+        parse_attributes << "        }" << std::endl;
+      }
+
+      parse_attributes << "        else {" << std::endl;
+      parse_attributes << "          std::cerr << \"Unexpected attribute of node " << typeName << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
+      parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+      parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+      parse_attributes << "          else" << std::endl;
+      parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+      parse_attributes << "        }" << std::endl;
+
       out << R""(  template<> void parse_node_attributes<)"" << typeName << R""(>(Ch *& text, void* parseResult) {
-        (void)parseResult;
+        )"" << typeName << R""(* parseResultTyped = static_cast<)"" << typeName << R""(*>(parseResult);
         // For all attributes 
         while (attribute_name_pred::test(*text))
         {
@@ -253,7 +328,7 @@ class ParserGenerator {
             Ch *name = text;
             ++text;     // Skip first character of attribute name
             skip<attribute_name_pred>(text);
-            size_t attribute_size = text - name;
+            size_t name_size = text - name;
 
             // Skip whitespace after attribute name
             skip<whitespace_pred>(text);
@@ -273,16 +348,7 @@ class ParserGenerator {
             ++text;
 
             // Extract attribute value
-            switch (attribute_size) {
-              /* TODO autogenerated code here */
-              default: {
-                if (quote == Ch('\''))
-                    skip<attribute_value_pred<Ch('\'')>>(text);
-                else
-                    skip<attribute_value_pred<Ch('"')>>(text);
-                break;
-              }
-            }
+            )"" << parse_attributes.str() << R""(
 
             // Make sure that end quote is present
             if (*text != quote)
