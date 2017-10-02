@@ -174,15 +174,15 @@ namespace rapidxml
     static void parse_pi(Ch *&text);
     static void parse_cdata(Ch *&text);
 
-    static void parse_node(Ch *&text, parse_function parse_element_function, void* result);
-    static void parse_node_contents(Ch *&text, parse_function parse_element_function, void* result);
+    static void parse_node(Ch *&text, parse_function parse_element_function, void* parseResult);
+    static void parse_node_contents(Ch *&text, parse_function parse_element_function, void* parseResult);
 
     template<typename Result>
-    static void parse_element(Ch *&text, void* result);
+    static void parse_element(Ch *&text, void* parseResult);
 
     template<typename Result>
-    static void parse_node_attributes(Ch *&text, void* result);
-    
+    static void parse_node_attributes(Ch *&text, void* parseResult);
+
     ///////////////////////////////////////////////////////////////////////
     // Internal character utility functions
     
@@ -436,6 +436,11 @@ namespace rapidxml
 
         return dest - dest_start;
     }
+}
+
+#include "zusi_parser_fwd.hpp"
+
+namespace rapidxml {
 
     //! Parses zero-terminated XML string according to given flags.
     //! Passed string will be modified by the parser, unless rapidxml::parse_non_destructive flag is used.
@@ -452,7 +457,7 @@ namespace rapidxml
     static std::unique_ptr<Result> parse(Ch *text)
     {
         assert(text);
-        std::unique_ptr<Result> result { nullptr };
+        std::unique_ptr<Result> parseResult { nullptr };
         
         // Parse BOM, if any
         parse_bom(text);
@@ -468,10 +473,10 @@ namespace rapidxml
             // Parse and append new child
             if (*text == Ch('<'))
             {
-                result.reset(new Result());
+                parseResult.reset(new Result());
                 ++text;     // Skip '<'
 
-                parse_node(text, [](Ch *&text, void* result) {
+                parse_node(text, [](Ch *&text, void* parseResult) {
                     // Extract element name
                     Ch *name = text;
                     skip<node_name_pred>(text);
@@ -480,15 +485,15 @@ namespace rapidxml
 
                     // Skip whitespace between element name and attributes or >
                     skip<whitespace_pred>(text);
-                    parse_element<Result>(text, result);
-                }, result.get());
+                    parse_element<Result>(text, parseResult);
+                }, parseResult.get());
 
             }
             else
                 RAPIDXML_PARSE_ERROR("expected <", text);
         }
 
-        return result;
+        return parseResult;
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -535,9 +540,6 @@ namespace rapidxml
     // Parse DOCTYPE
     static void parse_doctype(Ch *&text)
     {
-        // Remember value start
-        Ch *value = text;
-
         // Skip to >
         while (*text != Ch('>'))
         {
@@ -591,16 +593,13 @@ namespace rapidxml
         text += 2;    // Skip '?>'
     }
 
-    // Parse and append data
-    // Return character that ends data.
-    // This is necessary because this character might have been overwritten by a terminating 0
+    // Skip data.
     static Ch parse_and_append_data(Ch *&text, Ch *contents_start)
     {
         // Backup to contents start if whitespace trimming is disabled
         text = contents_start;     
         
         // Skip until end of data
-        Ch *value = text;
         skip<text_pred>(text);
 
         // Return character that ends data
@@ -622,7 +621,7 @@ namespace rapidxml
 
     // Parses an XML node. For element nodes, calls the provided parse_element_function with the provided result as parameter.
     // All other nodes (XML declaration etc.) are ignored.
-    static void parse_node(Ch *&text, parse_function parse_element_function, void* result)
+    static void parse_node(Ch *&text, parse_function parse_element_function, void* parseResult)
     {
         // Parse proper node type
         switch (text[0])
@@ -632,7 +631,7 @@ namespace rapidxml
         default:
         {
             // Parse and append element node
-            parse_element_function(text, result);
+            parse_element_function(text, parseResult);
             break;
         }
 
@@ -716,16 +715,17 @@ namespace rapidxml
     
     // Parse element node
     template <typename Result>
-    static void parse_element(Ch *&text, void *result)
+    static void parse_element(Ch *&text, void *parseResult)
     {
         // Parse attributes, if any
-        parse_node_attributes<Result>(text, result);
+        parse_node_attributes<Result>(text, parseResult);
 
         // Determine ending type
         if (*text == Ch('>'))
         {
             ++text;
-            parse_node_contents(text, [](Ch *&text, void* result) {
+            parse_node_contents(text, [](Ch *&text, void* parseResult) {
+                (void)parseResult;
                 // Extract element name
                 Ch *name = text;
                 skip<node_name_pred>(text);
@@ -734,16 +734,8 @@ namespace rapidxml
 
                 // Skip whitespace between element name and attributes or >
                 skip<whitespace_pred>(text);
-
-                size_t name_size = text - name;
-                switch (name_size) {
-                  /* TODO: autogenerated code here */
-                  default: {
-                    parse_element<void>(text, nullptr);
-                    break;
-                  }
-                }
-            }, result);
+                parse_element<void>(text, nullptr);
+            }, parseResult);
         }
         else if (*text == Ch('/'))
         {
@@ -759,7 +751,7 @@ namespace rapidxml
     // Parse contents of the node - children, data etc.
     // In order to avoid having to specialize this function for all possible result types,
     // the result is passed as a void* pointer and must be cast to the appropriate type in parse_element_function.
-    static void parse_node_contents(Ch *&text, parse_function parse_element_function, void* result)
+    static void parse_node_contents(Ch *&text, parse_function parse_element_function, void* parseResult)
     {
         // For all children and text
         while (1)
@@ -798,7 +790,7 @@ namespace rapidxml
                 {
                     // Child node
                     ++text;     // Skip '<'
-                    parse_node(text, parse_element_function, result);
+                    parse_node(text, parse_element_function, parseResult);
                 }
                 break;
 
@@ -817,16 +809,15 @@ namespace rapidxml
     
     // Parse XML attributes of the node
     template <typename Result>
-    static void parse_node_attributes(Ch *&text, void* result)
+    static void parse_node_attributes(Ch *&text, void* parseResult)
     {
+        (void)parseResult;
         // For all attributes 
         while (attribute_name_pred::test(*text))
         {
-            // Extract attribute name
-            Ch *name = text;
+            // Skip attribute name
             ++text;     // Skip first character of attribute name
             skip<attribute_name_pred>(text);
-            size_t attribute_size = text - name;
 
             // Skip whitespace after attribute name
             skip<whitespace_pred>(text);
@@ -846,16 +837,10 @@ namespace rapidxml
             ++text;
 
             // Extract attribute value
-            switch (attribute_size) {
-              /* TODO autogenerated code here */
-              default: {
-                if (quote == Ch('\''))
-                    skip<attribute_value_pred<Ch('\'')>>(text);
-                else
-                    skip<attribute_value_pred<Ch('"')>>(text);
-                break;
-              }
-            }
+            if (quote == Ch('\''))
+                skip<attribute_value_pred<Ch('\'')>>(text);
+            else
+                skip<attribute_value_pred<Ch('"')>>(text);
             
             // Make sure that end quote is present
             if (*text != quote)
