@@ -2,6 +2,13 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
   <xs:include schemaLocation="typen.xsd"/>
   <xs:complexType name="Material">
+    <xs:annotation>
+      <xs:documentation xml:lang="de">Für Farbangaben gibt es aus historischen Gründen zwei Formate. 
+Die Attribute C, CA und E sind veraltet und wurden durch Cd, Ca und Ce ersetzt.
+Die Farbe wurde in C, CA und E als String "0AABBGGRR" kodiert.
+In den neuen Attributen Cd, Ca und Ce wird die Farbe als String "AARRGGBB" kodiert.
+RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grün-/Blau-/Alpha-Farbanteils als Zahl zwischen 0 und 255.</xs:documentation>
+    </xs:annotation>
     <xs:all minOccurs="0">
       <xs:element ref="RenderFlags" minOccurs="0" maxOccurs="1"/>
       <xs:element ref="Textur" minOccurs="0" maxOccurs="2"/>
@@ -18,6 +25,16 @@
     <xs:attribute name="MeterProTex2" type="xs:float"/>
     <xs:attribute name="TypGF" type="xs:int"/>
     <xs:attribute name="TypLs3" type="xs:int"/>
+    <xs:attribute name="GFTyp" type="xs:int">
+      <xs:annotation>
+        <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="ls3Typ" type="xs:int">
+      <xs:annotation>
+        <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
     <xs:attribute name="zBias" type="xs:int"/>
   </xs:complexType>

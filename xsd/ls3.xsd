@@ -14,7 +14,7 @@ Das Dateiname-Attribut gibt den Pfad zur lsb-Datei an. Es ist "required", weil d
 Simulator und 3D-Editor ignorieren den Dateinamen und laden zu einer Datei 'Dateiname.ls3' immer die lsb-Datei 'Dateiname.lsb' im selben Verzeichnis.</xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element ref="SubSet" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="SubSet" type="SubSet" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Ankerpunkt" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="Animation" type="AnimationsDeklaration" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="LandschaftSound" type="SoundMitAbhaengigkeit" minOccurs="0" maxOccurs="unbounded"/>
@@ -45,46 +45,32 @@ Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu eine
       <xs:attribute name="SichtbarAb" type="xs:float"/>
       <xs:attribute name="SichtbarBis" type="xs:float"/>
       <xs:attribute name="Vorlade" type="xs:float"/>
+      <xs:attribute name="Wichtig" type="boolean">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
-  <xs:element name="SubSet">
-    <xs:annotation>
-      <xs:documentation xml:lang="de">Für Farbangaben gibt es aus historischen Gründen zwei Formate. 
-Die Attribute C, CA und E sind veraltet und wurden durch Cd, Ca und Ce ersetzt.
-Die Farbe wurde in C, CA und E als String "0AABBGGRR" kodiert.
-In den neuen Attributen Cd, Ca und Ce wird die Farbe als String "AARRGGBB" kodiert.
-RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grün-/Blau-/Alpha-Farbanteils als Zahl zwischen 0 und 255.</xs:documentation>
-    </xs:annotation>
-    <xs:complexType>
-      <xs:all>
-        <xs:element ref="RenderFlags" minOccurs="0" maxOccurs="1"/>
-        <xs:element ref="Textur" minOccurs="0" maxOccurs="2"/>
-        <xs:element ref="Vertex" minOccurs="0" maxOccurs="65536"/>
-        <xs:element ref="Face" minOccurs="0" maxOccurs="unbounded"/>
-      </xs:all>
-      <xs:attribute name="BeleuchtungTyp" type="xs:int"/>
-      <xs:attribute name="Blink" type="xs:float"/>
-      <xs:attribute name="Ca" type="xs:hexBinary"/>
-      <xs:attribute name="Cd" type="xs:hexBinary"/>
-      <xs:attribute name="Ce" type="xs:hexBinary"/>
-      <xs:attribute name="C" type="xs:hexBinary"/>
-      <xs:attribute name="CA" type="xs:hexBinary"/>
-      <xs:attribute name="E" type="xs:hexBinary"/>
-      <xs:attribute name="DoppeltRendern" type="boolean"/>
-      <xs:attribute name="GruppenName" type="xs:string"/>
-      <xs:attribute name="MeshI" type="xs:int"/>
-      <xs:attribute name="MeshV" type="xs:int"/>
-      <xs:attribute name="MeterProTex" type="xs:float"/>
-      <xs:attribute name="MeterProTex2" type="xs:float"/>
-      <xs:attribute name="NachtEinstellung" type="xs:int"/>
-      <xs:attribute name="Nachtumschaltung" type="xs:float"/>
-      <xs:attribute name="TypGF" type="xs:int"/>
-      <xs:attribute name="TypLs3" type="xs:int"/>
-      <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
-      <xs:attribute name="zBias" type="xs:int"/>
-      <xs:attribute name="zZoom" type="xs:float"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="SubSet">
+    <xs:complexContent>
+      <xs:extension base="Material">
+        <xs:all>
+          <xs:element ref="Vertex" minOccurs="0" maxOccurs="65536"/>
+          <xs:element ref="Face" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:all>
+        <xs:attribute name="Blink" type="xs:float"/>
+        <xs:attribute name="DoppeltRendern" type="boolean"/>
+        <xs:attribute name="MeshI" type="xs:int"/>
+        <xs:attribute name="MeshV" type="xs:int"/>
+        <xs:attribute name="NachtEinstellung" type="xs:int"/>
+        <xs:attribute name="Nachtumschaltung" type="xs:float"/>
+        <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
+        <xs:attribute name="zBias" type="xs:int"/>
+        <xs:attribute name="zZoom" type="xs:float"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="Vertex">
     <xs:complexType>
       <xs:all>

@@ -61,13 +61,24 @@
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="Version" type="xs:string" use="required" fixed="A.1"/>
+      <xs:attribute name="Autor" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="Lizenz" type="xs:int">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="DecSep" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
   <xs:element name="AutorEintrag">
-    <xs:annotation>
-      <xs:documentation xml:lang="de">
-            </xs:documentation>
-    </xs:annotation>
     <xs:complexType>
       <xs:attribute name="AutorAufwand" type="xs:float">
         <xs:annotation>
