@@ -191,6 +191,22 @@ class ParserGenerator {
 
   void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<std::string>& typesToExport) {
     out << "#include <cstring>  // for memcmp" << std::endl;
+
+    out << "#include <boost/spirit/include/qi_real.hpp>" << std::endl;
+    out << "#include <boost/spirit/include/qi_int.hpp>" << std::endl;
+
+    out << R""(template <typename T>
+struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
+{
+    template <typename Iterator> static bool parse_dot(Iterator& first, Iterator const& last)
+    {
+        if (first == last || (*first != ',' && *first != '.'))
+            return false;
+        ++first;
+        return true;
+    }
+};)"" << std::endl;
+
     out << "#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)" << std::endl;
 
     out << "namespace rapidxml {" << std::endl;
@@ -218,6 +234,9 @@ class ParserGenerator {
         if (child.multiple) {
           parse_children << "  parseResultTyped->children_" << child.name << ".push_back(std::move(childResult));" << std::endl;
         } else {
+#if 0
+          parse_children << "  if (parseResultTyped->" << child.name << ") { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }" << std::endl;
+#endif
           parse_children << "  parseResultTyped->" << child.name << " = std::move(childResult);" << std::endl;
         }
         parse_children << "  parse_element<" << child.type << ">(text, childResultRaw);" << std::endl;
@@ -291,22 +310,20 @@ class ParserGenerator {
         }
         switch (attr.type) {
           case AttributeType::Int32:
-            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-            parse_attributes << "          else" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_, parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::Int64:
-            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-            parse_attributes << "          else" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::long_long, parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::Boolean:
-            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-            parse_attributes << "          else" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          parseResultTyped->" << attr.name << " = (text[0] == '1');" << std::endl;
+            parse_attributes << "          ++text;" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::String:
             parse_attributes << "          Ch* value = text;" << std::endl;
@@ -321,10 +338,9 @@ class ParserGenerator {
             parse_attributes << "            parseResultTyped->" << attr.name << ".resize(copy_and_expand_character_refs<attribute_value_pred<Ch('\\\"')>, attribute_value_pure_pred<Ch('\\\"')>>(value, &parseResultTyped->" << attr.name << "[0]));" << std::endl;
             break;
           case AttributeType::Float:
-            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-            parse_attributes << "          else" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::DateTime:
             parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
@@ -333,10 +349,9 @@ class ParserGenerator {
             parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
             break;
           case AttributeType::HexInt32:
-            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-            parse_attributes << "          else" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
         }
         parse_attributes << "        }" << std::endl;
