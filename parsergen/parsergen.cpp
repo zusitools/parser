@@ -87,6 +87,7 @@ class ParserGenerator {
   void GenerateTypeIncludes(std::ostream& out) {
     out << "#include <vector>  // for std::vector" << std::endl;
     out << "#include <memory>  // for std::unique_ptr" << std::endl;
+    out << "#include <ctime>   // for struct tm, strptime" << std::endl;
   }
 
   void GenerateTypeDeclarations(std::ostream& out) {
@@ -134,7 +135,7 @@ class ParserGenerator {
             case AttributeType::Boolean: out << "bool"; break;
             case AttributeType::String: out << "std::string"; break;
             case AttributeType::Float: out << "float"; break;
-            case AttributeType::DateTime: out << "std::string"; break;  // TODO
+            case AttributeType::DateTime: out << "struct tm"; break;
             case AttributeType::HexInt32: out << "int32_t"; break;
           }
           out << " " << attribute.name << ";" << std::endl;
@@ -343,10 +344,15 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
             parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::DateTime:
-            parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-            parse_attributes << "          else" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          Ch* value = text;" << std::endl;
+            parse_attributes << "          text = strptime(text, \"%Y-%m-%d\", &parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          if (text == nullptr) { text = value; }" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          value = text;" << std::endl;
+            parse_attributes << "          text = strptime(text, \"%H:%M:%S\", &parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          if (text == nullptr) { text = value; }" << std::endl;
+            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::HexInt32:
             parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
