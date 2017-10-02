@@ -37,6 +37,7 @@
         <xs:element ref="Klothoide"/>
         <xs:element ref="Kreisbogen"/>
         <xs:element ref="Weiche"/>
+        <xs:element ref="Punkt"/>
       </xs:all>
     </xs:complexType>
   </xs:element>
@@ -147,6 +148,15 @@
           <xs:attribute name="WinkelAnf" type="xs:float"/>
           <xs:attribute name="WinkelLauf" type="xs:float"/>
           <xs:attribute name="kr" type="xs:float"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Punkt">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="GleisplanElementPrimitiv">
+          <xs:attribute name="Beschreibung" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>

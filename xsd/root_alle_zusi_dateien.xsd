@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
+  <xs:include schemaLocation="author.xml.xsd"/>
   <xs:include schemaLocation="authority.xml.xsd"/>
   <xs:include schemaLocation="font.xml.xsd"/>
   <xs:include schemaLocation="forest.xml.xsd"/>
@@ -26,10 +27,11 @@
   <xs:include schemaLocation="zusi.xsd"/>
   <xs:element name="Zusi">
     <xs:complexType>
-      <!--<xs:all>
+      <xs:all>
         <xs:element ref="Info" minOccurs="1" maxOccurs="1"/>
-      </xs:all>-->
+      </xs:all>
       <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element ref="author"/>
         <xs:element ref="authority"/>
         <xs:element ref="Font"/>
         <xs:element ref="Forest"/>
@@ -40,6 +42,7 @@
         <xs:element ref="Landschaft"/>
         <xs:element name="Material" type="root_Material"/>
         <xs:element ref="Platform"/>
+        <xs:element ref="result"/>
         <xs:element ref="RetainingWall"/>
         <xs:element ref="Fahrzeug"/>
         <xs:element ref="VerwaltungsScript"/>
@@ -50,6 +53,8 @@
         <xs:element ref="Strecke"/>
         <xs:element ref="Buchfahrplan"/>
         <xs:element ref="travellers"/>
+        <xs:element ref="Weiche"/>
+        <xs:element ref="FahrzeugVarianten"/>
         <xs:element ref="Zug"/>
         <xs:element name="Zusi2Tausch" type="root_Zusi2Tausch"/>
       </xs:choice>

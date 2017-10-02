@@ -47,11 +47,12 @@
   </xs:element>
   <xs:element name="FahrplanEintrag">
     <xs:complexType>
-      <xs:all>
+      <xs:all minOccurs="0">
         <xs:element ref="FahrplanSignalEintrag" maxOccurs="unbounded"/>
         <xs:element ref="FahrplanFahrstrasseEintrag" maxOccurs="unbounded"/>
         <xs:element name="FahrplanVorgangEreignisse" type="FahrplanVorgang" maxOccurs="unbounded"/>
         <xs:element name="FahrplanVorgangFahrstrasse" type="FahrplanVorgang" maxOccurs="unbounded"/>
+        <xs:element ref="Ereignis" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Abf" type="dateTime"/>
       <xs:attribute name="Ank" type="dateTime"/>
