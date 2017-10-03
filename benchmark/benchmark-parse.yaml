@@ -1,0 +1,20 @@
+- attributes: {description: "Performance base"}
+  build_config: {base_dir: ., branch: master, build_cmd: mkdir build-temci && cd build-temci && cmake -DCMAKE_BUILD_TYPE=Release ../../base && make,
+    number: 1, revision: performance-base, working_dir: .}
+  run_config:
+    cwd: .
+    perf_stat:
+      properties: [cycles, cpu-clock, task-clock, instructions, branch-misses, cache-references]
+      repeat: 1
+    run_cmd: ./build-temci/benchmark ./benchmark/dateien.txt
+    runner: perf_stat
+- attributes: {description: "Performance HEAD"}
+  build_config: {base_dir: ., branch: master, build_cmd: mkdir build-temci && cd build-temci && cmake -DCMAKE_BUILD_TYPE=Release ../../base && make,
+    number: 1, revision: HEAD, working_dir: .}
+  run_config:
+    cwd: .
+    perf_stat:
+      properties: [cycles, cpu-clock, task-clock, instructions, branch-misses, cache-references]
+      repeat: 1
+    run_cmd: ./build-temci/benchmark ./benchmark/dateien.txt
+    runner: perf_stat
