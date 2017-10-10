@@ -230,7 +230,7 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
           parse_children << "}" << std::endl;
           continue;
         }
-        parse_children << "  std::unique_ptr<" << child.type << "> childResult(new " << child.type << ");" << std::endl;
+        parse_children << "  std::unique_ptr<" << child.type << "> childResult(new " << child.type << "());" << std::endl;
         parse_children << "  " << child.type << "* childResultRaw = childResult.get();" << std::endl;
         if (child.multiple) {
           parse_children << "  parseResultTyped->children_" << child.name << ".push_back(std::move(childResult));" << std::endl;
