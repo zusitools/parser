@@ -192,6 +192,7 @@ class ParserGenerator {
 
   void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<std::string>& typesToExport) {
     out << "#include <cstring>  // for memcmp" << std::endl;
+    out << "#include <cfloat>   // Workaround for https://svn.boost.org/trac10/ticket/12642" << std::endl;
 
     out << "#include <boost/spirit/include/qi_real.hpp>" << std::endl;
     out << "#include <boost/spirit/include/qi_int.hpp>" << std::endl;
