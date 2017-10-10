@@ -316,16 +316,11 @@ namespace rapidxml
 
     // Skip characters until predicate evaluates to true while
     // replacing XML character entity references with proper characters (&apos; &amp; &quot; &lt; &gt; &#...;)
-    template<class StopPred, class StopPredPure>
+    template<class StopPred>
     static size_t copy_and_expand_character_refs(Ch *&src, std::remove_const_t<Ch> *dest)
     {
         Ch *dest_start = dest;
 
-        // Use simple skip until first modification is detected
-        while (StopPredPure::test(*src))
-            *dest++ = *src++;
-
-        // Use translation skip
         while (StopPred::test(*src))
         {
             // Test if replacement is needed
