@@ -234,13 +234,12 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
         if (child.multiple) {
           parse_children << "  parse_element<" << child.type << ">(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type << "()).get());" << std::endl;
         } else {
-#if 0
-          parse_children << "  if (parseResultTyped->" << child.name << ") { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }" << std::endl;
-#endif
           parse_children << "  std::unique_ptr<" << child.type << "> childResult(new " << child.type << "());" << std::endl;
-          parse_children << "  " << child.type << "* childResultRaw = childResult.get();" << std::endl;
-          parse_children << "  parseResultTyped->" << child.name << " = std::move(childResult);" << std::endl;
-          parse_children << "  parse_element<" << child.type << ">(text, childResultRaw);" << std::endl;
+          parse_children << "  parseResultTyped->" << child.name << ".swap(childResult);" << std::endl;
+#if 0
+          parse_children << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }" << std::endl;
+#endif
+          parse_children << "  parse_element<" << child.type << ">(text, parseResultTyped->" << child.name << ".get());" << std::endl;
         }
         parse_children << "}" << std::endl;
       }
