@@ -71,3 +71,5 @@ add_executable(benchmark benchmark/benchmark-parse.cpp ${CMAKE_BINARY_DIR}/zusi_
 target_include_directories(benchmark PRIVATE ${CMAKE_BINARY_DIR} rapidxml-mod)
 target_compile_options(benchmark PRIVATE -Wall -Wextra)
 target_compile_definitions(benchmark PRIVATE -DUSE_MMAP)
+set_property(TARGET benchmark PROPERTY CXX_STANDARD 17)
+set_property(TARGET benchmark PROPERTY CXX_STANDARD_REQUIRED TRUE)
