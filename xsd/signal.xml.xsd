@@ -11,9 +11,9 @@
           <xs:element ref="SigAssiRadio" maxOccurs="unbounded"/>
           <xs:element ref="SigAssiText" maxOccurs="unbounded"/>
         </xs:all>
-        <xs:attribute name="SigAssiErgaenzen" type="boolean">
+        <xs:attribute name="SigAssiKeineKODiff" type="boolean">
           <xs:annotation>
-            <xs:documentation xml:lang="de"/>
+            <xs:documentation xml:lang="de">Wird eingesetzt, wenn das Signal in eine vorhandene Signalmatrix integriert werden soll, aber etwaige durch SigAssiPosition vorgegebene Verschiebungen des Signalstandorts nicht mitmachen soll, sondern auf jeden Fall an den vorgesehenen Koordinaten eingebaut werden soll. Anwendungsfall: Zum Beispiel PZB-Magnete, die unabhängig vom Standort des Hauptsignals (links/rechts vom Gleis) auf jeden Fall an der rechten Schiene positioniert werden sollen.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="SigAssiGrundZeile" type="xs:int">
@@ -26,9 +26,9 @@
             <xs:documentation xml:lang="de">Wird hinter SigAssiRadio benutzt, wenn Formulare vor der eigentlichen Positionierung des Signals mit SigAssiPosition benutzt werden.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="SigAssiKeineKODiff" type="boolean">
+        <xs:attribute name="SigAssiErgaenzen" type="boolean">
           <xs:annotation>
-            <xs:documentation xml:lang="de">Wird eingesetzt, wenn das Signal in eine vorhandene Signalmatrix integriert werden soll, aber etwaige durch SigAssiPosition vorgegebene Verschiebungen des Signalstandorts nicht mitmachen soll, sondern auf jeden Fall an den vorgesehenen Koordinaten eingebaut werden soll. Anwendungsfall: Zum Beispiel PZB-Magnete, die unabhängig vom Standort des Hauptsignals (links/rechts vom Gleis) auf jeden Fall an der rechten Schiene positioniert werden sollen.</xs:documentation>
+            <xs:documentation xml:lang="de"/>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="BeideRichtungen" type="boolean">
@@ -56,14 +56,14 @@
       <xs:all>
         <xs:element maxOccurs="unbounded" ref="SigAssiEintrag"/>
       </xs:all>
-      <xs:attribute name="SigAssiPassiv" type="boolean">
-        <xs:annotation>
-          <xs:documentation xml:lang="de">Wenn aktiv: Die Checkbox wird ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
       <xs:attribute name="SigAssiTitel" type="xs:string">
         <xs:annotation>
           <xs:documentation xml:lang="de">Hat bei SigAssiCheck anders als bei SigAssiRadio keine Funktion und wird vom 3D-Editor ignoriert.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SigAssiPassiv" type="boolean">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">Wenn aktiv: Die Checkbox wird ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="SigAssiVorbelegung" type="boolean">
@@ -81,14 +81,14 @@
       <xs:all>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="SigAssiEintrag"/>
       </xs:all>
-      <xs:attribute name="SigAssiPassiv" type="xs:int">
-        <xs:annotation>
-          <xs:documentation xml:lang="de">Wenn aktiv: Die Radiobuttons werden ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
       <xs:attribute name="SigAssiTitel" type="xs:string">
         <xs:annotation>
           <xs:documentation xml:lang="de">Definiert die Überschrift über den Radiobuttons.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SigAssiPassiv" type="xs:int">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">Wenn aktiv: Die Radiobuttons werden ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="SigAssiVorbelegung" type="xs:int">

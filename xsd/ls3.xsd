@@ -37,14 +37,14 @@ Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu eine
           </xs:annotation>
         </xs:element>
       </xs:all>
-      <xs:attribute name="BoundingR" type="xs:float"/>
       <xs:attribute name="Flags" type="xs:long"/>
       <xs:attribute name="GruppenName" type="xs:string"/>
-      <xs:attribute name="Helligkeit" type="xs:float"/>
-      <xs:attribute name="LODbit" type="xs:int"/>
+      <xs:attribute name="BoundingR" type="xs:float"/>
       <xs:attribute name="SichtbarAb" type="xs:float"/>
       <xs:attribute name="SichtbarBis" type="xs:float"/>
       <xs:attribute name="Vorlade" type="xs:float"/>
+      <xs:attribute name="LODbit" type="xs:int"/>
+      <xs:attribute name="Helligkeit" type="xs:float"/>
       <xs:attribute name="Wichtig" type="boolean">
         <xs:annotation>
           <xs:documentation xml:lang="de">@deprecated</xs:documentation>
@@ -59,15 +59,16 @@ Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu eine
           <xs:element ref="Vertex" minOccurs="0" maxOccurs="65536"/>
           <xs:element ref="Face" minOccurs="0" maxOccurs="unbounded"/>
         </xs:all>
-        <xs:attribute name="Blink" type="xs:float"/>
-        <xs:attribute name="DoppeltRendern" type="boolean"/>
-        <xs:attribute name="MeshI" type="xs:int"/>
-        <xs:attribute name="MeshV" type="xs:int"/>
-        <xs:attribute name="NachtEinstellung" type="xs:int"/>
-        <xs:attribute name="Nachtumschaltung" type="xs:float"/>
         <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
+        <xs:attribute name="Blink" type="xs:float"/>
+        <!-- TODO: fehlt: MeterProTex(2) -->
         <xs:attribute name="zBias" type="xs:int"/>
         <xs:attribute name="zZoom" type="xs:float"/>
+        <xs:attribute name="DoppeltRendern" type="boolean"/>
+        <xs:attribute name="Nachtumschaltung" type="xs:float"/>
+        <xs:attribute name="NachtEinstellung" type="xs:int"/>
+        <xs:attribute name="MeshV" type="xs:int"/>
+        <xs:attribute name="MeshI" type="xs:int"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -78,8 +79,8 @@ Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu eine
         <xs:element name="n" type="Vec3"/>
       </xs:all>
       <xs:attribute name="U" type="xs:float"/>
-      <xs:attribute name="U2" type="xs:float"/>
       <xs:attribute name="V" type="xs:float"/>
+      <xs:attribute name="U2" type="xs:float"/>
       <xs:attribute name="V2" type="xs:float"/>
     </xs:complexType>
   </xs:element>
@@ -95,8 +96,8 @@ Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu eine
         <xs:element name="phi" type="Vec3" minOccurs="1" maxOccurs="1"/>
         <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="AnkerKat" type="xs:int"/>
       <xs:attribute name="AnkerTyp" type="xs:int"/>
+      <xs:attribute name="AnkerKat" type="xs:int"/>
       <xs:attribute name="Beschreibung" type="xs:string"/>
     </xs:complexType>
   </xs:element>
@@ -117,9 +118,9 @@ Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu eine
     <xs:all>
       <xs:element ref="AniPunkt" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
-    <xs:attribute name="AniGeschw" type="xs:float"/>
     <xs:attribute name="AniIndex" type="xs:int"/>
     <xs:attribute name="AniNr" type="xs:int"/>
+    <xs:attribute name="AniGeschw" type="xs:float"/>
   </xs:complexType>
   <xs:element name="AniPunkt">
     <xs:complexType>
@@ -127,8 +128,8 @@ Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu eine
         <xs:element name="p" type="Vec3" minOccurs="0" maxOccurs="1"/>
         <xs:element name="q" type="Quaternion" minOccurs="0" maxOccurs="1"/>
       </xs:all>
-      <xs:attribute name="AniDimmung" type="xs:float"/>
       <xs:attribute name="AniZeit" type="xs:float"/>
+      <xs:attribute name="AniDimmung" type="xs:float"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

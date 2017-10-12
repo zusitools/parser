@@ -23,17 +23,17 @@
     </xs:complexType>
   </xs:element>
   <xs:complexType name="Hintergrundbild">
-    <xs:attribute name="Datei" type="xs:string"/>
-    <xs:attribute name="Sichtbar" type="boolean"/>
     <xs:attribute name="Transparenz" type="xs:int"/>
+    <xs:attribute name="Sichtbar" type="boolean"/>
+    <xs:attribute name="Datei" type="xs:string"/>
   </xs:complexType>
   <xs:element name="Bild">
     <xs:complexType>
       <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
-      <xs:attribute name="Sichtbar" type="boolean"/>
       <xs:attribute name="Transparenz" type="xs:int"/>
+      <xs:attribute name="Sichtbar" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Lageplan">
@@ -74,6 +74,7 @@
           <xs:attribute name="Beschreibung" type="xs:string"/>
           <xs:attribute name="Signalname" type="xs:string"/>
           <xs:attribute name="st3Datei" type="xs:string"/>
+          <!-- deprecated -->
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -89,10 +90,10 @@
   </xs:element>
   <xs:element name="Biegung">
     <xs:complexType>
-      <xs:attribute name="BiegeKruemmung" type="xs:float"/>
-      <xs:attribute name="BiegeLaenge" type="xs:float"/>
-      <xs:attribute name="BiegeUeberh" type="xs:float"/>
       <xs:attribute name="BiegeWinkel" type="xs:float"/>
+      <xs:attribute name="BiegeLaenge" type="xs:float"/>
+      <xs:attribute name="BiegeKruemmung" type="xs:float"/>
+      <xs:attribute name="BiegeUeberh" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="HoehenProfil">
@@ -100,30 +101,30 @@
       <xs:all minOccurs="0">
         <xs:element ref="StuetzPkt" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="ProfilAbstandHorizontKm" type="xs:float"/>
-      <xs:attribute name="ProfilFarbe" type="xs:hexBinary"/>
-      <xs:attribute name="ProfilGleisElementeZeichnen" type="boolean"/>
-      <xs:attribute name="ProfilHorizont" type="xs:float"/>
       <xs:attribute name="ProfilName" type="xs:string"/>
+      <xs:attribute name="ProfilFarbe" type="xs:hexBinary"/>
+      <xs:attribute name="ProfilHorizont" type="xs:float"/>
+      <xs:attribute name="ProfilAbstandHorizontKm" type="xs:float"/>
       <xs:attribute name="ProfilNeigungPromille" type="xs:float"/>
+      <xs:attribute name="ProfilGleisElementeZeichnen" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="StuetzPkt">
     <xs:complexType>
-      <xs:attribute name="Kategorie" type="xs:string"/>
-      <xs:attribute name="Radius" type="xs:float"/>
       <xs:attribute name="X" type="xs:float"/>
       <xs:attribute name="Y" type="xs:float"/>
+      <xs:attribute name="Kategorie" type="xs:string"/>
+      <xs:attribute name="Radius" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="GleisplanElement">
     <xs:all minOccurs="0">
       <xs:element ref="PunktWinkel" minOccurs="1" maxOccurs="unbounded"/>
     </xs:all>
-    <xs:attribute name="Oberbau" type="xs:string"/>
+    <xs:attribute name="st2Typ" type="xs:int"/>
     <xs:attribute name="ProfilName" type="xs:string"/>
     <xs:attribute name="spTrass" type="xs:float"/>
-    <xs:attribute name="st2Typ" type="xs:int"/>
+    <xs:attribute name="Oberbau" type="xs:string"/>
   </xs:complexType>
   <xs:element name="Gerade">
     <xs:complexType>
@@ -136,10 +137,10 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="GleisplanElement">
-          <xs:attribute name="KrAnf" type="xs:float"/>
           <xs:attribute name="L" type="xs:float"/>
           <xs:attribute name="R" type="xs:float"/>
           <xs:attribute name="Versatz" type="xs:float"/>
+          <xs:attribute name="KrAnf" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -151,10 +152,11 @@
           <xs:all minOccurs="0">
             <xs:element name="Punkt" type="Vec2"/>
           </xs:all>
-          <xs:attribute name="KKruemmung" type="xs:string"/>
+          <xs:attribute name="kr" type="xs:float"/>
           <xs:attribute name="WinkelAnf" type="xs:float"/>
           <xs:attribute name="WinkelLauf" type="xs:float"/>
-          <xs:attribute name="kr" type="xs:float"/>
+          <xs:attribute name="KKruemmung" type="xs:float"/>
+          <!-- deprecated -->
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -170,10 +172,10 @@
   </xs:element>
   <xs:element name="PunktWinkel">
     <xs:complexType>
-      <xs:attribute name="Ueberh" type="xs:float"/>
-      <xs:attribute name="W" type="xs:float"/>
       <xs:attribute name="X" type="xs:float"/>
       <xs:attribute name="Y" type="xs:float"/>
+      <xs:attribute name="W" type="xs:float"/>
+      <xs:attribute name="Ueberh" type="xs:float"/>
       <xs:attribute name="km" type="xs:float"/>
       <xs:attribute name="Ueb" type="xs:float">
         <xs:annotation>

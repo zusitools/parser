@@ -39,8 +39,8 @@ Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenv
   </xs:complexType>
   <xs:element name="UTM">
     <xs:complexType>
-      <xs:attribute name="UTM_NS" type="xs:int"/>
       <xs:attribute name="UTM_WE" type="xs:int"/>
+      <xs:attribute name="UTM_NS" type="xs:int"/>
       <xs:attribute name="UTM_Zone" type="xs:int"/>
       <xs:attribute name="UTM_Zone2" type="xs:string"/>
     </xs:complexType>
@@ -54,8 +54,8 @@ Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenv
   </xs:element>
   <xs:element name="Ereignis">
     <xs:complexType>
-      <xs:attribute name="Beschr" type="xs:string"/>
       <xs:attribute name="Er" type="xs:int"/>
+      <xs:attribute name="Beschr" type="xs:string"/>
       <xs:attribute name="Wert" type="xs:float"/>
     </xs:complexType>
   </xs:element>
@@ -63,23 +63,23 @@ Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenv
     <xs:all>
       <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
     </xs:all>
-    <xs:attribute name="Autostart" type="boolean"/>
-    <xs:attribute name="GeschwAendern" type="boolean"/>
-    <xs:attribute name="Lautstaerke" type="xs:float"/>
+    <xs:attribute name="dreiD" type="boolean"/>
     <xs:attribute name="Loop" type="boolean"/>
-    <xs:attribute name="MaxRadius" type="xs:float"/>
-    <xs:attribute name="MinRadius" type="xs:float"/>
+    <xs:attribute name="Autostart" type="boolean"/>
     <xs:attribute name="PosAnlauf" type="xs:int"/>
     <xs:attribute name="PosAuslauf" type="xs:int"/>
-    <xs:attribute name="dreiD" type="boolean"/>
+    <xs:attribute name="Lautstaerke" type="xs:float"/>
+    <xs:attribute name="GeschwAendern" type="boolean"/>
+    <xs:attribute name="MinRadius" type="xs:float"/>
+    <xs:attribute name="MaxRadius" type="xs:float"/>
   </xs:complexType>
   <xs:element name="Abhaengigkeit">
     <xs:complexType>
       <xs:all>
         <xs:element name="Kennfeld" type="Kennfeld"/>
       </xs:all>
-      <xs:attribute name="LautstaerkeAbh" type="boolean"/>
       <xs:attribute name="PhysikGroesse" type="xs:int"/>
+      <xs:attribute name="LautstaerkeAbh" type="boolean"/>
       <xs:attribute name="SoundGeschwAbh" type="boolean"/>
       <xs:attribute name="SoundOperator" type="xs:int"/>
       <xs:attribute name="Trigger" type="xs:int"/>
@@ -91,9 +91,9 @@ Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenv
       <xs:element ref="Pkt" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element ref="Stufe" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
-    <xs:attribute name="Beschreibung" type="xs:string"/>
     <xs:attribute name="xText" type="xs:string"/>
     <xs:attribute name="yText" type="xs:string"/>
+    <xs:attribute name="Beschreibung" type="xs:string"/>
   </xs:complexType>
   <xs:element name="Pkt">
     <xs:complexType>

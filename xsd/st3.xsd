@@ -24,8 +24,8 @@
         <xs:element ref="StrElement" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Fahrstrasse" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="Himmelsmodell" type="xs:int"/>
       <xs:attribute name="RekTiefe" type="xs:int"/>
+      <xs:attribute name="Himmelsmodell" type="xs:int"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="LoeschFahrstrasse">
@@ -82,11 +82,11 @@
     </xs:all>
   </xs:complexType>
   <xs:complexType name="ReferenzElement">
-    <xs:attribute name="Info" type="xs:string"/>
-    <xs:attribute name="RefTyp" type="xs:int"/>
     <xs:attribute name="ReferenzNr" type="xs:int"/>
     <xs:attribute name="StrElement" type="xs:int"/>
     <xs:attribute name="StrNorm" type="boolean"/>
+    <xs:attribute name="RefTyp" type="xs:int"/>
+    <xs:attribute name="Info" type="xs:string"/>
   </xs:complexType>
   <xs:element name="StrElement">
     <xs:complexType>
@@ -100,16 +100,16 @@
         <xs:element name="NachNormModul" type="NachfolgerAnderesModul" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="NachGegenModul" type="NachfolgerAnderesModul" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="Anschluss" type="xs:int"/>
-      <xs:attribute name="Drahthoehe" type="xs:float"/>
-      <xs:attribute name="Fkt" type="xs:long"/>
       <xs:attribute name="Nr" type="xs:int"/>
-      <xs:attribute name="Oberbau" type="xs:string"/>
       <xs:attribute name="Ueberh" type="xs:float"/>
-      <xs:attribute name="Volt" type="xs:int"/>
-      <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
       <xs:attribute name="kr" type="xs:float"/>
       <xs:attribute name="spTrass" type="xs:float"/>
+      <xs:attribute name="Anschluss" type="xs:int"/>
+      <xs:attribute name="Fkt" type="xs:long"/>
+      <xs:attribute name="Oberbau" type="xs:string"/>
+      <xs:attribute name="Volt" type="xs:int"/>
+      <xs:attribute name="Drahthoehe" type="xs:float"/>
+      <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="StreckenelementRichtungsInfo">
@@ -117,12 +117,12 @@
       <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element name="Signal" type="Signal" minOccurs="0"/>
     </xs:all>
-    <xs:attribute name="KoppelWeicheNorm" type="boolean"/>
-    <xs:attribute name="KoppelWeicheNr" type="xs:int"/>
-    <xs:attribute name="Reg" type="xs:int"/>
+    <xs:attribute name="vMax" type="xs:float"/>
     <xs:attribute name="km" type="xs:float"/>
     <xs:attribute name="pos" type="boolean"/>
-    <xs:attribute name="vMax" type="xs:float"/>
+    <xs:attribute name="Reg" type="xs:int"/>
+    <xs:attribute name="KoppelWeicheNr" type="xs:int"/>
+    <xs:attribute name="KoppelWeicheNorm" type="boolean"/>
   </xs:complexType>
   <xs:complexType name="NachfolgerSelbesModul">
     <xs:attribute name="Nr" type="xs:int"/>
@@ -148,10 +148,10 @@
       </xs:all>
       <xs:attribute name="FahrstrName" type="xs:string"/>
       <xs:attribute name="FahrstrStrecke" type="xs:string"/>
-      <xs:attribute name="FahrstrTyp" type="xs:string"/>
-      <xs:attribute name="Laenge" type="xs:float"/>
       <xs:attribute name="RglGgl" type="xs:int"/>
+      <xs:attribute name="FahrstrTyp" type="xs:string"/>
       <xs:attribute name="ZufallsWert" type="xs:float"/>
+      <xs:attribute name="Laenge" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrStart">
@@ -207,8 +207,8 @@
       <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
-      <xs:attribute name="FahrstrWeichenlage" type="xs:int"/>
       <xs:attribute name="Ref" type="xs:int"/>
+      <xs:attribute name="FahrstrWeichenlage" type="xs:int"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrSignal">
@@ -216,9 +216,9 @@
       <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
-      <xs:attribute name="FahrstrSignalErsatzsignal" type="boolean"/>
-      <xs:attribute name="FahrstrSignalZeile" type="xs:int"/>
       <xs:attribute name="Ref" type="xs:int"/>
+      <xs:attribute name="FahrstrSignalZeile" type="xs:int"/>
+      <xs:attribute name="FahrstrSignalErsatzsignal" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrVSignal">
@@ -226,8 +226,8 @@
       <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
-      <xs:attribute name="FahrstrSignalSpalte" type="xs:int"/>
       <xs:attribute name="Ref" type="xs:int"/>
+      <xs:attribute name="FahrstrSignalSpalte" type="xs:int"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="Signal">
@@ -241,15 +241,15 @@
       <xs:element ref="MatrixEintrag" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element ref="Ersatzsignal" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
-    <xs:attribute name="BoundingR" type="xs:int"/>
     <xs:attribute name="NameBetriebsstelle" type="xs:string"/>
+    <xs:attribute name="Stellwerk" type="xs:string"/>
+    <xs:attribute name="Signalname" type="xs:string"/>
+    <xs:attribute name="ZufallsWert" type="xs:float"/>
     <xs:attribute name="SignalFlags" type="xs:int"/>
     <xs:attribute name="SignalTyp" type="xs:int"/>
-    <xs:attribute name="Signalname" type="xs:string"/>
-    <xs:attribute name="Stellwerk" type="xs:string"/>
-    <xs:attribute name="WeichenGrundstellung" type="xs:int"/>
     <xs:attribute name="Weichenbauart" type="xs:int"/>
-    <xs:attribute name="ZufallsWert" type="xs:float"/>
+    <xs:attribute name="WeichenGrundstellung" type="xs:int"/>
+    <xs:attribute name="BoundingR" type="xs:int"/>
     <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
   </xs:complexType>
   <xs:element name="KoppelSignal">
@@ -268,17 +268,17 @@
         <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0"/>
         <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="WeichenbaugruppeBeschreibung" type="xs:string"/>
       <xs:attribute name="WeichenbaugruppeIndex" type="xs:int"/>
       <xs:attribute name="WeichenbaugruppeNr" type="xs:int"/>
+      <xs:attribute name="WeichenbaugruppeBeschreibung" type="xs:string"/>
       <xs:attribute name="WeichenbaugruppePos0" type="boolean"/>
       <xs:attribute name="WeichenbaugruppePos1" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="HsigBegriff">
     <xs:complexType>
-      <xs:attribute name="FahrstrTyp" type="xs:long"/>
       <xs:attribute name="HsigGeschw" type="xs:float"/>
+      <xs:attribute name="FahrstrTyp" type="xs:long"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="VsigBegriff">
@@ -301,9 +301,9 @@
       <xs:all minOccurs="0">
         <xs:element ref="Ereignis" maxOccurs="unbounded"/>
       </xs:all>
+      <xs:attribute name="Signalbild" type="xs:long"/>
       <xs:attribute name="MatrixGeschw" type="xs:float"/>
       <xs:attribute name="SignalID" type="xs:int"/>
-      <xs:attribute name="Signalbild" type="xs:long"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

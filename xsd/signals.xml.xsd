@@ -3,27 +3,27 @@
   <xs:include schemaLocation="typen.xsd"/>
   <xs:element name="Signals">
     <xs:complexType>
-      <xs:attribute name="CheckBox500HzElemTeilen" type="boolean"/>
-      <xs:attribute name="CheckBoxLf6Teilen" type="boolean"/>
-      <xs:attribute name="LabeledEditCH500Hz" type="xs:string"/>
-      <xs:attribute name="LabeledEditCHBakeAAbst" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHBakeAlinks" type="xs:string"/>
-      <xs:attribute name="LabeledEditCHBakeArechts" type="xs:string"/>
-      <xs:attribute name="LabeledEditCHBakeBAbst" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHBakeBlinks" type="xs:string"/>
-      <xs:attribute name="LabeledEditCHBakeBrechts" type="xs:string"/>
-      <xs:attribute name="LabeledEditCHBakeCAbst" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHBakeClinks" type="xs:string"/>
-      <xs:attribute name="LabeledEditCHBakeCrechts" type="xs:string"/>
       <xs:attribute name="LabeledEditCHFahrstrAufloesen" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHGPA" type="xs:string"/>
-      <xs:attribute name="LabeledEditCHGrenzzeichen" type="xs:string"/>
+      <xs:attribute name="CheckBox500HzElemTeilen" type="boolean"/>
       <xs:attribute name="LabeledEditCHIndusi500HzAbstand" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHLf6" type="xs:string"/>
+      <xs:attribute name="LabeledEditCH500Hz" type="xs:string"/>
+      <xs:attribute name="LabeledEditCHGPA" type="xs:string"/>
+      <xs:attribute name="CheckBoxLf6Teilen" type="boolean"/>
       <xs:attribute name="LabeledEditCHLf6Abstand" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHLf7Rauf" type="xs:string"/>
+      <xs:attribute name="LabeledEditCHLf6" type="xs:string"/>
       <xs:attribute name="LabeledEditCHLf7Runter" type="xs:string"/>
+      <xs:attribute name="LabeledEditCHLf7Rauf" type="xs:string"/>
+      <xs:attribute name="LabeledEditCHBakeAAbst" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHBakeBAbst" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHBakeCAbst" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHBakeAlinks" type="xs:string"/>
+      <xs:attribute name="LabeledEditCHBakeBlinks" type="xs:string"/>
+      <xs:attribute name="LabeledEditCHBakeClinks" type="xs:string"/>
+      <xs:attribute name="LabeledEditCHBakeArechts" type="xs:string"/>
+      <xs:attribute name="LabeledEditCHBakeBrechts" type="xs:string"/>
+      <xs:attribute name="LabeledEditCHBakeCrechts" type="xs:string"/>
       <xs:attribute name="LabeledEditCHLichtraumBreite" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHGrenzzeichen" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

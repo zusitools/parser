@@ -7,17 +7,17 @@
         <xs:element name="Datei" type="Dateiverknuepfung"/>
         <xs:element ref="FontUV" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="FontFlags" use="required" type="xs:int"/>
       <xs:attribute name="FontHoehe" use="required" type="xs:float"/>
-      <xs:attribute name="FontSkalierungsfaktor" use="required" type="xs:float"/>
+      <xs:attribute name="FontFlags" use="required" type="xs:int"/>
       <xs:attribute name="FontZeichenAbstand" use="required" type="xs:float"/>
+      <xs:attribute name="FontSkalierungsfaktor" use="required" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FontUV">
     <xs:complexType>
       <xs:attribute name="fontx1" use="required" type="xs:float"/>
-      <xs:attribute name="fontx2" use="required" type="xs:float"/>
       <xs:attribute name="fonty1" use="required" type="xs:float"/>
+      <xs:attribute name="fontx2" use="required" type="xs:float"/>
       <xs:attribute name="fonty2" use="required" type="xs:float"/>
     </xs:complexType>
   </xs:element>

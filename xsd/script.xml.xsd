@@ -17,14 +17,14 @@
       <xs:all minOccurs="0">
         <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="1" maxOccurs="1"/>
       </xs:all>
-      <xs:attribute name="DateiInfoAdminNoetig" type="boolean"/>
       <xs:attribute name="DateiInfoDateiArt" type="xs:int"/>
-      <xs:attribute name="DateiInfoDateibedingung" type="xs:string"/>
       <xs:attribute name="DateiInfoVersion" type="xs:string"/>
-      <xs:attribute name="DateiInfoVersionAlt" type="xs:string"/>
       <xs:attribute name="Datum" type="dateTime"/>
-      <xs:attribute name="Groesse" type="xs:int"/>
       <xs:attribute name="Hashwert" type="xs:long"/>
+      <xs:attribute name="DateiInfoAdminNoetig" type="boolean"/>
+      <xs:attribute name="DateiInfoDateibedingung" type="xs:string"/>
+      <xs:attribute name="DateiInfoVersionAlt" type="xs:string"/>
+      <xs:attribute name="Groesse" type="xs:int"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Verschieben">

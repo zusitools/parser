@@ -6,31 +6,31 @@
       <xs:all minOccurs="0">
         <xs:element ref="FahrtEintrag" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="Bemerkung" type="xs:string"/>
+      <xs:attribute name="Zugnummer" type="xs:string"/>
+      <xs:attribute name="TfNummer" type="xs:string"/>
       <xs:attribute name="Datum" type="dateTime"/>
-      <xs:attribute name="EnergieVorgabe" type="xs:float"/>
+      <xs:attribute name="Verbrauch" type="xs:float"/>
+      <xs:attribute name="Bemerkung" type="xs:string"/>
       <xs:attribute name="Schummel" type="boolean"/>
       <xs:attribute name="Schwierigkeitsgrad" type="xs:int"/>
-      <xs:attribute name="TfNummer" type="xs:string"/>
-      <xs:attribute name="Verbrauch" type="xs:float"/>
-      <xs:attribute name="Zugnummer" type="xs:string"/>
+      <xs:attribute name="EnergieVorgabe" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrtEintrag">
     <xs:complexType>
-      <xs:attribute name="FahrtAutopilot" type="boolean"/>
-      <xs:attribute name="FahrtFplAbf" type="xs:float"/>
-      <xs:attribute name="FahrtFplAnk" type="xs:float"/>
-      <xs:attribute name="FahrtParameter" type="xs:int"/>
-      <xs:attribute name="FahrtText" type="xs:string"/>
       <xs:attribute name="FahrtTyp" type="xs:int"/>
       <xs:attribute name="FahrtWeg" type="xs:float"/>
       <xs:attribute name="FahrtZeit" type="dateTime"/>
-      <xs:attribute name="Fahrtkm" type="xs:float"/>
       <xs:attribute name="Fahrtsp" type="xs:float"/>
-      <xs:attribute name="FahrtspSignal" type="xs:float"/>
       <xs:attribute name="FahrtspStrecke" type="xs:float"/>
+      <xs:attribute name="FahrtspSignal" type="xs:float"/>
       <xs:attribute name="FahrtspZugsicherung" type="xs:float"/>
+      <xs:attribute name="FahrtAutopilot" type="boolean"/>
+      <xs:attribute name="FahrtText" type="xs:string"/>
+      <xs:attribute name="Fahrtkm" type="xs:float"/>
+      <xs:attribute name="FahrtParameter" type="xs:int"/>
+      <xs:attribute name="FahrtFplAnk" type="xs:float"/>
+      <xs:attribute name="FahrtFplAbf" type="xs:float"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

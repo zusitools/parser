@@ -49,10 +49,10 @@
       </xs:all>
       <xs:attribute name="BR" type="xs:string"/>
       <xs:attribute name="Beschreibung" type="xs:string"/>
+      <xs:attribute name="Farbgebung" type="xs:string"/>
       <xs:attribute name="Dekozug" type="boolean"/>
       <xs:attribute name="EinsatzAb" type="dateTime"/>
       <xs:attribute name="EinsatzBis" type="dateTime"/>
-      <xs:attribute name="Farbgebung" type="xs:string"/>
       <xs:attribute name="IDHaupt" type="xs:int"/>
       <xs:attribute name="IDNeben" type="xs:int"/>
     </xs:complexType>
@@ -63,20 +63,20 @@
         <xs:element name="SchlussVorne" type="SchlusssignalPos" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="SchlussHinten" type="SchlusssignalPos" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
+      <xs:attribute name="Masse" type="xs:float"/>
+      <xs:attribute name="Spurweite" type="xs:int"/>
       <xs:attribute name="Achsstandsumme" type="xs:float"/>
+      <xs:attribute name="RotationsZuschlag" type="xs:float"/>
+      <xs:attribute name="cwA" type="xs:float"/>
+      <xs:attribute name="Rollwiderstand" type="xs:float"/>
+      <xs:attribute name="Laenge" type="xs:float"/>
+      <xs:attribute name="spMax" type="xs:float"/>
+      <xs:attribute name="Neigewinkel" type="xs:float"/>
+      <xs:attribute name="HBLVorhanden" type="boolean"/>
       <xs:attribute name="FesselAnfg" type="xs:float"/>
       <xs:attribute name="FesselEnde" type="xs:float"/>
-      <xs:attribute name="HBLVorhanden" type="boolean"/>
-      <xs:attribute name="Laenge" type="xs:float"/>
-      <xs:attribute name="Masse" type="xs:float"/>
-      <xs:attribute name="Neigewinkel" type="xs:float"/>
-      <xs:attribute name="Rollwiderstand" type="xs:float"/>
-      <xs:attribute name="RotationsZuschlag" type="xs:float"/>
       <xs:attribute name="Schlingerfaktor" type="xs:float"/>
-      <xs:attribute name="Spurweite" type="xs:int"/>
       <xs:attribute name="StromabnHoehe" type="xs:float"/>
-      <xs:attribute name="cwA" type="xs:float"/>
-      <xs:attribute name="spMax" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="SchlusssignalPos">
@@ -117,10 +117,10 @@
             <xs:element name="BremseP" type="Bremsgewicht"/>
             <xs:element name="BremseG" type="Bremsgewicht"/>
           </xs:all>
-          <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
-          <xs:attribute name="HBLAnschluss" type="boolean"/>
           <xs:attribute name="VolumenB" type="xs:float"/>
           <xs:attribute name="VolumenZylinder" type="xs:float"/>
+          <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
+          <xs:attribute name="HBLAnschluss" type="boolean"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -133,11 +133,11 @@
             <xs:element name="BremseP" type="Bremsgewicht"/>
             <xs:element name="BremseG" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="VolumenR" type="xs:float"/>
+          <xs:attribute name="VolumenA" type="xs:float"/>
+          <xs:attribute name="VolumenZylinder" type="xs:float"/>
           <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
           <xs:attribute name="HBLAnschluss" type="boolean"/>
-          <xs:attribute name="VolumenA" type="xs:float"/>
-          <xs:attribute name="VolumenR" type="xs:float"/>
-          <xs:attribute name="VolumenZylinder" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -151,11 +151,11 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="VolumenR" type="xs:float"/>
+          <xs:attribute name="VolumenA" type="xs:float"/>
+          <xs:attribute name="VolumenZylinder" type="xs:float"/>
           <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
           <xs:attribute name="HBLAnschluss" type="boolean"/>
-          <xs:attribute name="VolumenA" type="xs:float"/>
-          <xs:attribute name="VolumenR" type="xs:float"/>
-          <xs:attribute name="VolumenZylinder" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -169,11 +169,11 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="VolumenR" type="xs:float"/>
+          <xs:attribute name="VolumenA" type="xs:float"/>
+          <xs:attribute name="VolumenZylinder" type="xs:float"/>
           <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
           <xs:attribute name="HBLAnschluss" type="boolean"/>
-          <xs:attribute name="VolumenA" type="xs:float"/>
-          <xs:attribute name="VolumenR" type="xs:float"/>
-          <xs:attribute name="VolumenZylinder" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -187,11 +187,11 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="VolumenR" type="xs:float"/>
+          <xs:attribute name="VolumenA" type="xs:float"/>
+          <xs:attribute name="VolumenZylinder" type="xs:float"/>
           <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
           <xs:attribute name="HBLAnschluss" type="boolean"/>
-          <xs:attribute name="VolumenA" type="xs:float"/>
-          <xs:attribute name="VolumenR" type="xs:float"/>
-          <xs:attribute name="VolumenZylinder" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -205,11 +205,11 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="VolumenR" type="xs:float"/>
+          <xs:attribute name="VolumenA" type="xs:float"/>
+          <xs:attribute name="VolumenZylinder" type="xs:float"/>
           <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
           <xs:attribute name="HBLAnschluss" type="boolean"/>
-          <xs:attribute name="VolumenA" type="xs:float"/>
-          <xs:attribute name="VolumenR" type="xs:float"/>
-          <xs:attribute name="VolumenZylinder" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -223,11 +223,11 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="VolumenR" type="xs:float"/>
+          <xs:attribute name="VolumenA" type="xs:float"/>
+          <xs:attribute name="VolumenZylinder" type="xs:float"/>
           <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
           <xs:attribute name="HBLAnschluss" type="boolean"/>
-          <xs:attribute name="VolumenA" type="xs:float"/>
-          <xs:attribute name="VolumenR" type="xs:float"/>
-          <xs:attribute name="VolumenZylinder" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -236,12 +236,12 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="Bremse">
-          <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
-          <xs:attribute name="HBLAnschluss" type="boolean"/>
           <xs:attribute name="Haltebremse" type="boolean"/>
           <xs:attribute name="HaltebremseAFB" type="boolean"/>
           <xs:attribute name="HaltebremseDruck" type="xs:float"/>
           <xs:attribute name="VolumenZylinder" type="xs:float"/>
+          <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
+          <xs:attribute name="HBLAnschluss" type="boolean"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -296,12 +296,12 @@
       <xs:element name="Kennfeld" type="Kennfeld"/>
       <xs:element ref="Nachlaufsteuerung"/>
     </xs:all>
-    <xs:attribute name="Antriebsachsen" type="xs:int"/>
-    <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
-    <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-    <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
     <xs:attribute name="Leistung" type="xs:float"/>
+    <xs:attribute name="Antriebsachsen" type="xs:int"/>
     <xs:attribute name="Reibmasse" type="xs:float"/>
+    <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
+    <xs:attribute name="GrenzdruckHL" type="xs:float"/>
+    <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
   </xs:complexType>
   <xs:element name="AntriebsmodellDieselElektrischDrehstrom">
     <xs:complexType>
@@ -333,9 +333,9 @@
       <xs:element name="SchaltenRauf" type="Kennfeld"/>
       <xs:element name="SchaltenRunter" type="Kennfeld"/>
     </xs:all>
+    <xs:attribute name="Uebersetzung" type="xs:float"/>
     <xs:attribute name="Fuelldauer" type="xs:float"/>
     <xs:attribute name="Ueberhoehung" type="xs:float"/>
-    <xs:attribute name="Uebersetzung" type="xs:float"/>
   </xs:complexType>
   <xs:element name="Wandler">
     <xs:complexType>
@@ -377,10 +377,10 @@
             <xs:element name="SoundLuefter" type="Sound"/>
             <xs:element ref="Drehstrommotor"/>
           </xs:all>
-          <xs:attribute name="GrenzwertUeberwacht" type="xs:float"/>
-          <xs:attribute name="MaxOberstrom" type="xs:float"/>
           <xs:attribute name="Volt" type="xs:int"/>
           <xs:attribute name="etaTrafo" type="xs:float"/>
+          <xs:attribute name="MaxOberstrom" type="xs:float"/>
+          <xs:attribute name="GrenzwertUeberwacht" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -393,19 +393,19 @@
             <xs:element name="SoundLuefter" type="Sound"/>
             <xs:element ref="Reihenschlussmotor"/>
           </xs:all>
-          <xs:attribute name="GrenzwertUeberwacht" type="xs:float"/>
-          <xs:attribute name="MaxOberstrom" type="xs:float"/>
           <xs:attribute name="Volt" type="xs:int"/>
           <xs:attribute name="etaTrafo" type="xs:float"/>
+          <xs:attribute name="MaxOberstrom" type="xs:float"/>
+          <xs:attribute name="GrenzwertUeberwacht" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="Reihenschlussmotor">
     <xs:complexType>
-      <xs:attribute name="MotorMaxSpannung" type="xs:float"/>
-      <xs:attribute name="MotorRaRf" type="xs:float"/>
       <xs:attribute name="MotorX" type="xs:float"/>
+      <xs:attribute name="MotorRaRf" type="xs:float"/>
+      <xs:attribute name="MotorMaxSpannung" type="xs:float"/>
       <xs:attribute name="MotorkHysterese" type="xs:float"/>
       <xs:attribute name="MotorkWirbelstrom" type="xs:float"/>
       <xs:attribute name="Motorkonstante" type="xs:float"/>
@@ -422,20 +422,20 @@
             <xs:element name="BremseE" type="Bremsgewicht"/>
             <xs:element name="BremseE160" type="Bremsgewicht"/>
           </xs:all>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
+          <xs:attribute name="etaTrafo" type="xs:float"/>
+          <xs:attribute name="etaMotor" type="xs:float"/>
+          <xs:attribute name="Motorkonstante" type="xs:float"/>
+          <xs:attribute name="MotorMinFrequenz" type="xs:float"/>
           <xs:attribute name="MotorMaxFrequenz" type="xs:float"/>
           <xs:attribute name="MotorMaxSpannung" type="xs:float"/>
-          <xs:attribute name="MotorMinFrequenz" type="xs:float"/>
-          <xs:attribute name="Motorkonstante" type="xs:float"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
-          <xs:attribute name="Volt" type="xs:int"/>
-          <xs:attribute name="etaMotor" type="xs:float"/>
-          <xs:attribute name="etaTrafo" type="xs:float"/>
           <xs:attribute name="spUmschalt" type="xs:float"/>
+          <xs:attribute name="Volt" type="xs:int"/>
+          <xs:attribute name="Leistung" type="xs:float"/>
+          <xs:attribute name="Antriebsachsen" type="xs:int"/>
+          <xs:attribute name="Reibmasse" type="xs:float"/>
+          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
+          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
+          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -451,15 +451,15 @@
             <xs:element name="BremseE" type="Bremsgewicht"/>
             <xs:element name="BremseE160" type="Bremsgewicht"/>
           </xs:all>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
           <xs:attribute name="Bremswiderstand" type="xs:float"/>
           <xs:attribute name="Fremderregt" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
           <xs:attribute name="Volt" type="xs:int"/>
+          <xs:attribute name="Leistung" type="xs:float"/>
+          <xs:attribute name="Antriebsachsen" type="xs:int"/>
+          <xs:attribute name="Reibmasse" type="xs:float"/>
+          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
+          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
+          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -486,20 +486,9 @@
   </xs:element>
   <xs:complexType name="Bremse">
     <xs:all minOccurs="0">
-      <xs:element ref="BremsenKennungV"/>
+      <xs:element name="BremsenKennungV" type="Kennfeld"/>
     </xs:all>
   </xs:complexType>
-  <xs:element name="BremsenKennungV">
-    <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element ref="Pkt" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="Stufe" minOccurs="0" maxOccurs="unbounded"/>
-      </xs:all>
-      <xs:attribute name="Beschreibung" type="xs:string"/>
-      <xs:attribute name="xText" type="xs:string"/>
-      <xs:attribute name="yText" type="xs:string"/>
-    </xs:complexType>
-  </xs:element>
   <xs:complexType name="Bremsgewicht">
     <xs:attribute name="BremsGewicht" type="xs:float"/>
   </xs:complexType>
@@ -510,8 +499,8 @@
         <xs:element name="SoundAbschalten" type="Sound"/>
       </xs:all>
       <xs:attribute name="AnzahlSchaltstufen" type="xs:int"/>
-      <xs:attribute name="GeschwAb" type="xs:float"/>
       <xs:attribute name="GeschwAuf" type="xs:float"/>
+      <xs:attribute name="GeschwAb" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="ErgBremse">
@@ -519,18 +508,18 @@
       <xs:all>
         <xs:element name="Kennfeld" type="Kennfeld" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="ErgBremseFaktorGBB" type="xs:float"/>
-      <xs:attribute name="ErgBremseFaktorGSB" type="xs:float"/>
-      <xs:attribute name="ErgBremseFaktorPBB" type="xs:float"/>
-      <xs:attribute name="ErgBremseFaktorPSB" type="xs:float"/>
-      <xs:attribute name="ErgBremseFaktorRBB" type="xs:float"/>
-      <xs:attribute name="ErgBremseFaktorRSB" type="xs:float"/>
-      <xs:attribute name="ErgBremseIndexGBB" type="xs:int"/>
-      <xs:attribute name="ErgBremseIndexGSB" type="xs:int"/>
-      <xs:attribute name="ErgBremseIndexPBB" type="xs:int"/>
-      <xs:attribute name="ErgBremseIndexPSB" type="xs:int"/>
       <xs:attribute name="ErgBremseIndexRBB" type="xs:int"/>
+      <xs:attribute name="ErgBremseIndexPBB" type="xs:int"/>
+      <xs:attribute name="ErgBremseIndexGBB" type="xs:int"/>
       <xs:attribute name="ErgBremseIndexRSB" type="xs:int"/>
+      <xs:attribute name="ErgBremseIndexPSB" type="xs:int"/>
+      <xs:attribute name="ErgBremseIndexGSB" type="xs:int"/>
+      <xs:attribute name="ErgBremseFaktorRBB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorPBB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorGBB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorRSB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorPSB" type="xs:float"/>
+      <xs:attribute name="ErgBremseFaktorGSB" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Dieselmotor">
@@ -539,13 +528,13 @@
         <xs:element name="eta" type="Kennfeld"/>
         <xs:element ref="GetrStufen"/>
       </xs:all>
-      <xs:attribute name="FuellungsGeregelt" type="boolean"/>
+      <xs:attribute name="nMin" type="xs:int"/>
+      <xs:attribute name="nMax" type="xs:int"/>
       <xs:attribute name="MMax" type="xs:int"/>
       <xs:attribute name="Startzeit" type="xs:float"/>
       <xs:attribute name="Stopzeit" type="xs:float"/>
-      <xs:attribute name="nMax" type="xs:int"/>
-      <xs:attribute name="nMin" type="xs:int"/>
       <xs:attribute name="nTraegheit" type="xs:float"/>
+      <xs:attribute name="FuellungsGeregelt" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="GetrStufen">
@@ -562,14 +551,14 @@
   </xs:element>
   <xs:element name="Drehstrommotor">
     <xs:complexType>
-      <xs:attribute name="MotorAnfahrspannung" type="xs:float"/>
-      <xs:attribute name="MotorMaxFrequenz" type="xs:float"/>
-      <xs:attribute name="MotorMaxSpannung" type="xs:float"/>
       <xs:attribute name="MotorMinFrequenz" type="xs:float"/>
+      <xs:attribute name="MotorMaxFrequenz" type="xs:float"/>
+      <xs:attribute name="MotorAnfahrspannung" type="xs:float"/>
+      <xs:attribute name="spUmschalt" type="xs:float"/>
+      <xs:attribute name="MotorMaxSpannung" type="xs:float"/>
       <xs:attribute name="MotorkHysterese" type="xs:float"/>
       <xs:attribute name="MotorkWirbelstrom" type="xs:float"/>
       <xs:attribute name="Motorkonstante" type="xs:float"/>
-      <xs:attribute name="spUmschalt" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FzgTuersystemSAT">

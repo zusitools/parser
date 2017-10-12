@@ -8,18 +8,18 @@
         <xs:element name="BstgKante" type="Material"/>
         <xs:element name="BstgBelag" type="Material"/>
       </xs:all>
-      <xs:attribute name="LabeledEditCHBreiteBstgKante" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHFesteBreite" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHGleisAbstand" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHHoehe" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHHoeheBstg" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHNeigungBstg" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHTexKOKnick" type="xs:float"/>
       <xs:attribute name="RadioButtonAbstOberbau" type="boolean"/>
-      <xs:attribute name="RadioButtonBauartFesteBreite" type="boolean"/>
-      <xs:attribute name="RadioButtonBauartGleisVorgeben" type="boolean"/>
-      <xs:attribute name="RadioButtonBauartParallelgleis" type="boolean"/>
       <xs:attribute name="RadioButtonLageManuell" type="boolean"/>
+      <xs:attribute name="LabeledEditCHHoehe" type="xs:float"/>
+      <xs:attribute name="RadioButtonBauartParallelgleis" type="boolean"/>
+      <xs:attribute name="RadioButtonBauartGleisVorgeben" type="boolean"/>
+      <xs:attribute name="RadioButtonBauartFesteBreite" type="boolean"/>
+      <xs:attribute name="LabeledEditCHHoeheBstg" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHBreiteBstgKante" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHGleisAbstand" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHTexKOKnick" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHNeigungBstg" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHFesteBreite" type="xs:float"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

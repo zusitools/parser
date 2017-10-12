@@ -13,11 +13,11 @@
       <xs:all>
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
+      <xs:attribute name="GPAvneu" use="required" type="xs:float"/>
+      <xs:attribute name="GPAvalt" use="required" type="xs:float"/>
       <xs:attribute name="GPAAbstand" use="required" type="xs:float"/>
       <xs:attribute name="GPAAbstand12" use="required" type="xs:float"/>
       <xs:attribute name="GPAAbstand23" use="required" type="xs:float"/>
-      <xs:attribute name="GPAvalt" use="required" type="xs:float"/>
-      <xs:attribute name="GPAvneu" use="required" type="xs:float"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

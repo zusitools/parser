@@ -8,10 +8,10 @@
         <xs:element name="LabeledEditCHDateiAnkuendiger" type="Dateiverknuepfung"/>
         <xs:element name="LabeledEditCHDateiEinschaltsignal" type="Dateiverknuepfung"/>
       </xs:all>
-      <xs:attribute name="CheckBoxAnkAnimiert" type="boolean"/>
-      <xs:attribute name="LabeledEditCHAbstandEinschaltsignal" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHVorlaufzeit" type="xs:float"/>
       <xs:attribute name="RadioGroupBueTyp" type="boolean"/>
+      <xs:attribute name="LabeledEditCHVorlaufzeit" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHAbstandEinschaltsignal" type="xs:float"/>
+      <xs:attribute name="CheckBoxAnkAnimiert" type="boolean"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

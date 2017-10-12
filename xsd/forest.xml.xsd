@@ -8,12 +8,12 @@
         <xs:element name="Deckel" type="Material"/>
         <xs:element name="Rand" type="Material"/>
       </xs:all>
-      <xs:attribute name="CheckBoxDeckel" use="required" type="boolean"/>
-      <xs:attribute name="LabeledEditCHAnzahlStreifen" use="required" type="xs:int"/>
       <xs:attribute name="LabeledEditCHHoehe" use="required" type="xs:float"/>
-      <xs:attribute name="LabeledEditCHHoeheWaldrand" use="required" type="xs:float"/>
       <xs:attribute name="LabeledEditCHVersatz" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHHoeheWaldrand" use="required" type="xs:float"/>
+      <xs:attribute name="LabeledEditCHAnzahlStreifen" use="required" type="xs:int"/>
       <xs:attribute name="SpinEditCHStreifenNr" use="required" type="xs:int"/>
+      <xs:attribute name="CheckBoxDeckel" use="required" type="boolean"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

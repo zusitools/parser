@@ -13,18 +13,35 @@ RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grü
       <xs:element ref="RenderFlags" minOccurs="0" maxOccurs="1"/>
       <xs:element ref="Textur" minOccurs="0" maxOccurs="2"/>
     </xs:all>
-    <xs:attribute name="BeleuchtungTyp" type="xs:int"/>
-    <xs:attribute name="Ca" type="xs:hexBinary"/>
     <xs:attribute name="Cd" type="xs:hexBinary"/>
+    <xs:attribute name="Ca" type="xs:hexBinary"/>
     <xs:attribute name="Ce" type="xs:hexBinary"/>
-    <xs:attribute name="C" type="xs:hexBinary"/>
-    <xs:attribute name="CA" type="xs:hexBinary"/>
-    <xs:attribute name="E" type="xs:hexBinary"/>
-    <xs:attribute name="GruppenName" type="xs:string"/>
     <xs:attribute name="MeterProTex" type="xs:float"/>
     <xs:attribute name="MeterProTex2" type="xs:float"/>
-    <xs:attribute name="TypGF" type="xs:int"/>
+    <xs:attribute name="zBias" type="xs:int"/>
+    <!-- TODO ? -->
+    <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
+    <!-- TODO ? -->
     <xs:attribute name="TypLs3" type="xs:int"/>
+    <xs:attribute name="TypGF" type="xs:int"/>
+    <xs:attribute name="BeleuchtungTyp" type="xs:int"/>
+    <xs:attribute name="GruppenName" type="xs:string"/>
+    <!-- TODO ? -->
+    <xs:attribute name="C" type="xs:hexBinary">
+      <xs:annotation>
+        <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="CA" type="xs:hexBinary">
+      <xs:annotation>
+        <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="E" type="xs:hexBinary">
+      <xs:annotation>
+        <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="GFTyp" type="xs:int">
       <xs:annotation>
         <xs:documentation xml:lang="de">@deprecated</xs:documentation>
@@ -35,8 +52,6 @@ RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grü
         <xs:documentation xml:lang="de">@deprecated</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
-    <xs:attribute name="zBias" type="xs:int"/>
   </xs:complexType>
   <xs:element name="RenderFlags">
     <xs:complexType>
@@ -45,13 +60,13 @@ RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grü
         <xs:element name="SubSetTexFlags2" type="SubSetTexFlags" minOccurs="0" maxOccurs="1"/>
         <xs:element name="SubSetTexFlags3" type="SubSetTexFlags" minOccurs="0" maxOccurs="1"/>
       </xs:all>
-      <xs:attribute name="ALPHABLENDENABLE" type="boolean"/>
-      <xs:attribute name="ALPHAREF" type="xs:int"/>
-      <xs:attribute name="ALPHATESTENABLE" type="boolean"/>
-      <xs:attribute name="DESTBLEND" type="xs:int"/>
-      <xs:attribute name="SHADEMODE" type="xs:int"/>
-      <xs:attribute name="SRCBLEND" type="xs:int"/>
       <xs:attribute name="TexVoreinstellung" type="xs:int">
+        <xs:attribute name="SHADEMODE" type="xs:int"/>
+        <xs:attribute name="DESTBLEND" type="xs:int"/>
+        <xs:attribute name="SRCBLEND" type="xs:int"/>
+        <xs:attribute name="ALPHABLENDENABLE" type="boolean"/>
+        <xs:attribute name="ALPHATESTENABLE" type="boolean"/>
+        <xs:attribute name="ALPHAREF" type="xs:int"/>
         <xs:annotation>
           <xs:documentation xml:lang="de">Aus Gründen der 3D-Performance soll im RenderFlags-Element in der Regel nur das Attribut TexVoreinstellung spezifiziert werden. Dadurch werden in der Referenzimplementation jeweils performanceoptimierte Voreinstellungen für die Unterelemente und Unterattribute des RenderFlags-Elements geladen.
     Werte für das Attribut TexVoreinstellung:
@@ -74,29 +89,29 @@ RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grü
     </xs:complexType>
   </xs:element>
   <xs:complexType name="SubSetTexFlags">
-    <xs:attribute name="ALPHAARG0" type="xs:int"/>
-    <xs:attribute name="ALPHAARG1" type="xs:int"/>
-    <xs:attribute name="ALPHAARG2" type="xs:int"/>
-    <xs:attribute name="ALPHAOP" type="xs:int"/>
-    <xs:attribute name="COLORARG0" type="xs:int"/>
+    <xs:attribute name="MINFILTER" type="xs:int"/>
+    <xs:attribute name="MAGFILTER" type="xs:int"/>
+    <xs:attribute name="COLOROP" type="xs:int"/>
     <xs:attribute name="COLORARG1" type="xs:int"/>
     <xs:attribute name="COLORARG2" type="xs:int"/>
-    <xs:attribute name="COLOROP" type="xs:int"/>
-    <xs:attribute name="MAGFILTER" type="xs:int"/>
-    <xs:attribute name="MINFILTER" type="xs:int"/>
+    <xs:attribute name="COLORARG0" type="xs:int"/>
+    <xs:attribute name="ALPHAOP" type="xs:int"/>
+    <xs:attribute name="ALPHAARG1" type="xs:int"/>
+    <xs:attribute name="ALPHAARG2" type="xs:int"/>
+    <xs:attribute name="ALPHAARG0" type="xs:int"/>
     <xs:attribute name="RESULTARG" type="xs:int"/>
   </xs:complexType>
   <xs:element name="Textur">
     <xs:complexType>
       <xs:annotation>
-        <xs:documentation xml:lang="de">Die Attribute AnzahlMipMapLevel, TransparentFarbe und TransparentModus sind Spezialoptionen, die in ls3 nur gebraucht werden, wenn abweichend von der Empfehlung nicht mit Texturen im DDS-Dateiformat gearbeitet wird. In diesem Fall siehe Zusi-Doku 5.4.4.5.2.5für die erlaubten Werte.</xs:documentation>
+        <xs:documentation xml:lang="de">Die Attribute AnzahlMipMapLevel, TransparentFarbe und TransparentModus sind Spezialoptionen, die in ls3 nur gebraucht werden, wenn abweichend von der Empfehlung nicht mit Texturen im DDS-Dateiformat gearbeitet wird. In diesem Fall siehe Zusi-Doku 5.4.4.5.2.5 für die erlaubten Werte.</xs:documentation>
       </xs:annotation>
       <xs:all>
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
-      <xs:attribute name="AnzahlMipMapLevel" type="xs:int"/>
-      <xs:attribute name="TransparentFarbe" type="xs:hexBinary"/>
       <xs:attribute name="TransparentModus" type="xs:int"/>
+      <xs:attribute name="TransparentFarbe" type="xs:hexBinary"/>
+      <xs:attribute name="AnzahlMipMapLevel" type="xs:int"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

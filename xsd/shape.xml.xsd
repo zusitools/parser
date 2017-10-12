@@ -8,8 +8,8 @@
         <xs:element name="Punkt" type="FormkurvenPunkt" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="Material" type="Material"/>
       </xs:all>
-      <xs:attribute name="DetailKachel" type="boolean"/>
       <xs:attribute name="TexIstU" type="boolean"/>
+      <xs:attribute name="DetailKachel" type="boolean"/>
       <xs:attribute name="Ueberhg" type="boolean"/>
     </xs:complexType>
   </xs:element>

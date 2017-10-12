@@ -57,8 +57,8 @@
       <xs:attribute name="Abf" type="dateTime"/>
       <xs:attribute name="Ank" type="dateTime"/>
       <xs:attribute name="Betrst" type="xs:string"/>
-      <xs:attribute name="ErsatzsignalzeilePlus1" type="xs:int"/>
       <xs:attribute name="FplEintrag" type="xs:int"/>
+      <xs:attribute name="ErsatzsignalzeilePlus1" type="xs:int"/>
       <xs:attribute name="FzgVerbandAktion" type="xs:int"/>
       <xs:attribute name="FzgVerbandAktionWendesignal" type="boolean"/>
       <xs:attribute name="FzgVerbandWendeSignalabstand" type="xs:float"/>
@@ -82,8 +82,8 @@
     <xs:attribute name="Beschreibung" type="xs:string"/>
   </xs:complexType>
   <xs:complexType name="FahrplanVorgangAbhaengigkeit">
-    <xs:attribute name="AbhBedingung" type="xs:int"/>
     <xs:attribute name="AbhOperator" type="xs:int"/>
+    <xs:attribute name="AbhBedingung" type="xs:int"/>
     <xs:attribute name="AbhParameter" type="xs:float"/>
   </xs:complexType>
   <xs:element name="FahrzeugVarianten">
@@ -93,10 +93,10 @@
         <xs:element ref="FahrzeugVarianten" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Bezeichnung" type="xs:string"/>
-      <xs:attribute name="FzgPosition" type="xs:int"/>
+      <xs:attribute name="spZugNiedriger" type="xs:float"/>
       <xs:attribute name="PerZufallUebernehmen" type="boolean"/>
       <xs:attribute name="ZufallsWert" type="xs:float"/>
-      <xs:attribute name="spZugNiedriger" type="xs:float"/>
+      <xs:attribute name="FzgPosition" type="xs:int"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrzeugInfo">
@@ -104,17 +104,17 @@
       <xs:all>
         <xs:element name="Datei" type="Dateiverknuepfung"/>
       </xs:all>
-      <xs:attribute name="Bremsstellung" type="xs:int"/>
-      <xs:attribute name="DotraModus" type="xs:int"/>
-      <xs:attribute name="EigeneBremsstellung" type="boolean"/>
-      <xs:attribute name="EigeneZugart" type="boolean"/>
-      <xs:attribute name="FahrzeugZusatzinfo" type="xs:string"/>
-      <xs:attribute name="Gedreht" type="boolean"/>
       <xs:attribute name="IDHaupt" type="xs:int"/>
       <xs:attribute name="IDNeben" type="xs:int"/>
-      <xs:attribute name="SASchaltung" type="xs:int"/>
+      <xs:attribute name="EigeneBremsstellung" type="boolean"/>
+      <xs:attribute name="Bremsstellung" type="xs:int"/>
+      <xs:attribute name="EigeneZugart" type="boolean"/>
       <xs:attribute name="Tuerignorieren" type="boolean"/>
+      <xs:attribute name="DotraModus" type="xs:int"/>
+      <xs:attribute name="SASchaltung" type="xs:int"/>
+      <xs:attribute name="Gedreht" type="boolean"/>
       <xs:attribute name="Zugart" type="xs:string"/>
+      <xs:attribute name="FahrzeugZusatzinfo" type="xs:string"/>
       <xs:attribute name="VariantenIndex" type="xs:int">
         <xs:annotation>
           <xs:documentation xml:lang="de">@deprecated</xs:documentation>

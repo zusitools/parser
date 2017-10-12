@@ -9,18 +9,18 @@
         <xs:element ref="Fzg" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="FplZeile" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="BR" type="xs:string"/>
-      <xs:attribute name="Bremsh" type="xs:float"/>
-      <xs:attribute name="Bremsstellung" type="xs:int"/>
-      <xs:attribute name="GNTSpalte" type="boolean"/>
       <xs:attribute name="Gattung" type="xs:string"/>
-      <xs:attribute name="Laenge" type="xs:float"/>
-      <xs:attribute name="MBrh" type="xs:float"/>
-      <xs:attribute name="Masse" type="xs:float"/>
       <xs:attribute name="Nummer" type="xs:string"/>
       <xs:attribute name="Zuglauf" type="xs:string"/>
-      <xs:attribute name="kmStart" type="xs:float"/>
+      <xs:attribute name="BR" type="xs:string"/>
+      <xs:attribute name="Masse" type="xs:float"/>
       <xs:attribute name="spMax" type="xs:float"/>
+      <xs:attribute name="Bremsh" type="xs:float"/>
+      <xs:attribute name="MBrh" type="xs:float"/>
+      <xs:attribute name="Laenge" type="xs:float"/>
+      <xs:attribute name="kmStart" type="xs:float"/>
+      <xs:attribute name="Bremsstellung" type="xs:int"/>
+      <xs:attribute name="GNTSpalte" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Fzg">
@@ -44,9 +44,9 @@
         <xs:element ref="FplAbf" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="FplRichtungswechsel" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="FahrstrStrecke" type="xs:string"/>
-      <xs:attribute name="FplLaufweg" type="xs:float"/>
       <xs:attribute name="FplRglGgl" type="xs:int"/>
+      <xs:attribute name="FplLaufweg" type="xs:float"/>
+      <xs:attribute name="FahrstrStrecke" type="xs:string"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplvMax">
@@ -61,9 +61,9 @@
   </xs:element>
   <xs:element name="Fplkm">
     <xs:complexType>
+      <xs:attribute name="km" type="xs:float"/>
       <xs:attribute name="FplSprung" type="boolean"/>
       <xs:attribute name="FplkmNeu" type="xs:float"/>
-      <xs:attribute name="km" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplName">
