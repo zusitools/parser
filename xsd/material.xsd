@@ -61,12 +61,6 @@ RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grü
         <xs:element name="SubSetTexFlags3" type="SubSetTexFlags" minOccurs="0" maxOccurs="1"/>
       </xs:all>
       <xs:attribute name="TexVoreinstellung" type="xs:int">
-        <xs:attribute name="SHADEMODE" type="xs:int"/>
-        <xs:attribute name="DESTBLEND" type="xs:int"/>
-        <xs:attribute name="SRCBLEND" type="xs:int"/>
-        <xs:attribute name="ALPHABLENDENABLE" type="boolean"/>
-        <xs:attribute name="ALPHATESTENABLE" type="boolean"/>
-        <xs:attribute name="ALPHAREF" type="xs:int"/>
         <xs:annotation>
           <xs:documentation xml:lang="de">Aus Gründen der 3D-Performance soll im RenderFlags-Element in der Regel nur das Attribut TexVoreinstellung spezifiziert werden. Dadurch werden in der Referenzimplementation jeweils performanceoptimierte Voreinstellungen für die Unterelemente und Unterattribute des RenderFlags-Elements geladen.
     Werte für das Attribut TexVoreinstellung:
@@ -86,6 +80,12 @@ RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grü
     Die erlaubten Werte der in Großbuchstaben geschriebenen Attribute der SubSetTexFlags ergeben sich aus der Dokumentation des DirectX-9-SDK bzw. Zusi-Doku Kapitel 11.4</xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="SHADEMODE" type="xs:int"/>
+      <xs:attribute name="DESTBLEND" type="xs:int"/>
+      <xs:attribute name="SRCBLEND" type="xs:int"/>
+      <xs:attribute name="ALPHABLENDENABLE" type="boolean"/>
+      <xs:attribute name="ALPHATESTENABLE" type="boolean"/>
+      <xs:attribute name="ALPHAREF" type="xs:int"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="SubSetTexFlags">
