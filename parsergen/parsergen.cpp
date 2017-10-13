@@ -1,5 +1,6 @@
 #include "pugixml.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <experimental/filesystem>
@@ -7,6 +8,7 @@
 #include <fstream>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <sstream>
 #include <unordered_map>
@@ -25,9 +27,10 @@ enum class AttributeType {
   HexInt32,
 };
 
-struct Attribute {
+struct ElementType;
+
+struct Thing {
   std::string name;
-  AttributeType type;
   std::string documentation;
 
   bool deprecated() const {
@@ -35,54 +38,35 @@ struct Attribute {
   }
 };
 
-struct Child {
-  std::string name;
+struct Attribute : Thing {
+  AttributeType type;
+};
+
+struct Child : Thing {
+  const ElementType* type;  // never null
+  bool multiple;
+};
+
+struct ChildRaw : Thing {
   std::string type;
   bool multiple;
-  std::string documentation;
-
-  bool deprecated() const {
-    return documentation.find("@deprecated") != std::string::npos;
-  }
 };
 
-struct ElementType {
-  std::string base;
+struct ElementType : Thing {
+  const ElementType* base;  // may be null
   std::vector<Attribute> attributes;
   std::vector<Child> children;
-  std::string documentation;
+};
+
+struct ElementTypeRaw : Thing {
+  std::string base;
+  std::vector<Attribute> attributes;
+  std::vector<ChildRaw> children;
 };
 
 class ParserGenerator {
  public:
-  void AddXsdFile(const fs::path& fileName) {
-    fs::path fileNameCanonical = fs::canonical(fileName);
-
-    if (m_docs_by_name.find(fileNameCanonical) != std::end(m_docs_by_name)) {
-      return;
-    }
-
-    std::cerr << "Loading XSD file: " << fileNameCanonical << std::endl;
-    auto document = std::make_unique<pugi::xml_document>();
-    document->load_file(fileNameCanonical.c_str());
-
-    // Load <xs:include>d files and save them for later
-    std::vector<fs::path> includes;
-    for (const auto& include : document->select_nodes("//xs:include")) {
-      includes.push_back(fs::canonical(include.node().attribute("schemaLocation").as_string(), fileNameCanonical.parent_path()));
-    }
-
-    // Parse complex types
-    for (const auto& complexType : document->select_nodes("//xs:complexType")) {
-      ParseComplexType(complexType.node());
-    }
-
-    m_docs_by_name.emplace(fileNameCanonical, std::move(document));
-
-    for (const auto& includeFileName : includes) {
-      AddXsdFile(includeFileName);
-    }
-  }
+  ParserGenerator(std::vector<std::unique_ptr<ElementType>>* elementTypes) : m_element_types(std::move(*elementTypes)) {}
 
   void GenerateTypeIncludes(std::ostream& out) {
     out << "#include <vector>  // for std::vector" << std::endl;
@@ -91,37 +75,36 @@ class ParserGenerator {
   }
 
   void GenerateTypeDeclarations(std::ostream& out) {
-    for (auto&& [ typeName, elementType ] : m_element_types) {
-      out << "struct " << typeName << ";" << std::endl;
-      (void)elementType;
+    for (const auto& elementType : m_element_types) {
+      out << "struct " << elementType->name << ";" << std::endl;
     }
   }
 
   void GenerateTypeDefinitions(std::ostream& out) {
     // poor man's topological sort
-    std::unordered_set<std::string> done;
+    std::set<const ElementType*> done;
     bool changed;
     do {
       changed = false;
 
-      for (auto&& [ typeName, elementType ] : m_element_types) {
-        if (done.find(typeName) != std::end(done) || (elementType.base.size() > 0 && done.find(elementType.base) == std::end(done))) {
+      for (const auto& elementType : m_element_types) {
+        if (done.find(elementType.get()) != std::end(done) || (elementType->base && done.find(elementType->base) == std::end(done))) {
           continue;
         }
 
-        done.insert(typeName);
+        done.insert(elementType.get());
         changed = true;
 
-        if (!elementType.documentation.empty()) {
-          out << "/** " << elementType.documentation << "*/" << std::endl;
+        if (!elementType->documentation.empty()) {
+          out << "/** " << elementType->documentation << "*/" << std::endl;
         }
-        out << "struct " << typeName;
-        if (elementType.base.size() > 0) {
-          out << " : " << elementType.base;
+        out << "struct " << elementType->name;
+        if (elementType->base) {
+          out << " : " << elementType->base->name;
         }
         out << " {" << std::endl;
 
-        for (const auto& attribute : elementType.attributes) {
+        for (const auto& attribute : elementType->attributes) {
           if (attribute.deprecated()) {
             continue;
           }
@@ -141,7 +124,7 @@ class ParserGenerator {
           out << " " << attribute.name << ";" << std::endl;
         }
 
-        for (const auto& child : elementType.children) {
+        for (const auto& child : elementType->children) {
           if (child.deprecated()) {
             continue;
           }
@@ -149,9 +132,9 @@ class ParserGenerator {
             out << "  /** " << child.documentation << "*/" << std::endl;
           }
           if (child.multiple) {
-            out << "  std::vector<std::unique_ptr<struct " << child.type << ">> children_" << child.name << ";" << std::endl;
+            out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">> children_" << child.name << ";" << std::endl;
           } else {
-            out << "  std::unique_ptr<struct " << child.type << "> " << child.name << ";" << std::endl;
+            out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
           }
         }
 
@@ -164,33 +147,34 @@ class ParserGenerator {
     }
   }
 
-  std::unordered_set<std::string> GetConcreteTypes() {
-    std::unordered_set<std::string> result = { "Zusi" };
-    for (auto&& [ typeName, elementType ] : m_element_types) {
-      for (const auto& child : elementType.children) {
+  std::unordered_set<const ElementType*> GetConcreteTypes() {
+    const auto& zusiElementType = std::find_if(std::begin(m_element_types), std::end(m_element_types), [](const auto& type) { return type->name == "Zusi"; });
+    assert(zusiElementType != std::end(m_element_types));
+    std::unordered_set<const ElementType*> result { zusiElementType->get() };
+    for (const auto& elementType : m_element_types) {
+      for (auto& child : elementType->children) {
         if (!child.deprecated()) {
           result.emplace(child.type);
         }
       }
-      (void)typeName;
     }
     return result;
   }
 
-  void GenerateParseFunctionDeclarations(std::ostream& out, const std::unordered_set<std::string>& typesToExport) {
+  void GenerateParseFunctionDeclarations(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
     out << "namespace rapidxml {" << std::endl;
-    for (auto&& [ typeName, elementType ] : m_element_types) {
-      if (typesToExport.find(typeName) == std::end(typesToExport)) {
+    for (const auto& elementType : m_element_types) {
+      if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
         continue;
       }
-      out << "  template<> void parse_element<" << typeName << ">(Ch *& text, void* parseResult);" << std::endl;
-      out << "  template<> void parse_node_attributes<" << typeName << ">(Ch *& text, void* parseResult);" << std::endl;
+      out << "  template<> void parse_element<" << elementType->name << ">(Ch *& text, void* parseResult);" << std::endl;
+      out << "  template<> void parse_node_attributes<" << elementType->name << ">(Ch *& text, void* parseResult);" << std::endl;
       (void)elementType;
     }
     out << "}  // namespace rapidxml" << std::endl;
   }
 
-  void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<std::string>& typesToExport) {
+  void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
     out << "#include <cstring>  // for memcmp" << std::endl;
     out << "#include <cfloat>   // Workaround for https://svn.boost.org/trac10/ticket/12642" << std::endl;
 
@@ -212,13 +196,13 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
     out << "#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)" << std::endl;
 
     out << "namespace rapidxml {" << std::endl;
-    for (auto&& [ typeName, elementType ] : m_element_types) {
-      if (typesToExport.find(typeName) == std::end(typesToExport)) {
+    for (const auto& elementType : m_element_types) {
+      if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
         continue;
       }
 
-      auto allChildren = GetAllChildren(elementType);
-      auto allAttributes = GetAllAttributes(elementType);
+      auto allChildren = GetAllChildren(*elementType.get());
+      auto allAttributes = GetAllAttributes(*elementType.get());
 
       std::ostringstream parse_children;
       parse_children << "if (false) { (void)parseResultTyped; }" << std::endl;
@@ -232,20 +216,20 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
           continue;
         }
         if (child.multiple) {
-          parse_children << "  parse_element<" << child.type << ">(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type << "()).get());" << std::endl;
+          parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
         } else {
-          parse_children << "  std::unique_ptr<" << child.type << "> childResult(new " << child.type << "());" << std::endl;
+          parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());" << std::endl;
           parse_children << "  parseResultTyped->" << child.name << ".swap(childResult);" << std::endl;
 #if 0
           parse_children << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }" << std::endl;
 #endif
-          parse_children << "  parse_element<" << child.type << ">(text, parseResultTyped->" << child.name << ".get());" << std::endl;
+          parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->" << child.name << ".get());" << std::endl;
         }
         parse_children << "}" << std::endl;
       }
 
       parse_children << "else {" << std::endl;
-      parse_children << "  std::cerr << \"Unexpected child of node " << typeName << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
+      parse_children << "  std::cerr << \"Unexpected child of node " << elementType->name << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
       parse_children << "  parse_element<void>(text, nullptr);" << std::endl;
       parse_children << "}" << std::endl;
 
@@ -259,17 +243,17 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
                 })"";
 #endif
 
-      out << R""(  template<> void parse_element<)"" << typeName << R""(>(Ch *& text, void* parseResult) {
+      out << R""(  template<> void parse_element<)"" << elementType->name << R""(>(Ch *& text, void* parseResult) {
 
     // Parse attributes, if any
-    parse_node_attributes<)"" << typeName << R""(>(text, parseResult);
+    parse_node_attributes<)"" << elementType->name << R""(>(text, parseResult);
 
     // Determine ending type
     if (*text == Ch('>'))
     {
         ++text;
         parse_node_contents(text, [](Ch *&text, void* parseResult) {
-            )"" << typeName << R""(* parseResultTyped = static_cast<)"" << typeName << R""(*>(parseResult);
+            )"" << elementType->name << R""(* parseResultTyped = static_cast<)"" << elementType->name << R""(*>(parseResult);
             (void)parseResult;
             // Extract element name
             Ch *name = text;
@@ -376,15 +360,15 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
       }
 
       parse_attributes << "        else {" << std::endl;
-      parse_attributes << "          std::cerr << \"Unexpected attribute of node " << typeName << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
+      parse_attributes << "          std::cerr << \"Unexpected attribute of node " << elementType->name << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
       parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
       parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
       parse_attributes << "          else" << std::endl;
       parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
       parse_attributes << "        }" << std::endl;
 
-      out << R""(  template<> void parse_node_attributes<)"" << typeName << R""(>(Ch *& text, void* parseResult) {
-        )"" << typeName << R""(* parseResultTyped = static_cast<)"" << typeName << R""(*>(parseResult);
+      out << R""(  template<> void parse_node_attributes<)"" << elementType->name << R""(>(Ch *& text, void* parseResult) {
+        )"" << elementType->name << R""(* parseResultTyped = static_cast<)"" << elementType->name << R""(*>(parseResult);
         // For all attributes 
         while (attribute_name_pred::test(*text))
         {
@@ -430,23 +414,106 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
   }
 
  private:
+  const std::vector<std::unique_ptr<ElementType>> m_element_types = {};
+
+  std::vector<Child> GetAllChildren(const ElementType& elementType) {
+    const ElementType* curElementType = &elementType;
+    std::vector<Child> result(curElementType->children);
+    while (curElementType->base) {
+      curElementType = curElementType->base;
+      std::copy(std::begin(curElementType->children), std::end(curElementType->children), std::back_inserter(result));
+    }
+    return result;
+  }
+
+  std::vector<Attribute> GetAllAttributes(const ElementType& elementType) {
+    const ElementType* curElementType = &elementType;
+    std::vector<Attribute> result(curElementType->attributes);
+    while (curElementType->base) {
+      curElementType = curElementType->base;
+      std::copy(std::begin(curElementType->attributes), std::end(curElementType->attributes), std::back_inserter(result));
+    }
+    return result;
+  }
+};
+
+class ParserGeneratorBuilder {
+ public:
+  void AddXsdFile(const fs::path& fileName) {
+    fs::path fileNameCanonical = fs::canonical(fileName);
+
+    if (m_docs_by_name.find(fileNameCanonical) != std::end(m_docs_by_name)) {
+      return;
+    }
+
+    std::cerr << "Loading XSD file: " << fileNameCanonical << std::endl;
+    auto document = std::make_unique<pugi::xml_document>();
+    document->load_file(fileNameCanonical.c_str());
+
+    // Load <xs:include>d files and save them for later
+    std::vector<fs::path> includes;
+    for (const auto& include : document->select_nodes("//xs:include")) {
+      includes.push_back(fs::canonical(include.node().attribute("schemaLocation").as_string(), fileNameCanonical.parent_path()));
+    }
+
+    // Parse complex types
+    for (const auto& complexType : document->select_nodes("//xs:complexType")) {
+      ParseComplexType(complexType.node());
+    }
+
+    m_docs_by_name.emplace(fileNameCanonical, std::move(document));
+
+    for (const auto& includeFileName : includes) {
+      AddXsdFile(includeFileName);
+    }
+  }
+
+  ParserGenerator Build() {
+    std::vector<std::unique_ptr<ElementType>> elementTypes;
+    for (const auto& [ typeName, elementTypeRaw] : m_element_types) {
+      elementTypes.push_back(std::unique_ptr<ElementType>(new ElementType {
+          elementTypeRaw.name,
+          elementTypeRaw.documentation,
+          nullptr,
+          elementTypeRaw.attributes,
+          std::vector<Child>()}));
+    }
+    for (auto& elementType : elementTypes) {
+      const auto& elementTypeRaw = m_element_types.at(elementType->name);
+
+      if (elementTypeRaw.base.size() > 0) {
+        const auto& baseType = std::find_if(std::begin(elementTypes), std::end(elementTypes), [&elementTypeRaw](const auto& type) { return type->name == elementTypeRaw.base; });
+        assert(baseType != std::end(elementTypes));
+        elementType->base = baseType->get();
+      }
+
+      for (const auto& childRaw : elementTypeRaw.children) {
+        const auto& childType = std::find_if(std::begin(elementTypes), std::end(elementTypes), [&childRaw](const auto& type) { return type->name == childRaw.type; });
+        assert(childType != std::end(elementTypes));
+        elementType->children.emplace_back(Child { childRaw.name, childRaw.documentation, childType->get(), childRaw.multiple });
+      }
+    }
+    return ParserGenerator(&elementTypes);
+  }
+
+ private:
   std::unordered_map<std::string, std::unique_ptr<pugi::xml_document>> m_docs_by_name = {};
-  std::map<std::string, ElementType> m_element_types = {};
+  std::unordered_map<std::string, ElementTypeRaw> m_element_types;
 
   std::string GetDocumentation(pugi::xml_node node) {
     return node.select_node("xs:annotation/xs:documentation").node().text().get();
   }
 
-  void FindChildTypes(ElementType* elementType, pugi::xml_node node) {
+  void FindChildTypes(ElementTypeRaw* elementType, pugi::xml_node node) {
     for (const auto& child : node.children()) {
       if (child.name() == std::string("xs:element")) {
         bool multiple = child.attribute("maxOccurs") &&
             (child.attribute("maxOccurs").as_string() == std::string("unbounded") || child.attribute("maxOccurs").as_int() > 1);
         if (child.attribute("ref")) {
           std::string childTypeName = child.attribute("ref").as_string();
-          elementType->children.push_back(Child { childTypeName, childTypeName, multiple, GetDocumentation(child) });
+          elementType->children.push_back(ChildRaw { childTypeName, GetDocumentation(child), childTypeName, multiple });
         } else {
-          elementType->children.push_back(Child { child.attribute("name").as_string(), child.attribute("type").as_string(), multiple, GetDocumentation(child) });
+          elementType->children.push_back(ChildRaw { child.attribute("name").as_string(), GetDocumentation(child), child.attribute("type").as_string(), multiple });
         }
       } else {
         FindChildTypes(elementType, child);
@@ -464,13 +531,14 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
     assert(nameAttribute);
     std::string typeName = nameAttribute.as_string();
 
-    auto [ it, inserted ] = m_element_types.emplace(std::make_pair(typeName, ElementType()));
+    auto [ it, inserted ] = m_element_types.emplace(std::make_pair(typeName, ElementTypeRaw()));
     auto& elementType = it->second;
     if (!inserted) {
       std::cerr << "Type " << typeName << " defined twice" << std::endl;
       return;
     }
 
+    elementType.name = typeName;
     elementType.documentation = GetDocumentation(complexTypeNode);
     FindChildTypes(&elementType, complexTypeNode);
 
@@ -511,35 +579,18 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
         continue;
       }
 
-      elementType.attributes.push_back(Attribute { child.attribute("name").as_string(), attributeType, GetDocumentation(child) });
+      elementType.attributes.push_back(Attribute { child.attribute("name").as_string(), GetDocumentation(child), attributeType });
     }
-  }
-
-  std::vector<Child> GetAllChildren(const ElementType& elementType) {
-    const ElementType* curElementType = &elementType;
-    std::vector<Child> result(curElementType->children);
-    while (curElementType->base.size() > 0) {
-      curElementType = &m_element_types[curElementType->base];
-      std::copy(std::begin(curElementType->children), std::end(curElementType->children), std::back_inserter(result));
-    }
-    return result;
-  }
-
-  std::vector<Attribute> GetAllAttributes(const ElementType& elementType) {
-    const ElementType* curElementType = &elementType;
-    std::vector<Attribute> result(curElementType->attributes);
-    while (curElementType->base.size() > 0) {
-      curElementType = &m_element_types[curElementType->base];
-      std::copy(std::begin(curElementType->attributes), std::end(curElementType->attributes), std::back_inserter(result));
-    }
-    return result;
   }
 };
 
 int main(int argc, char** argv) {
-  ParserGenerator generator;
   assert(argc >= 2);
-  generator.AddXsdFile(argv[1]);
+
+  ParserGeneratorBuilder builder;
+  builder.AddXsdFile(argv[1]);
+
+  ParserGenerator generator = builder.Build();
 
   std::ofstream out_types(fs::path(argv[2]) / "zusi_types.hpp");
   generator.GenerateTypeIncludes(out_types);
