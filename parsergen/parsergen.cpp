@@ -81,69 +81,107 @@ class ParserGenerator {
   }
 
   void GenerateTypeDefinitions(std::ostream& out) {
-    // poor man's topological sort
-    std::set<const ElementType*> done;
-    bool changed;
-    do {
-      changed = false;
+    // This map contains dependencies of type hierarchies.
+    // K -> V is contained in the map if a type from tree V depends on a type from tree K,
+    // i.e. uses it as a child type.
+    std::multimap<const ElementType*, const ElementType*> dependencies;
 
-      for (const auto& elementType : m_element_types) {
-        if (done.find(elementType.get()) != std::end(done) || (elementType->base && done.find(elementType->base) == std::end(done))) {
+    // Compute dependencies
+    for (const auto& elementType : m_element_types) {
+      if (elementType->base != nullptr) {
+        dependencies.emplace(elementType->base, elementType.get());
+      }
+      for (const auto& child : elementType->children) {
+        if (child.type != elementType.get()) {  // A type may depend on itself -> this needs a pointer anyway
+          dependencies.emplace(child.type, elementType.get());
+        }
+      }
+    }
+
+    // Topologically sort types.
+    std::vector<const ElementType*> elementTypesTopologicallySorted;
+
+    std::vector<const ElementType*> workList;
+    // Insert elements with no incoming edges into the work list
+    for (const auto& elementType : m_element_types) {
+      if (dependencies.find(elementType.get()) == std::end(dependencies)) {
+        workList.push_back(elementType.get());
+      }
+    }
+
+    while (workList.size() > 0) {
+      const ElementType* t = workList.back();
+      workList.pop_back();
+      elementTypesTopologicallySorted.push_back(t);
+      // Remove all outgoing edges of t
+      for (auto it = dependencies.begin(); it != dependencies.end(); ) {
+        if (it->second == t) {
+          const ElementType* k = it->first;
+          it = dependencies.erase(it);
+          // If we removed the last incoming edge to k, add it to the work list.
+          if (dependencies.find(k) == std::end(dependencies)) {
+            workList.push_back(k);
+          }
+        } else {
+          ++it;
+        }
+      }
+    }
+
+    if (dependencies.size() > 0) {
+      std::cerr << "Cyclic dependencies\n";
+      for (const auto& it : dependencies) {
+        std::cerr << " - " << it.first->name << " <- " << it.second->name << "\n";
+      }
+    }
+
+    for (auto it = std::rbegin(elementTypesTopologicallySorted); it != std::rend(elementTypesTopologicallySorted); ++it) {
+      const ElementType* elementType = *it;
+
+      if (!elementType->documentation.empty()) {
+        out << "/** " << elementType->documentation << "*/" << std::endl;
+      }
+      out << "struct " << elementType->name;
+      if (elementType->base) {
+        out << " : " << elementType->base->name;
+      }
+      out << " {" << std::endl;
+
+      for (const auto& attribute : elementType->attributes) {
+        if (attribute.deprecated()) {
           continue;
         }
-
-        done.insert(elementType.get());
-        changed = true;
-
-        if (!elementType->documentation.empty()) {
-          out << "/** " << elementType->documentation << "*/" << std::endl;
+        if (!attribute.documentation.empty()) {
+          out << "  /** " << attribute.documentation << "*/" << std::endl;
         }
-        out << "struct " << elementType->name;
-        if (elementType->base) {
-          out << " : " << elementType->base->name;
+        out << "  ";
+        switch (attribute.type) {
+          case AttributeType::Int32: out << "int32_t"; break;
+          case AttributeType::Int64: out << "int64_t"; break;
+          case AttributeType::Boolean: out << "bool"; break;
+          case AttributeType::String: out << "std::string"; break;
+          case AttributeType::Float: out << "float"; break;
+          case AttributeType::DateTime: out << "struct tm"; break;
+          case AttributeType::HexInt32: out << "int32_t"; break;
         }
-        out << " {" << std::endl;
-
-        for (const auto& attribute : elementType->attributes) {
-          if (attribute.deprecated()) {
-            continue;
-          }
-          if (!attribute.documentation.empty()) {
-            out << "  /** " << attribute.documentation << "*/" << std::endl;
-          }
-          out << "  ";
-          switch (attribute.type) {
-            case AttributeType::Int32: out << "int32_t"; break;
-            case AttributeType::Int64: out << "int64_t"; break;
-            case AttributeType::Boolean: out << "bool"; break;
-            case AttributeType::String: out << "std::string"; break;
-            case AttributeType::Float: out << "float"; break;
-            case AttributeType::DateTime: out << "struct tm"; break;
-            case AttributeType::HexInt32: out << "int32_t"; break;
-          }
-          out << " " << attribute.name << ";" << std::endl;
-        }
-
-        for (const auto& child : elementType->children) {
-          if (child.deprecated()) {
-            continue;
-          }
-          if (!child.documentation.empty()) {
-            out << "  /** " << child.documentation << "*/" << std::endl;
-          }
-          if (child.multiple) {
-            out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">> children_" << child.name << ";" << std::endl;
-          } else {
-            out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
-          }
-        }
-
-        out << "};" << std::endl;
+        out << " " << attribute.name << ";" << std::endl;
       }
-    } while (changed);
 
-    if (done.size() != m_element_types.size()) {
-      std::cerr << "Circular type dependency" << std::endl;
+      for (const auto& child : elementType->children) {
+        if (child.deprecated()) {
+          continue;
+        }
+        if (!child.documentation.empty()) {
+          out << "  /** " << child.documentation << "*/" << std::endl;
+        }
+        if (child.multiple) {
+          out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">> children_" << child.name << ";" << std::endl;
+        } else {
+          out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
+        }
+      }
+
+      out << "};" << std::endl;
     }
   }
 
@@ -232,16 +270,6 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
       parse_children << "  std::cerr << \"Unexpected child of node " << elementType->name << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
       parse_children << "  parse_element<void>(text, nullptr);" << std::endl;
       parse_children << "}" << std::endl;
-
-#if 0
-      parse_children << R""(switch (name_size) {
-                  /* TODO: autogenerated code here */
-                  default: {
-                    parse_element<void>(text, nullptr);
-                    break;
-                  }
-                })"";
-#endif
 
       out << R""(  template<> void parse_element<)"" << elementType->name << R""(>(Ch *& text, void* parseResult) {
 
@@ -415,6 +443,14 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
 
  private:
   const std::vector<std::unique_ptr<ElementType>> m_element_types = {};
+
+  /** Returns the base type, i.e. the least derived parent type, of the given element type. */
+  const ElementType* GetBaseType(const ElementType* type) {
+    while (type->base != nullptr) {
+      type = type->base;
+    }
+    return type;
+  }
 
   std::vector<Child> GetAllChildren(const ElementType& elementType) {
     const ElementType* curElementType = &elementType;
