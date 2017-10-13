@@ -17,6 +17,12 @@
 
 namespace fs = std::experimental::filesystem;
 
+namespace {
+  size_t align(size_t size, size_t alignment) {
+    return size + (alignment - (size % alignment)) % alignment;
+  }
+}  // namespace
+
 enum class AttributeType {
   Int32,
   Int64,
@@ -66,7 +72,7 @@ struct ElementTypeRaw : Thing {
 
 class ParserGenerator {
  public:
-  ParserGenerator(std::vector<std::unique_ptr<ElementType>>* elementTypes) : m_element_types(std::move(*elementTypes)) {}
+  ParserGenerator(std::vector<std::unique_ptr<ElementType>>* elementTypes) : m_element_types(std::move(*elementTypes)) { }
 
   void GenerateTypeIncludes(std::ostream& out) {
     out << "#include <vector>  // for std::vector" << std::endl;
@@ -147,6 +153,8 @@ class ParserGenerator {
       }
       out << " {" << std::endl;
 
+      size_t elementSize = 0;
+
       for (const auto& attribute : elementType->attributes) {
         if (attribute.deprecated()) {
           continue;
@@ -156,13 +164,34 @@ class ParserGenerator {
         }
         out << "  ";
         switch (attribute.type) {
-          case AttributeType::Int32: out << "int32_t"; break;
-          case AttributeType::Int64: out << "int64_t"; break;
-          case AttributeType::Boolean: out << "bool"; break;
-          case AttributeType::String: out << "std::string"; break;
-          case AttributeType::Float: out << "float"; break;
-          case AttributeType::DateTime: out << "struct tm"; break;
-          case AttributeType::HexInt32: out << "int32_t"; break;
+          case AttributeType::Int32:
+            out << "int32_t";
+            elementSize = align(elementSize, alignof(int32_t)) + sizeof(int32_t);
+            break;
+          case AttributeType::Int64:
+            out << "int64_t";
+            elementSize = align(elementSize, alignof(int64_t)) + sizeof(int64_t);
+            break;
+          case AttributeType::Boolean:
+            out << "bool";
+            elementSize = align(elementSize, alignof(bool)) + sizeof(bool);
+            break;
+          case AttributeType::String:
+            out << "std::string";
+            elementSize = align(elementSize, alignof(std::string)) + sizeof(std::string);
+            break;
+          case AttributeType::Float:
+            out << "float";
+            elementSize = align(elementSize, alignof(float)) + sizeof(float);
+            break;
+          case AttributeType::DateTime:
+            out << "struct tm";
+            elementSize = align(elementSize, alignof(struct tm)) + sizeof(struct tm);
+            break;
+          case AttributeType::HexInt32:
+            out << "int32_t";
+            elementSize = align(elementSize, alignof(int32_t)) + sizeof(int32_t);
+            break;
         }
         out << " " << attribute.name << ";" << std::endl;
       }
@@ -175,11 +204,24 @@ class ParserGenerator {
           out << "  /** " << child.documentation << "*/" << std::endl;
         }
         if (child.multiple) {
-          out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">> children_" << child.name << ";" << std::endl;
+          if (CanInline(elementType, child.type, child.multiple)) {
+            out << "  std::vector<struct " << child.type->name << "> children_" << child.name << ";" << std::endl;
+          } else {
+            out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">> children_" << child.name << ";" << std::endl;
+          }
+          elementSize = align(elementSize, alignof(std::vector<int>)) + sizeof(std::vector<int>);
         } else {
-          out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
+          if (CanInline(elementType, child.type, child.multiple)) {
+            out << "  struct " << child.type->name << " " << child.name << "; // inlined: size = " << m_element_type_sizes.at(child.type) << std::endl;
+            elementSize = align(elementSize, alignof(void*)) + m_element_type_sizes[child.type];
+          } else {
+            out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
+            elementSize = align(elementSize, alignof(std::unique_ptr<int>)) + sizeof(std::unique_ptr<int>);
+          }
         }
       }
+
+      m_element_type_sizes[elementType] = elementSize;
 
       out << "};" << std::endl;
     }
@@ -254,14 +296,22 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
           continue;
         }
         if (child.multiple) {
-          parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
+          if (CanInline(elementType.get(), child.type, child.multiple)) {
+            parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->children_" << child.name << ".emplace_back());" << std::endl;
+          } else {
+            parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
+          }
         } else {
-          parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());" << std::endl;
-          parse_children << "  parseResultTyped->" << child.name << ".swap(childResult);" << std::endl;
+          if (CanInline(elementType.get(), child.type, child.multiple)) {
+            parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->" << child.name << ");" << std::endl;
+          } else {
+            parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());" << std::endl;
+            parse_children << "  parseResultTyped->" << child.name << ".swap(childResult);" << std::endl;
 #if 0
-          parse_children << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }" << std::endl;
+            parse_children << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }" << std::endl;
 #endif
-          parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->" << child.name << ".get());" << std::endl;
+            parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->" << child.name << ".get());" << std::endl;
+          }
         }
         parse_children << "}" << std::endl;
       }
@@ -443,6 +493,11 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
 
  private:
   const std::vector<std::unique_ptr<ElementType>> m_element_types = {};
+  std::unordered_map<const ElementType*, size_t> m_element_type_sizes;
+
+  bool CanInline(const ElementType* parentType, const ElementType* childType, bool multiple) const {
+    return parentType != childType && !multiple && m_element_type_sizes.at(childType) <= 40;
+  }
 
   /** Returns the base type, i.e. the least derived parent type, of the given element type. */
   const ElementType* GetBaseType(const ElementType* type) {
