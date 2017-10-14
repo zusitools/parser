@@ -204,12 +204,10 @@ class ParserGenerator {
         if (!child.documentation.empty()) {
           out << "  /** " << child.documentation << "*/" << std::endl;
         }
-        bool canInline = CanInline(elementType, child.type, child.multiple);
+        bool canInline = CanInline(*elementType, child);
         if (child.multiple) {
           // Special treatment for children whose multiplicity is almost always between 1 and 2
-          int smallVectorSize = (elementType->name == "StrElement" &&
-              (child.type->name == "NachfolgerSelbesModul" || child.type->name == "NachfolgerAnderesModul")) ? 2 : 0;
-
+          size_t smallVectorSize = SmallVectorSize(*elementType, child);
           if (smallVectorSize > 0) {
             if (canInline) {
               out << "  boost::container::small_vector<struct " << child.type->name << ", " << smallVectorSize << ">";
@@ -312,7 +310,7 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
           parse_children << "}" << std::endl;
           continue;
         }
-        bool canInline = CanInline(elementType.get(), child.type, child.multiple);
+        bool canInline = CanInline(*elementType.get(), child);
         if (child.multiple) {
           if (canInline) {
             parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->children_" << child.name << ".emplace_back());" << std::endl;
@@ -513,8 +511,23 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
   const std::vector<std::unique_ptr<ElementType>> m_element_types = {};
   std::unordered_map<const ElementType*, size_t> m_element_type_sizes;
 
-  bool CanInline(const ElementType* parentType, const ElementType* childType, bool multiple) const {
-    return parentType != childType && !multiple && m_element_type_sizes.at(childType) <= 40;
+  /** Returns a size > 0 if a small vector of this size can be used to hold @p child
+   * inside @p parentType. This is the case if the collection will rarely contain more than size elements,
+   * but also rarely significantly less. */
+  size_t SmallVectorSize(const ElementType& parentType, const Child& child) const {
+    assert(child.multiple);
+    if (child.type->name == "NachfolgerSelbesModul" || child.type->name == "NachfolgerAnderesModul") {
+      return 2;
+    }
+    return 0;
+  }
+
+  /** Returns whether the given @p child can be inlined into the given @parentType
+   * instead of using a unique_ptr */
+  bool CanInline(const ElementType& parentType, const Child& child) const {
+    return child.type != &parentType &&
+      ((!child.multiple && m_element_type_sizes.at(child.type) <= 40) ||
+      (child.multiple && SmallVectorSize(parentType, child) > 0));
   }
 
   /** Returns the base type, i.e. the least derived parent type, of the given element type. */
