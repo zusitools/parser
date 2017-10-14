@@ -70,6 +70,13 @@ struct ElementTypeRaw : Thing {
   std::vector<ChildRaw> children;
 };
 
+/** Strategy to embed a single child or a collection of children into a parent struct. */
+enum class ChildStrategy {
+  UniquePtr,        ///<  std::unique_ptr<Child> member / std::vector<std::unique_ptr<Child>> children_Child
+  Optional,         ///<  std::optional<Child> member
+  Inline,           ///<  Child member / std::vector<Child> children_Child
+};
+
 class ParserGenerator {
  public:
   ParserGenerator(std::vector<std::unique_ptr<ElementType>>* elementTypes) : m_element_types(std::move(*elementTypes)) { }
@@ -78,6 +85,7 @@ class ParserGenerator {
     out << "#include \"boost/container/small_vector.hpp\"" << std::endl;
     out << "#include <vector>  // for std::vector" << std::endl;
     out << "#include <memory>  // for std::unique_ptr" << std::endl;
+    out << "#include <optional>// for std::optional" << std::endl;
     out << "#include <ctime>   // for struct tm, strptime" << std::endl;
   }
 
@@ -204,12 +212,12 @@ class ParserGenerator {
         if (!child.documentation.empty()) {
           out << "  /** " << child.documentation << "*/" << std::endl;
         }
-        bool canInline = CanInline(*elementType, child);
+        auto childStrategy = GetChildStrategy(*elementType, child);
         if (child.multiple) {
           // Special treatment for children whose multiplicity is almost always between 1 and 2
           size_t smallVectorSize = SmallVectorSize(*elementType, child);
           if (smallVectorSize > 0) {
-            if (canInline) {
+            if (childStrategy == ChildStrategy::Inline) {
               out << "  boost::container::small_vector<struct " << child.type->name << ", " << smallVectorSize << ">";
               elementSize = align(elementSize, alignof(std::vector<int>)) + smallVectorSize * m_element_type_sizes.at(child.type) + sizeof(size_t);
             } else {
@@ -217,7 +225,7 @@ class ParserGenerator {
               elementSize = align(elementSize, alignof(std::vector<int>)) + smallVectorSize * sizeof(void*) + sizeof(size_t);
             }
           } else {
-            if (canInline) {
+            if (childStrategy == ChildStrategy::Inline) {
               out << "  std::vector<struct " << child.type->name << ">";
             } else {
               out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">>";
@@ -226,9 +234,12 @@ class ParserGenerator {
           }
           out << " children_" << child.name << ";" << std::endl;
         } else {
-          if (canInline) {
+          if (childStrategy == ChildStrategy::Inline) {
             out << "  struct " << child.type->name << " " << child.name << "; // inlined: size = " << m_element_type_sizes.at(child.type) << std::endl;
             elementSize = align(elementSize, alignof(void*)) + m_element_type_sizes.at(child.type);
+          } else if (childStrategy == ChildStrategy::Optional) {
+            out << "  std::optional<struct " << child.type->name << "> " << child.name << ";" << std::endl;
+            elementSize = align(elementSize + 1, alignof(void*)) + m_element_type_sizes.at(child.type);
           } else {
             out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
             elementSize = align(elementSize, alignof(std::unique_ptr<int>)) + sizeof(std::unique_ptr<int>);
@@ -310,15 +321,18 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
           parse_children << "}" << std::endl;
           continue;
         }
-        bool canInline = CanInline(*elementType.get(), child);
+        auto childStrategy = GetChildStrategy(*elementType, child);
         if (child.multiple) {
-          if (canInline) {
+          if (childStrategy == ChildStrategy::Inline) {
             parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->children_" << child.name << ".emplace_back());" << std::endl;
           } else {
             parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
           }
         } else {
-          if (canInline) {
+          if (childStrategy == ChildStrategy::Inline) {
+            parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->" << child.name << ");" << std::endl;
+          } else if (childStrategy == ChildStrategy::Optional) {
+            parse_children << "  parseResultTyped->" << child.name << ".emplace();" << std::endl;
             parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->" << child.name << ");" << std::endl;
           } else {
             parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());" << std::endl;
@@ -522,12 +536,20 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
     return 0;
   }
 
-  /** Returns whether the given @p child can be inlined into the given @parentType
-   * instead of using a unique_ptr */
-  bool CanInline(const ElementType& parentType, const Child& child) const {
-    return child.type != &parentType &&
-      ((!child.multiple && m_element_type_sizes.at(child.type) <= 40) ||
-      (child.multiple && SmallVectorSize(parentType, child) > 0));
+  /** Returns the strategy to use when embedding the given @p child into the given @parentType as a member. */
+  ChildStrategy GetChildStrategy(const ElementType& parentType, const Child& child) const {
+    if (child.type != &parentType) {
+      if (child.multiple && SmallVectorSize(parentType, child) > 0) {
+        return ChildStrategy::Inline;
+      }
+      if (!child.multiple && m_element_type_sizes.at(child.type) <= 40) {
+        return ChildStrategy::Inline;
+      }
+      if (!child.multiple && child.type->name == "StreckenelementRichtungsInfo") {
+        return ChildStrategy::Optional;
+      }
+    }
+    return ChildStrategy::UniquePtr;
   }
 
   /** Returns the base type, i.e. the least derived parent type, of the given element type. */
