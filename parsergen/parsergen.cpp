@@ -75,6 +75,7 @@ class ParserGenerator {
   ParserGenerator(std::vector<std::unique_ptr<ElementType>>* elementTypes) : m_element_types(std::move(*elementTypes)) { }
 
   void GenerateTypeIncludes(std::ostream& out) {
+    out << "#include \"boost/container/small_vector.hpp\"" << std::endl;
     out << "#include <vector>  // for std::vector" << std::endl;
     out << "#include <memory>  // for std::unique_ptr" << std::endl;
     out << "#include <ctime>   // for struct tm, strptime" << std::endl;
@@ -203,17 +204,33 @@ class ParserGenerator {
         if (!child.documentation.empty()) {
           out << "  /** " << child.documentation << "*/" << std::endl;
         }
+        bool canInline = CanInline(elementType, child.type, child.multiple);
         if (child.multiple) {
-          if (CanInline(elementType, child.type, child.multiple)) {
-            out << "  std::vector<struct " << child.type->name << "> children_" << child.name << ";" << std::endl;
+          // Special treatment for children whose multiplicity is almost always between 1 and 2
+          int smallVectorSize = (elementType->name == "StrElement" &&
+              (child.type->name == "NachfolgerSelbesModul" || child.type->name == "NachfolgerAnderesModul")) ? 2 : 0;
+
+          if (smallVectorSize > 0) {
+            if (canInline) {
+              out << "  boost::container::small_vector<struct " << child.type->name << ", " << smallVectorSize << ">";
+              elementSize = align(elementSize, alignof(std::vector<int>)) + smallVectorSize * m_element_type_sizes.at(child.type) + sizeof(size_t);
+            } else {
+              out << "  boost::container::small_vector<std::unique_ptr<struct " << child.type->name << ">, " << smallVectorSize << ">";
+              elementSize = align(elementSize, alignof(std::vector<int>)) + smallVectorSize * sizeof(void*) + sizeof(size_t);
+            }
           } else {
-            out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">> children_" << child.name << ";" << std::endl;
+            if (canInline) {
+              out << "  std::vector<struct " << child.type->name << ">";
+            } else {
+              out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">>";
+            }
+            elementSize = align(elementSize, alignof(std::vector<int>)) + sizeof(std::vector<int>);
           }
-          elementSize = align(elementSize, alignof(std::vector<int>)) + sizeof(std::vector<int>);
+          out << " children_" << child.name << ";" << std::endl;
         } else {
-          if (CanInline(elementType, child.type, child.multiple)) {
+          if (canInline) {
             out << "  struct " << child.type->name << " " << child.name << "; // inlined: size = " << m_element_type_sizes.at(child.type) << std::endl;
-            elementSize = align(elementSize, alignof(void*)) + m_element_type_sizes[child.type];
+            elementSize = align(elementSize, alignof(void*)) + m_element_type_sizes.at(child.type);
           } else {
             out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
             elementSize = align(elementSize, alignof(std::unique_ptr<int>)) + sizeof(std::unique_ptr<int>);
@@ -295,14 +312,15 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
           parse_children << "}" << std::endl;
           continue;
         }
+        bool canInline = CanInline(elementType.get(), child.type, child.multiple);
         if (child.multiple) {
-          if (CanInline(elementType.get(), child.type, child.multiple)) {
+          if (canInline) {
             parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->children_" << child.name << ".emplace_back());" << std::endl;
           } else {
             parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
           }
         } else {
-          if (CanInline(elementType.get(), child.type, child.multiple)) {
+          if (canInline) {
             parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->" << child.name << ");" << std::endl;
           } else {
             parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());" << std::endl;
