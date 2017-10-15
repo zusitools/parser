@@ -297,11 +297,31 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
         ++first;
         return true;
     }
-};)"" << std::endl;
+};
+
+namespace rapidxml {
+
+template<Ch Quote>
+void parse_string(Ch*& text, std::string& result) {
+  Ch* const value = text;
+  skip<attribute_value_pure_pred<Quote>>(text);
+  if (*text == Quote) {
+    // No character refs in attribute value
+    result = std::string(value, text - value);
+  } else {
+    Ch* first_ampersand = text;
+    skip<attribute_value_pred<Quote>>(text);
+    result.resize(text - value);
+    // Copy characters until the first ampersand verbatim, use copy_and_expand_character_refs for the rest.
+    memcpy(&result[0], value, first_ampersand - value);
+    result.resize(first_ampersand - value + copy_and_expand_character_refs<attribute_value_pred<Quote>>(first_ampersand, &result[first_ampersand - value]));
+  }
+}
+
+)"" << std::endl;
 
     out << "#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)" << std::endl;
 
-    out << "namespace rapidxml {" << std::endl;
     for (const auto& elementType : m_element_types) {
       if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
         continue;
@@ -419,28 +439,10 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
             parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::String:
-            parse_attributes << "          Ch* const value = text;" << std::endl;
             parse_attributes << "          if (quote == Ch('\\\''))" << std::endl;
-            parse_attributes << "            skip<attribute_value_pure_pred<Ch('\\\'')>>(text);" << std::endl;
+            parse_attributes << "            parse_string<Ch('\\\'')>(text, parseResultTyped->" << attr.name << ");" << std::endl;
             parse_attributes << "          else" << std::endl;
-            parse_attributes << "            skip<attribute_value_pure_pred<Ch('\"')>>(text);" << std::endl;
-            parse_attributes << "          if (*text == quote) {" << std::endl;
-            parse_attributes << "            // No character refs in attribute value" << std::endl;
-            parse_attributes << "            parseResultTyped->" << attr.name << " = std::string(value, text - value);" << std::endl;
-            parse_attributes << "          } else {" << std::endl;
-            parse_attributes << "            Ch* first_ampersand = text;" << std::endl;
-            parse_attributes << "            if (quote == Ch('\\\''))" << std::endl;
-            parse_attributes << "              skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-            parse_attributes << "            else" << std::endl;
-            parse_attributes << "              skip<attribute_value_pred<Ch('\"')>>(text);" << std::endl;
-            parse_attributes << "            parseResultTyped->" << attr.name << ".resize(text - value);" << std::endl;
-            parse_attributes << "            // Copy characters until the first ampersand verbatim, use copy_and_expand_character_refs for the rest." << std::endl;
-            parse_attributes << "            memcpy(&parseResultTyped->" << attr.name << "[0], value, first_ampersand - value);" << std::endl;
-            parse_attributes << "            parseResultTyped->" << attr.name << ".resize(first_ampersand - value + (quote == Ch('\\\'') ? " << std::endl;
-            parse_attributes << "              copy_and_expand_character_refs<attribute_value_pred<Ch('\\\'')>>(first_ampersand, &parseResultTyped->" << attr.name << "[first_ampersand - value]) :" << std::endl;
-            parse_attributes << "              copy_and_expand_character_refs<attribute_value_pred<Ch('\"')>>(first_ampersand, &parseResultTyped->" << attr.name << "[first_ampersand - value])" << std::endl;
-            parse_attributes << "            ));" << std::endl;
-            parse_attributes << "          }" << std::endl;
+            parse_attributes << "            parse_string<Ch('\"')>(text, parseResultTyped->" << attr.name << ");" << std::endl;
             break;
           case AttributeType::Float:
             parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
