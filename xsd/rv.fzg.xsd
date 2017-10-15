@@ -4,38 +4,38 @@
   <xs:element name="Fahrzeug">
     <xs:complexType>
       <xs:all minOccurs="0">
-        <xs:element ref="FahrzeugVariante" maxOccurs="unbounded"/>
-        <xs:element ref="FahrzeugGrunddaten"/>
-        <xs:element ref="Luftpresser"/>
-        <xs:element ref="Bremscomputer"/>
-        <xs:element ref="BremseLuftEinlK1"/>
-        <xs:element ref="Bremse_KE_GP"/>
-        <xs:element ref="Bremse_KE_GPR_Klotz"/>
-        <xs:element ref="Bremse_KE_GPR_Scheibe"/>
-        <xs:element ref="Bremse_KE_Tm"/>
-        <xs:element ref="Bremse_KE_L2a"/>
-        <xs:element ref="Bremse_KE_L2d"/>
-        <xs:element ref="BremseLuftDirekt"/>
-        <xs:element ref="MgBremse"/>
-        <xs:element ref="FederspeicherBremse"/>
-        <xs:element ref="DynbremseHydrodynamisch"/>
-        <xs:element ref="AntriebsmodellDieselElektrischDrehstrom"/>
-        <xs:element ref="AntriebsmodellDieselHydraulisch"/>
-        <xs:element ref="AntriebsmodellDieselMechanisch"/>
-        <xs:element ref="AntriebsmodellEinfach"/>
-        <xs:element ref="AntriebsmodellElektrischDrehstrom"/>
-        <xs:element ref="AntriebsmodellElektrischReihenschluss"/>
-        <xs:element ref="DynbremseElektrDrehstrom"/>
-        <xs:element ref="DynbremseElektrReihenschluss"/>
-        <xs:element ref="ExterneDatei" maxOccurs="unbounded"/>
-        <xs:element ref="FktIndividuell" maxOccurs="unbounded"/>
-        <xs:element name="FahrzeugSound" type="SoundMitAbhaengigkeit" maxOccurs="unbounded"/>
-        <xs:element ref="FzgTuersystemSAT"/>
-        <xs:element ref="FzgTuersystemSST"/>
-        <xs:element ref="FzgTuersystemTAV"/>
-        <xs:element ref="FzgTuersystemTB0"/>
-        <xs:element ref="FzgTuersystemTB5"/>
-        <xs:element ref="FzgTuersystemUICWTB"/>
+        <xs:element ref="FahrzeugVariante" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FahrzeugGrunddaten" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Luftpresser" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Bremscomputer" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="BremseLuftEinlK1" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Bremse_KE_GP" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Bremse_KE_GPR_Klotz" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Bremse_KE_GPR_Scheibe" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Bremse_KE_Tm" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Bremse_KE_L2a" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Bremse_KE_L2d" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="BremseLuftDirekt" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="MgBremse" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FederspeicherBremse" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="DynbremseHydrodynamisch" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AntriebsmodellDieselElektrischDrehstrom" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AntriebsmodellDieselHydraulisch" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AntriebsmodellDieselMechanisch" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AntriebsmodellEinfach" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AntriebsmodellElektrischDrehstrom" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AntriebsmodellElektrischReihenschluss" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="DynbremseElektrDrehstrom" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="DynbremseElektrReihenschluss" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="ExterneDatei" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FktIndividuell" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="FahrzeugSound" type="SoundMitAbhaengigkeit" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FzgTuersystemSAT" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FzgTuersystemSST" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FzgTuersystemTAV" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FzgTuersystemTB0" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FzgTuersystemTB5" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FzgTuersystemUICWTB" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="MaxIDHaupt" type="xs:int"/>
     </xs:complexType>
