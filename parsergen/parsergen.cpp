@@ -424,6 +424,30 @@ void parse_string(Ch*& text, std::string& result) {
 
       parse_attributes << "        if (false) { (void)parseResultTyped; }" << std::endl;
 
+      // Special treatment for types with WXYZ as attributes
+      if (elementType->name == "Vec2") {
+        parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Y') {
+          std::array<float Vec2::*, 2> members = { &Vec2::X, &Vec2::Y };
+          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), parseResultTyped->*members[*name - 'X']);
+          skip_unlikely<whitespace_pred>(text);
+        })"" << std::endl;
+        allAttributes.clear();
+      } else if (elementType->name == "Vec3") {
+        parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Z') {
+          std::array<float Vec3::*, 3> members = { &Vec3::X, &Vec3::Y, &Vec3::Z };
+          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), parseResultTyped->*members[*name - 'X']);
+          skip_unlikely<whitespace_pred>(text);
+        })"" << std::endl;
+        allAttributes.clear();
+      } else if (elementType->name == "Quaternion") {
+        parse_attributes << R""(        if (name_size == 1 && *name >= 'W' && *name <= 'Z') {
+          std::array<float Quaternion::*, 4> members = { &Quaternion::W, &Quaternion::X, &Quaternion::Y, &Quaternion::Z };
+          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), parseResultTyped->*members[*name - 'W']);
+          skip_unlikely<whitespace_pred>(text);
+        })"" << std::endl;
+        allAttributes.clear();
+      }
+
       for (const auto& attr : allAttributes) {
         parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
         if (attr.deprecated()) {
