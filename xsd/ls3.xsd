@@ -86,7 +86,7 @@ Bei den drei Attributen X, Y und Z führen sowohl die Werte 0 als auch 1 zu eine
   </xs:element>
   <xs:element name="Face">
     <xs:complexType>
-      <xs:attribute name="i" type="xs:string"/>
+      <xs:attribute name="i" type="faceIndexes"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Ankerpunkt">

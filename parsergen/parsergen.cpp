@@ -31,6 +31,7 @@ enum class AttributeType {
   Float,
   DateTime,
   HexInt32,
+  FaceIndexes,
 };
 
 struct ElementType;
@@ -200,6 +201,10 @@ class ParserGenerator {
           case AttributeType::HexInt32:
             out << "int32_t";
             elementSize = align(elementSize, alignof(int32_t)) + sizeof(int32_t);
+            break;
+          case AttributeType::FaceIndexes:
+            out << "std::array<uint16_t, 3>";
+            elementSize = align(elementSize, alignof(std::array<uint16_t, 3>)) + sizeof(std::array<uint16_t, 3>);
             break;
         }
         out << " " << attribute.name << ";" << std::endl;
@@ -465,6 +470,38 @@ void parse_string(Ch*& text, std::string& result) {
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), parseResultTyped->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
+          case AttributeType::FaceIndexes:
+            // no whitespace skipping here, Zusi doesn't do that either
+            parse_attributes << "          Ch* values[4];" << std::endl;
+            parse_attributes << "          values[0] = text;" << std::endl;
+            parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
+            parse_attributes << "          if (*text != ';') RAPIDXML_PARSE_ERROR(\"expected ';'\", text);" << std::endl;
+            parse_attributes << "          ++text;" << std::endl;
+            parse_attributes << "          values[1] = text;" << std::endl;
+            parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
+            parse_attributes << "          if (*text != ';') RAPIDXML_PARSE_ERROR(\"expected ';'\", text);" << std::endl;
+            parse_attributes << "          ++text;" << std::endl;
+            parse_attributes << "          values[2] = text;" << std::endl;
+            parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
+            parse_attributes << "          values[3] = text;" << std::endl;
+            parse_attributes << "          for (size_t i = 0; i < 3; i++) {" << std::endl;
+            parse_attributes << "            uint16_t result = 0;" << std::endl;
+            parse_attributes << "            if (values[i+1] != values[i]) {" << std::endl;
+            parse_attributes << "              size_t len = values[i+1] - values[i] - 1;" << std::endl;
+            // Adapted from https://tombarta.wordpress.com/2008/04/23/specializing-atoi/
+            parse_attributes << "              switch(len) {  // 16 bit short - max. 5 characters" << std::endl;
+            parse_attributes << "                case 5: result += *(values[i] + (len-5)) * 10000; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 4: result += *(values[i] + (len-4)) * 1000; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 3: result += *(values[i] + (len-3)) * 100; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 2: result += *(values[i] + (len-2)) * 10; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 1: result += *(values[i] + (len-1)) * 1; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 0: break;" << std::endl;
+            parse_attributes << "                default: RAPIDXML_PARSE_ERROR(\"value too long\", text);" << std::endl;
+            parse_attributes << "              }" << std::endl;
+            parse_attributes << "            }" << std::endl;
+            parse_attributes << "            parseResultTyped->" << attr.name << "[i] = result;" << std::endl;
+            parse_attributes << "          }" << std::endl;
+            break;
         }
         parse_attributes << "        }" << std::endl;
       }
@@ -720,6 +757,8 @@ class ParserGeneratorBuilder {
         attributeType = AttributeType::HexInt32;
       } else if (attributeTypeString == "dateTime") {
         attributeType = AttributeType::DateTime;
+      } else if (attributeTypeString == "faceIndexes") {
+        attributeType = AttributeType::FaceIndexes;
       } else {
         std::cerr << "Unknown attribute type '" << attributeTypeString << "' of attribute '" << child.attribute("name").as_string() << "' of complex type '" << typeName << "'" << std::endl;
         continue;
