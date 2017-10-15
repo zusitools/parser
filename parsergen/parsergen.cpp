@@ -419,7 +419,7 @@ void parse_string(Ch*& text, std::string& result) {
         parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
         if (attr.deprecated()) {
           parse_attributes << "          // deprecated" << std::endl;
-          parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+          parse_attributes << "          if (unlikely(quote == Ch('\\'')))" << std::endl;
           parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
           parse_attributes << "          else" << std::endl;
           parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
@@ -444,7 +444,7 @@ void parse_string(Ch*& text, std::string& result) {
             parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::String:
-            parse_attributes << "          if (quote == Ch('\\\''))" << std::endl;
+            parse_attributes << "          if (unlikely(quote == Ch('\\\'')))" << std::endl;
             parse_attributes << "            parse_string<Ch('\\\'')>(text, parseResultTyped->" << attr.name << ");" << std::endl;
             parse_attributes << "          else" << std::endl;
             parse_attributes << "            parse_string<Ch('\"')>(text, parseResultTyped->" << attr.name << ");" << std::endl;
@@ -508,7 +508,7 @@ void parse_string(Ch*& text, std::string& result) {
 
       parse_attributes << "        else {" << std::endl;
       parse_attributes << "          std::cerr << \"Unexpected attribute of node " << elementType->name << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
-      parse_attributes << "          if (quote == Ch('\\''))" << std::endl;
+      parse_attributes << "          if (unlikely(quote == Ch('\\'')))" << std::endl;
       parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
       parse_attributes << "          else" << std::endl;
       parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
@@ -526,7 +526,7 @@ void parse_string(Ch*& text, std::string& result) {
             size_t name_size = text - name;
 
             // Skip whitespace after attribute name
-            skip<whitespace_pred>(text);
+            skip_unlikely<whitespace_pred>(text);
 
             // Skip =
             if (*text != Ch('='))
@@ -534,7 +534,7 @@ void parse_string(Ch*& text, std::string& result) {
             ++text;
 
             // Skip whitespace after =
-            skip<whitespace_pred>(text);
+            skip_unlikely<whitespace_pred>(text);
 
             // Skip quote and remember if it was ' or "
             Ch quote = *text;

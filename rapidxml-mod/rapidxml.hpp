@@ -20,6 +20,9 @@
     #pragma warning(disable:4127)   // Conditional expression is constant
 #endif
 
+#define likely(x) __builtin_expect((x), 1)
+#define unlikely(x) __builtin_expect((x), 0)
+
 ///////////////////////////////////////////////////////////////////////////
 // RAPIDXML_PARSE_ERROR
     
@@ -304,12 +307,23 @@ namespace rapidxml
         }
     }
 
-    // Skip characters until predicate evaluates to true
+    // Skip characters until predicate evaluates to false
     template<class StopPred>
     static void skip(Ch *&text)
     {
         Ch *tmp = text;
         while (StopPred::test(*tmp))
+            ++tmp;
+        text = tmp;
+    }
+
+    // Skip characters until predicate evaluates to false
+    // while assuming that the predicate will evaluate to false on the first iteration
+    template<class StopPred>
+    static void skip_unlikely(Ch *&text)
+    {
+        Ch *tmp = text;
+        while (unlikely(StopPred::test(*tmp)))
             ++tmp;
         text = tmp;
     }
@@ -815,7 +829,7 @@ namespace rapidxml {
             skip<attribute_name_pred>(text);
 
             // Skip whitespace after attribute name
-            skip<whitespace_pred>(text);
+            skip_unlikely<whitespace_pred>(text);
 
             // Skip =
             if (*text != Ch('='))
@@ -823,7 +837,7 @@ namespace rapidxml {
             ++text;
 
             // Skip whitespace after =
-            skip<whitespace_pred>(text);
+            skip_unlikely<whitespace_pred>(text);
 
             // Skip quote and remember if it was ' or "
             Ch quote = *text;
