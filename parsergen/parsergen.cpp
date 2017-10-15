@@ -414,6 +414,14 @@ void parse_string(Ch*& text, std::string& result) {
   })"" << std::endl;
 
       std::ostringstream parse_attributes;
+
+      bool startWhitespaceSkip = std::none_of(std::begin(allAttributes), std::end(allAttributes), [](const auto& attr) {
+          return attr.type == AttributeType::String || attr.type == AttributeType::FaceIndexes;
+      });
+      if (startWhitespaceSkip) {
+        parse_attributes << "        skip_unlikely<whitespace_pred>(text);" << std::endl;
+      }
+
       parse_attributes << "        if (false) { (void)parseResultTyped; }" << std::endl;
 
       for (const auto& attr : allAttributes) {
@@ -429,20 +437,26 @@ void parse_string(Ch*& text, std::string& result) {
         }
         switch (attr.type) {
           case AttributeType::Int32:
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            if (!startWhitespaceSkip) {
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            }
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_, parseResultTyped->" << attr.name << ");" << std::endl;
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::Int64:
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            if (!startWhitespaceSkip) {
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            }
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::long_long, parseResultTyped->" << attr.name << ");" << std::endl;
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::Boolean:
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            if (!startWhitespaceSkip) {
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            }
             parse_attributes << "          parseResultTyped->" << attr.name << " = (text[0] == '1');" << std::endl;
             parse_attributes << "          ++text;" << std::endl;
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::String:
             parse_attributes << "          if (unlikely(quote == Ch('\\\'')))" << std::endl;
@@ -451,25 +465,31 @@ void parse_string(Ch*& text, std::string& result) {
             parse_attributes << "            parse_string<Ch('\"')>(text, parseResultTyped->" << attr.name << ");" << std::endl;
             break;
           case AttributeType::Float:
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            if (!startWhitespaceSkip) {
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            }
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), parseResultTyped->" << attr.name << ");" << std::endl;
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::DateTime:
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            if (!startWhitespaceSkip) {
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            }
             parse_attributes << "          Ch* value = text;" << std::endl;
             parse_attributes << "          text = strptime(text, \"%Y-%m-%d\", &parseResultTyped->" << attr.name << ");" << std::endl;
             parse_attributes << "          if (text == nullptr) { text = value; }" << std::endl;
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             parse_attributes << "          value = text;" << std::endl;
             parse_attributes << "          text = strptime(text, \"%H:%M:%S\", &parseResultTyped->" << attr.name << ");" << std::endl;
             parse_attributes << "          if (text == nullptr) { text = value; }" << std::endl;
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::HexInt32:
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            if (!startWhitespaceSkip) {
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            }
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), parseResultTyped->" << attr.name << ");" << std::endl;
-            parse_attributes << "          skip<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::FaceIndexes:
             // no whitespace skipping here, Zusi doesn't do that either
