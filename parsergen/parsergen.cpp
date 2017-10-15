@@ -530,18 +530,18 @@ void parse_string(Ch*& text, std::string& result) {
             parse_attributes << "          ++text;" << std::endl;
             parse_attributes << "          values[2] = text;" << std::endl;
             parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
-            parse_attributes << "          values[3] = text;" << std::endl;
+            parse_attributes << "          values[3] = text + 1;" << std::endl;
             parse_attributes << "          for (size_t i = 0; i < 3; i++) {" << std::endl;
             parse_attributes << "            uint16_t result = 0;" << std::endl;
             parse_attributes << "            if (values[i+1] != values[i]) {" << std::endl;
-            parse_attributes << "              size_t len = values[i+1] - values[i] - 1;" << std::endl;
+            parse_attributes << "              size_t len = values[i+1] - 1 - values[i];" << std::endl;
             // Adapted from https://tombarta.wordpress.com/2008/04/23/specializing-atoi/
             parse_attributes << "              switch(len) {  // 16 bit short - max. 5 characters" << std::endl;
-            parse_attributes << "                case 5: result += *(values[i] + (len-5)) * 10000; [[fallthrough]];" << std::endl;
-            parse_attributes << "                case 4: result += *(values[i] + (len-4)) * 1000; [[fallthrough]];" << std::endl;
-            parse_attributes << "                case 3: result += *(values[i] + (len-3)) * 100; [[fallthrough]];" << std::endl;
-            parse_attributes << "                case 2: result += *(values[i] + (len-2)) * 10; [[fallthrough]];" << std::endl;
-            parse_attributes << "                case 1: result += *(values[i] + (len-1)) * 1; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 5: result += (*(values[i] + (len-5)) - '0') * 10000; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 4: result += (*(values[i] + (len-4)) - '0') * 1000; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 3: result += (*(values[i] + (len-3)) - '0') * 100; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 2: result += (*(values[i] + (len-2)) - '0') * 10; [[fallthrough]];" << std::endl;
+            parse_attributes << "                case 1: result += (*(values[i] + (len-1)) - '0') * 1; [[fallthrough]];" << std::endl;
             parse_attributes << "                case 0: break;" << std::endl;
             parse_attributes << "                default: RAPIDXML_PARSE_ERROR(\"value too long\", text);" << std::endl;
             parse_attributes << "              }" << std::endl;
