@@ -288,6 +288,7 @@ class ParserGenerator {
   void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
     out << "#include <cstring>  // for memcmp" << std::endl;
     out << "#include <cfloat>   // Workaround for https://svn.boost.org/trac10/ticket/12642" << std::endl;
+    out << "#include <string_view>" << std::endl;
 
     out << "#include <boost/spirit/include/qi_real.hpp>" << std::endl;
     out << "#include <boost/spirit/include/qi_int.hpp>" << std::endl;
@@ -372,7 +373,7 @@ void parse_string(Ch*& text, std::string& result) {
       }
 
       parse_children << "else {" << std::endl;
-      parse_children << "  std::cerr << \"Unexpected child of node " << elementType->name << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
+      parse_children << "  std::cerr << \"Unexpected child of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";" << std::endl;
       parse_children << "  parse_element<void>(text, nullptr);" << std::endl;
       parse_children << "}" << std::endl;
 
@@ -507,7 +508,7 @@ void parse_string(Ch*& text, std::string& result) {
       }
 
       parse_attributes << "        else {" << std::endl;
-      parse_attributes << "          std::cerr << \"Unexpected attribute of node " << elementType->name << ": '\" << std::string(name, name_size) << \"'\" << std::endl;" << std::endl;
+      parse_attributes << "          std::cerr << \"Unexpected attribute of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";" << std::endl;
       parse_attributes << "          if (unlikely(quote == Ch('\\'')))" << std::endl;
       parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
       parse_attributes << "          else" << std::endl;
