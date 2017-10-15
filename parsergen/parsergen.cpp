@@ -1,6 +1,7 @@
 #include "pugixml.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <experimental/filesystem>
@@ -286,6 +287,7 @@ class ParserGenerator {
   }
 
   void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
+    out << "#include <array>" << std::endl;
     out << "#include <cstring>  // for memcmp" << std::endl;
     out << "#include <cfloat>   // Workaround for https://svn.boost.org/trac10/ticket/12642" << std::endl;
     out << "#include <string_view>" << std::endl;
