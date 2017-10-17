@@ -326,6 +326,69 @@ void parse_string(Ch*& text, std::string& result) {
   }
 }
 
+void parse_float(Ch*& text, float& result) {
+  const Ch* text_save = text;
+  // Fast path for numbers of the form "-XXX.YYY" (enclosed in double quotes), where X and Y are both <= 7 characters long and the minus sign is optional
+  bool neg = false;
+  if (*text == Ch('-')) {
+    neg = true;
+    ++text;  // Skip "-"
+  }
+  Ch* const integer_start = text;
+  skip<digit_pred>(text);
+  Ch* const dot_and_fractional_start = text;
+  if (*text == Ch('.')) {
+    ++text;  // skip "."
+    skip<digit_pred>(text);
+  }
+
+  if (*text == Ch('"')) {
+    size_t len_integer = dot_and_fractional_start - integer_start;
+    size_t len_dot_and_fractional = text - dot_and_fractional_start;
+
+    if (len_integer <= 7 && len_dot_and_fractional <= 7+1) {
+      uint32_t result_integer = 0;
+      switch(len_integer) {
+        case 7: result_integer += (*(integer_start + len_integer - 7) - '0') * 1000000; [[fallthrough]];
+        case 6: result_integer += (*(integer_start + len_integer - 6) - '0') * 100000; [[fallthrough]];
+        case 5: result_integer += (*(integer_start + len_integer - 5) - '0') * 10000; [[fallthrough]];
+        case 4: result_integer += (*(integer_start + len_integer - 4) - '0') * 1000; [[fallthrough]];
+        case 3: result_integer += (*(integer_start + len_integer - 3) - '0') * 100; [[fallthrough]];
+        case 2: result_integer += (*(integer_start + len_integer - 2) - '0') * 10; [[fallthrough]];
+        case 1: result_integer += (*(integer_start + len_integer - 1) - '0') * 1; [[fallthrough]];
+        case 0: break;
+      }
+
+      if (len_dot_and_fractional > 0) {
+        constexpr float scaleFactors[] = { 1E0, /* len_dot_and_fractional == 1 */ 1E0, /* == 2 etc. */ 1E1, 1E2, 1E3, 1E4, 1E5, 1E6, 1E7 };
+        uint32_t result_fractional = 0;
+        switch(len_dot_and_fractional - 1) {
+          case 7: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 7) - '0') * 1000000; [[fallthrough]];
+          case 6: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 6) - '0') * 100000; [[fallthrough]];
+          case 5: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 5) - '0') * 10000; [[fallthrough]];
+          case 4: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 4) - '0') * 1000; [[fallthrough]];
+          case 3: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 3) - '0') * 100; [[fallthrough]];
+          case 2: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 2) - '0') * 10; [[fallthrough]];
+          case 1: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 1) - '0') * 1; [[fallthrough]];
+          case 0: break;
+        }
+        result = result_integer + result_fractional / scaleFactors[len_dot_and_fractional];
+      } else {
+        result = result_integer;
+      }
+      if (neg) {
+        result = -result;
+      }
+      return;
+    }
+  }
+
+  // Slow path for everything else
+  text = text_save;
+  // std::cerr << "Delegating to slow float parser: " << std::string_view(text, 20) << "\n";
+  boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), result);
+}
+
 )"" << std::endl;
 
     out << "#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)" << std::endl;
@@ -430,21 +493,21 @@ void parse_string(Ch*& text, std::string& result) {
       if (elementType->name == "Vec2") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Y') {
           std::array<float Vec2::*, 2> members = { &Vec2::X, &Vec2::Y };
-          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), parseResultTyped->*members[*name - 'X']);
+          parse_float(text, parseResultTyped->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
         })"" << std::endl;
         allAttributes.clear();
       } else if (elementType->name == "Vec3") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Z') {
           std::array<float Vec3::*, 3> members = { &Vec3::X, &Vec3::Y, &Vec3::Z };
-          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), parseResultTyped->*members[*name - 'X']);
+          parse_float(text, parseResultTyped->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
         })"" << std::endl;
         allAttributes.clear();
       } else if (elementType->name == "Quaternion") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'W' && *name <= 'Z') {
           std::array<float Quaternion::*, 4> members = { &Quaternion::W, &Quaternion::X, &Quaternion::Y, &Quaternion::Z };
-          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), parseResultTyped->*members[*name - 'W']);
+          parse_float(text, parseResultTyped->*members[*name - 'W']);
           skip_unlikely<whitespace_pred>(text);
         })"" << std::endl;
         allAttributes.clear();
@@ -494,7 +557,7 @@ void parse_string(Ch*& text, std::string& result) {
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          parse_float(text, parseResultTyped->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::DateTime:

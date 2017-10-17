@@ -271,6 +271,15 @@ namespace rapidxml
         }
     };
 
+    // Detect digits
+    struct digit_pred
+    {
+        static unsigned char test(Ch ch)
+        {
+            return (ch >= '0' && ch <= '9');
+        }
+    };
+
     // Insert coded character, using UTF8 or 8-bit ASCII
     static void insert_coded_character(std::remove_const_t<Ch> *&text, unsigned long code)
     {
