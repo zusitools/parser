@@ -335,52 +335,60 @@ void parse_float(Ch*& text, float& result) {
     ++text;  // Skip "-"
   }
   Ch* const integer_start = text;
-  skip<digit_pred>(text);
+  for (size_t i = 0; i < 7; i++) {
+    if (!digit_pred::test(*text)) {
+      break;
+    }
+    ++text;
+  }
   Ch* const dot_and_fractional_start = text;
   if (*text == Ch('.')) {
     ++text;  // skip "."
-    skip<digit_pred>(text);
+    for (size_t i = 0; i < 7; i++) {
+      if (!digit_pred::test(*text)) {
+        break;
+      }
+      ++text;
+    }
   }
 
   if (*text == Ch('"')) {
     size_t len_integer = dot_and_fractional_start - integer_start;
     size_t len_dot_and_fractional = text - dot_and_fractional_start;
 
-    if (len_integer <= 7 && len_dot_and_fractional <= 7+1) {
-      uint32_t result_integer = 0;
-      switch(len_integer) {
-        case 7: result_integer += (*(integer_start + len_integer - 7) - '0') * 1000000; [[fallthrough]];
-        case 6: result_integer += (*(integer_start + len_integer - 6) - '0') * 100000; [[fallthrough]];
-        case 5: result_integer += (*(integer_start + len_integer - 5) - '0') * 10000; [[fallthrough]];
-        case 4: result_integer += (*(integer_start + len_integer - 4) - '0') * 1000; [[fallthrough]];
-        case 3: result_integer += (*(integer_start + len_integer - 3) - '0') * 100; [[fallthrough]];
-        case 2: result_integer += (*(integer_start + len_integer - 2) - '0') * 10; [[fallthrough]];
-        case 1: result_integer += (*(integer_start + len_integer - 1) - '0') * 1; [[fallthrough]];
+    uint32_t result_integer = 0;
+    switch(len_integer) {
+      case 7: result_integer += (*(integer_start + len_integer - 7) - '0') * 1000000; [[fallthrough]];
+      case 6: result_integer += (*(integer_start + len_integer - 6) - '0') * 100000; [[fallthrough]];
+      case 5: result_integer += (*(integer_start + len_integer - 5) - '0') * 10000; [[fallthrough]];
+      case 4: result_integer += (*(integer_start + len_integer - 4) - '0') * 1000; [[fallthrough]];
+      case 3: result_integer += (*(integer_start + len_integer - 3) - '0') * 100; [[fallthrough]];
+      case 2: result_integer += (*(integer_start + len_integer - 2) - '0') * 10; [[fallthrough]];
+      case 1: result_integer += (*(integer_start + len_integer - 1) - '0') * 1; [[fallthrough]];
+      case 0: break;
+    }
+
+    if (len_dot_and_fractional > 0) {
+      constexpr float scaleFactors[] = { 1E0, /* len_dot_and_fractional == 1 */ 1E0, /* == 2 etc. */ 1E1, 1E2, 1E3, 1E4, 1E5, 1E6, 1E7 };
+      uint32_t result_fractional = 0;
+      switch(len_dot_and_fractional - 1) {
+        case 7: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 7) - '0') * 1000000; [[fallthrough]];
+        case 6: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 6) - '0') * 100000; [[fallthrough]];
+        case 5: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 5) - '0') * 10000; [[fallthrough]];
+        case 4: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 4) - '0') * 1000; [[fallthrough]];
+        case 3: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 3) - '0') * 100; [[fallthrough]];
+        case 2: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 2) - '0') * 10; [[fallthrough]];
+        case 1: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 1) - '0') * 1; [[fallthrough]];
         case 0: break;
       }
-
-      if (len_dot_and_fractional > 0) {
-        constexpr float scaleFactors[] = { 1E0, /* len_dot_and_fractional == 1 */ 1E0, /* == 2 etc. */ 1E1, 1E2, 1E3, 1E4, 1E5, 1E6, 1E7 };
-        uint32_t result_fractional = 0;
-        switch(len_dot_and_fractional - 1) {
-          case 7: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 7) - '0') * 1000000; [[fallthrough]];
-          case 6: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 6) - '0') * 100000; [[fallthrough]];
-          case 5: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 5) - '0') * 10000; [[fallthrough]];
-          case 4: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 4) - '0') * 1000; [[fallthrough]];
-          case 3: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 3) - '0') * 100; [[fallthrough]];
-          case 2: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 2) - '0') * 10; [[fallthrough]];
-          case 1: result_fractional += (*(dot_and_fractional_start + len_dot_and_fractional - 1) - '0') * 1; [[fallthrough]];
-          case 0: break;
-        }
-        result = result_integer + result_fractional / scaleFactors[len_dot_and_fractional];
-      } else {
-        result = result_integer;
-      }
-      if (neg) {
-        result = -result;
-      }
-      return;
+      result = result_integer + result_fractional / scaleFactors[len_dot_and_fractional];
+    } else {
+      result = result_integer;
     }
+    if (neg) {
+      result = -result;
+    }
+    return;
   }
 
   // Slow path for everything else
