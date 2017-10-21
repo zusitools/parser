@@ -279,8 +279,8 @@ class ParserGenerator {
       if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
         continue;
       }
-      out << "  template<> void parse_element<" << elementType->name << ">(Ch *& text, void* parseResult);" << std::endl;
-      out << "  template<> void parse_node_attributes<" << elementType->name << ">(Ch *& text, void* parseResult);" << std::endl;
+      out << "  void parse_element_" << elementType->name << "(Ch *& text, void* parseResult);" << std::endl;
+      out << "  void parse_node_attributes_" << elementType->name << "(Ch *& text, void* parseResult);" << std::endl;
       (void)elementType;
     }
     out << "}  // namespace rapidxml" << std::endl;
@@ -416,30 +416,30 @@ void parse_float(Ch*& text, float& result) {
         parse_children << "else if (name_size == " << child.name.size() << " && !memcmp(name, \"" << child.name << "\", " << child.name.size() << ")) {" << std::endl;
         if (child.deprecated()) {
           parse_children << "  // deprecated" << std::endl;
-          parse_children << "  parse_element<void>(text, nullptr);" << std::endl;
+          parse_children << "  skip_element(text);" << std::endl;
           parse_children << "}" << std::endl;
           continue;
         }
         auto childStrategy = GetChildStrategy(*elementType, child);
         if (child.multiple) {
           if (childStrategy == ChildStrategy::Inline) {
-            parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->children_" << child.name << ".emplace_back());" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, &parseResultTyped->children_" << child.name << ".emplace_back());" << std::endl;
           } else {
-            parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
           }
         } else {
           if (childStrategy == ChildStrategy::Inline) {
-            parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->" << child.name << ");" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, &parseResultTyped->" << child.name << ");" << std::endl;
           } else if (childStrategy == ChildStrategy::Optional) {
             parse_children << "  parseResultTyped->" << child.name << ".emplace();" << std::endl;
-            parse_children << "  parse_element<" << child.type->name << ">(text, &parseResultTyped->" << child.name << ");" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, &parseResultTyped->" << child.name << ");" << std::endl;
           } else {
             parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());" << std::endl;
             parse_children << "  parseResultTyped->" << child.name << ".swap(childResult);" << std::endl;
 #if 0
             parse_children << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }" << std::endl;
 #endif
-            parse_children << "  parse_element<" << child.type->name << ">(text, parseResultTyped->" << child.name << ".get());" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, parseResultTyped->" << child.name << ".get());" << std::endl;
           }
         }
         parse_children << "}" << std::endl;
@@ -447,13 +447,13 @@ void parse_float(Ch*& text, float& result) {
 
       parse_children << "else {" << std::endl;
       parse_children << "  std::cerr << \"Unexpected child of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";" << std::endl;
-      parse_children << "  parse_element<void>(text, nullptr);" << std::endl;
+      parse_children << "  skip_element(text);" << std::endl;
       parse_children << "}" << std::endl;
 
-      out << R""(  template<> void parse_element<)"" << elementType->name << R""(>(Ch *& text, void* parseResult) {
+      out << R""(  void parse_element_)"" << elementType->name << R""((Ch *& text, void* parseResult) {
 
     // Parse attributes, if any
-    parse_node_attributes<)"" << elementType->name << R""(>(text, parseResult);
+    parse_node_attributes_)"" << elementType->name << R""((text, parseResult);
 
     // Determine ending type
     if (*text == Ch('>'))
@@ -632,7 +632,7 @@ void parse_float(Ch*& text, float& result) {
       parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
       parse_attributes << "        }" << std::endl;
 
-      out << R""(  template<> void parse_node_attributes<)"" << elementType->name << R""(>(Ch *& text, void* parseResult) {
+      out << R""(  void parse_node_attributes_)"" << elementType->name << R""((Ch *& text, void* parseResult) {
         )"" << elementType->name << R""(* parseResultTyped = static_cast<)"" << elementType->name << R""(*>(parseResult);
         // For all attributes 
         while (attribute_name_pred::test(*text))

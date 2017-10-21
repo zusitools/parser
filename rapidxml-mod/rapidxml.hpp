@@ -180,11 +180,8 @@ namespace rapidxml
     static void parse_node(Ch *&text, parse_function parse_element_function, void* parseResult);
     static void parse_node_contents(Ch *&text, parse_function parse_element_function, void* parseResult);
 
-    template<typename Result>
-    static void parse_element(Ch *&text, void* parseResult);
-
-    template<typename Result>
-    static void parse_node_attributes(Ch *&text, void* parseResult);
+    static void skip_element(Ch *&text);
+    static void skip_node_attributes(Ch *&text);
 
     ///////////////////////////////////////////////////////////////////////
     // Internal character utility functions
@@ -503,7 +500,7 @@ namespace rapidxml {
 
                     // Skip whitespace between element name and attributes or >
                     skip<whitespace_pred>(text);
-                    parse_element<Result>(text, parseResult);
+                    parse_element_Zusi(text, parseResult);
                 }, parseResult.get());
 
             }
@@ -731,12 +728,11 @@ namespace rapidxml {
         }
     }
     
-    // Parse element node
-    template <typename Result>
-    static void parse_element(Ch *&text, void *parseResult)
+    // Skip element node
+    static void skip_element(Ch *&text)
     {
         // Parse attributes, if any
-        parse_node_attributes<Result>(text, parseResult);
+        skip_node_attributes(text);
 
         // Determine ending type
         if (*text == Ch('>'))
@@ -752,8 +748,8 @@ namespace rapidxml {
 
                 // Skip whitespace between element name and attributes or >
                 skip<whitespace_pred>(text);
-                parse_element<void>(text, nullptr);
-            }, parseResult);
+                skip_element(text);
+            }, nullptr);
         }
         else if (*text == Ch('/'))
         {
@@ -826,10 +822,8 @@ namespace rapidxml {
     }
     
     // Parse XML attributes of the node
-    template <typename Result>
-    static void parse_node_attributes(Ch *&text, void* parseResult)
+    static void skip_node_attributes(Ch *&text)
     {
-        (void)parseResult;
         // For all attributes 
         while (attribute_name_pred::test(*text))
         {
