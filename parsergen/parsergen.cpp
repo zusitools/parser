@@ -279,8 +279,8 @@ class ParserGenerator {
       if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
         continue;
       }
-      out << "  void parse_element_" << elementType->name << "(Ch *& text, void* parseResult);" << std::endl;
-      out << "  void parse_node_attributes_" << elementType->name << "(Ch *& text, void* parseResult);" << std::endl;
+      out << "  static void parse_element_" << elementType->name << "(Ch *& text, void* parseResult);" << std::endl;
+      out << "  static void parse_node_attributes_" << elementType->name << "(Ch *& text, void* parseResult);" << std::endl;
       (void)elementType;
     }
     out << "}  // namespace rapidxml" << std::endl;
@@ -310,7 +310,7 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
 namespace rapidxml {
 
 template<Ch Quote>
-void parse_string(Ch*& text, std::string& result) {
+static void parse_string(Ch*& text, std::string& result) {
   Ch* const value = text;
   skip<attribute_value_pure_pred<Quote>>(text);
   if (*text == Quote) {
@@ -326,7 +326,7 @@ void parse_string(Ch*& text, std::string& result) {
   }
 }
 
-void parse_float(Ch*& text, float& result) {
+static void parse_float(Ch*& text, float& result) {
   const Ch* text_save = text;
   // Fast path for numbers of the form "-XXX.YYY" (enclosed in double quotes), where X and Y are both <= 7 characters long and the minus sign is optional
   bool neg = false;
@@ -450,7 +450,7 @@ void parse_float(Ch*& text, float& result) {
       parse_children << "  skip_element(text);" << std::endl;
       parse_children << "}" << std::endl;
 
-      out << R""(  void parse_element_)"" << elementType->name << R""((Ch *& text, void* parseResult) {
+      out << R""(  static void parse_element_)"" << elementType->name << R""((Ch *& text, void* parseResult) {
 
     // Parse attributes, if any
     parse_node_attributes_)"" << elementType->name << R""((text, parseResult);
@@ -632,7 +632,7 @@ void parse_float(Ch*& text, float& result) {
       parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
       parse_attributes << "        }" << std::endl;
 
-      out << R""(  void parse_node_attributes_)"" << elementType->name << R""((Ch *& text, void* parseResult) {
+      out << R""(  static void parse_node_attributes_)"" << elementType->name << R""((Ch *& text, void* parseResult) {
         )"" << elementType->name << R""(* parseResultTyped = static_cast<)"" << elementType->name << R""(*>(parseResult);
         // For all attributes 
         while (attribute_name_pred::test(*text))
