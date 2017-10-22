@@ -17,20 +17,20 @@
         <xs:element ref="PZB60" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="IndusiI60M" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="IndusiI60DR" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="IndusiI60" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="IndusiI60R" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="IndusiI60" type="IndusiI60" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="IndusiI60R" type="IndusiI60R" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="IndusiI60R_ZUB122" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="IndusiI60R_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V15" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="PZB90I60R_V20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="PZB90I60R_V20" type="PZB90I60R_V20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90_PZ80R_V20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V20_ZUB122" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V20_SBahn" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZ80" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="LZB80_I80" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="LZB80_I80" type="LZB80_I80" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_I80_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="LZB80_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="LZB80_PZB90_20" type="LZB80_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Textmelder" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Sifa_ZeitZeit" minOccurs="0" maxOccurs="unbounded"/>
@@ -84,15 +84,46 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="FtdFunktionalitaetPZB">
+  <xs:complexType name="FtdFunktionalitaetIndusiBasiert">
     <xs:complexContent>
       <xs:extension base="FtdFunktionalitaet">
+        <xs:all>
+          <xs:element name="SoundIndusiHupe" type="Sound"/>
+        </xs:all>
         <xs:attribute name="Zugarten" type="xs:int"/>
         <xs:attribute name="SchalterWachsam" type="xs:string"/>
         <xs:attribute name="SchalterFrei" type="xs:string"/>
         <xs:attribute name="SchalterBefehl" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="FtdFunktionalitaetIndusiOderPZB">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetIndusiBasiert">
+        <xs:attribute name="LM1000Hz" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="IndusiI60">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetIndusiOderPZB">
+        <xs:attribute name="LMZugartO" type="xs:string"/>
+        <xs:attribute name="LMZugartM" type="xs:string"/>
+        <xs:attribute name="LMZugartU" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="FtdFunktionalitaetPZB">
+    <xs:extension base="FtdFunktionalitaetIndusiOderPZB">
+      <xs:all>
+        <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
+      </xs:all>
+      <xs:attribute name="LMZugartO" type="xs:string"/>
+      <xs:attribute name="LMZugartM" type="xs:string"/>
+      <xs:attribute name="LMZugartU" type="xs:string"/>
+      <xs:attribute name="LM500Hz" type="xs:string"/>
+      <xs:attribute name="LMBefehl" type="xs:string"/>
+    </xs:extension>
   </xs:complexType>
   <xs:complexType name="FtdFunktionalitaetSifa">
     <xs:complexContent>
@@ -108,12 +139,8 @@
   <xs:element name="IndusiI54">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all>
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-          </xs:all>
+        <xs:extension base="FtdFunktionalitaetIndusiOderPZB">
           <xs:attribute name="LMZugart" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -121,96 +148,36 @@
   <xs:element name="PZB60">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all>
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-        </xs:extension>
+        <xs:extension base="IndusiI60"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="IndusiI60M">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all>
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-        </xs:extension>
+        <xs:extension base="IndusiI60"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="IndusiI60DR">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all>
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-        </xs:extension>
+        <xs:extension base="IndusiI60"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
-  <xs:element name="IndusiI60">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all>
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="IndusiI60R">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all>
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-          </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="IndusiI60R">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetPZB"/>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="IndusiI60R_ZUB122">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
+        <xs:extension base="IndusiI60R">
           <xs:all>
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="ZUB"/>
           </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -218,18 +185,10 @@
   <xs:element name="IndusiI60R_ZUB262">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
+        <xs:extension base="IndusiI60R">
           <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="ZUB"/>
           </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -237,72 +196,29 @@
   <xs:element name="PZB90I60R_V15">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-          </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-        </xs:extension>
+        <xs:extension base="FtdFunktionalitaetPZB"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
-  <xs:element name="PZB90I60R_V20">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-          </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="PZB90I60R_V20">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetPZB"/>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="PZB90_PZ80R_V20">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-          </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-        </xs:extension>
+        <xs:extension base="FtdFunktionalitaetPZB"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="PZB90I60R_V20_ZUB122">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
+        <xs:extension base="PZB90I60R_V20">
           <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="ZUB"/>
           </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -310,18 +226,10 @@
   <xs:element name="PZB90I60R_V20_ZUB262">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
+        <xs:extension base="PZB90I60R_V20">
           <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
             <xs:element ref="ZUB"/>
           </xs:all>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -330,19 +238,9 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-          </xs:all>
           <xs:attribute name="LMZugartLinks" type="xs:string"/>
           <xs:attribute name="LMZugart65" type="xs:string"/>
           <xs:attribute name="LMZugartRechts" type="xs:string"/>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -350,10 +248,7 @@
   <xs:element name="PZ80">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all>
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-          </xs:all>
+        <xs:extension base="FtdFunktionalitaetIndusiOderPZB">
           <xs:attribute name="LM60Gelb" type="xs:string"/>
           <xs:attribute name="LM40Gelb" type="xs:string"/>
           <xs:attribute name="LMLoeschen" type="xs:string"/>
@@ -362,155 +257,61 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
-  <xs:element name="LZB80_I80">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="SoundIndusiSchnarre" type="Sound"/>
-            <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-            <xs:element ref="PZB"/>
-            <xs:element name="SoundIndusiZB" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LMLZBEnde" type="xs:string"/>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMLZBH" type="xs:string"/>
-          <xs:attribute name="LMLZBG" type="xs:string"/>
-          <xs:attribute name="LMLZBE40" type="xs:string"/>
-          <xs:attribute name="LMLZBB" type="xs:string"/>
-          <xs:attribute name="LMLZBEL" type="xs:string"/>
-          <xs:attribute name="LMLZBV40" type="xs:string"/>
-          <xs:attribute name="LMLZBS" type="xs:string"/>
-          <xs:attribute name="LMLZBUe" type="xs:string"/>
-          <xs:attribute name="LMLZBPruefen" type="xs:string"/>
-          <xs:attribute name="InstrLZBZielGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBAFBSollGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBSollGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBZielweg" type="xs:string"/>
-          <xs:attribute name="BalkenLZBZielweg" type="xs:string"/>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="FtdFunktionalitaetLZB">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetIndusiOderPZB">
+        <xs:all minOccurs="0">
+          <xs:element name="SoundIndusiSchnarre" type="Sound"/>
+          <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
+          <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
+          <xs:element ref="PZB"/>
+          <xs:element name="SoundIndusiZB" type="Sound"/>
+        </xs:all>
+        <xs:attribute name="LM500Hz" type="xs:string"/>
+        <xs:attribute name="LMBefehl" type="xs:string"/>
+        <xs:attribute name="LMLZBEnde" type="xs:string"/>
+        <xs:attribute name="Sprachausgabe" type="boolean"/>
+        <xs:attribute name="LMZugartU" type="xs:string"/>
+        <xs:attribute name="LMZugartM" type="xs:string"/>
+        <xs:attribute name="LMZugartO" type="xs:string"/>
+        <xs:attribute name="LMLZBH" type="xs:string"/>
+        <xs:attribute name="LMLZBG" type="xs:string"/>
+        <xs:attribute name="LMLZBE40" type="xs:string"/>
+        <xs:attribute name="LMLZBB" type="xs:string"/>
+        <xs:attribute name="LMLZBEL" type="xs:string"/>
+        <xs:attribute name="LMLZBV40" type="xs:string"/>
+        <xs:attribute name="LMLZBS" type="xs:string"/>
+        <xs:attribute name="LMLZBUe" type="xs:string"/>
+        <xs:attribute name="LMLZBPruefen" type="xs:string"/>
+        <xs:attribute name="InstrLZBZielGeschw" type="xs:string"/>
+        <xs:attribute name="InstrLZBAFBSollGeschw" type="xs:string"/>
+        <xs:attribute name="InstrLZBSollGeschw" type="xs:string"/>
+        <xs:attribute name="InstrLZBZielweg" type="xs:string"/>
+        <xs:attribute name="BalkenLZBZielweg" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="LZB80_I80">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetLZB"/>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="LZB80_I80_ZUB262">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiSchnarre" type="Sound"/>
-            <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-            <xs:element ref="PZB"/>
-            <xs:element name="SoundIndusiZB" type="Sound"/>
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LMLZBEnde" type="xs:string"/>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMLZBH" type="xs:string"/>
-          <xs:attribute name="LMLZBG" type="xs:string"/>
-          <xs:attribute name="LMLZBE40" type="xs:string"/>
-          <xs:attribute name="LMLZBB" type="xs:string"/>
-          <xs:attribute name="LMLZBEL" type="xs:string"/>
-          <xs:attribute name="LMLZBV40" type="xs:string"/>
-          <xs:attribute name="LMLZBS" type="xs:string"/>
-          <xs:attribute name="LMLZBUe" type="xs:string"/>
-          <xs:attribute name="LMLZBPruefen" type="xs:string"/>
-          <xs:attribute name="InstrLZBZielGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBAFBSollGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBSollGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBZielweg" type="xs:string"/>
-          <xs:attribute name="BalkenLZBZielweg" type="xs:string"/>
-        </xs:extension>
+        <xs:extension base="LZB80_I80"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
-  <xs:element name="LZB80_PZB90_20">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="SoundIndusiSchnarre" type="Sound"/>
-            <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-            <xs:element ref="PZB"/>
-            <xs:element name="SoundIndusiZB" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LMLZBEnde" type="xs:string"/>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMLZBH" type="xs:string"/>
-          <xs:attribute name="LMLZBG" type="xs:string"/>
-          <xs:attribute name="LMLZBE40" type="xs:string"/>
-          <xs:attribute name="LMLZBB" type="xs:string"/>
-          <xs:attribute name="LMLZBEL" type="xs:string"/>
-          <xs:attribute name="LMLZBV40" type="xs:string"/>
-          <xs:attribute name="LMLZBS" type="xs:string"/>
-          <xs:attribute name="LMLZBUe" type="xs:string"/>
-          <xs:attribute name="LMLZBPruefen" type="xs:string"/>
-          <xs:attribute name="InstrLZBZielGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBAFBSollGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBSollGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBZielweg" type="xs:string"/>
-          <xs:attribute name="BalkenLZBZielweg" type="xs:string"/>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="LZB80_PZB90_20">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetLZB"/>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="LZB80_PZB90_20_ZUB262">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetPZB">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundIndusiHupe" type="Sound"/>
-            <xs:element name="SoundIndusiSchnarre" type="Sound"/>
-            <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
-            <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
-            <xs:element ref="PZB"/>
-            <xs:element name="SoundIndusiZB" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="LM500Hz" type="xs:string"/>
-          <xs:attribute name="LMBefehl" type="xs:string"/>
-          <xs:attribute name="LMLZBEnde" type="xs:string"/>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-          <xs:attribute name="LM1000Hz" type="xs:string"/>
-          <xs:attribute name="LMZugartU" type="xs:string"/>
-          <xs:attribute name="LMZugartM" type="xs:string"/>
-          <xs:attribute name="LMZugartO" type="xs:string"/>
-          <xs:attribute name="LMLZBH" type="xs:string"/>
-          <xs:attribute name="LMLZBG" type="xs:string"/>
-          <xs:attribute name="LMLZBE40" type="xs:string"/>
-          <xs:attribute name="LMLZBB" type="xs:string"/>
-          <xs:attribute name="LMLZBEL" type="xs:string"/>
-          <xs:attribute name="LMLZBV40" type="xs:string"/>
-          <xs:attribute name="LMLZBS" type="xs:string"/>
-          <xs:attribute name="LMLZBUe" type="xs:string"/>
-          <xs:attribute name="LMLZBPruefen" type="xs:string"/>
-          <xs:attribute name="InstrLZBZielGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBAFBSollGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBSollGeschw" type="xs:string"/>
-          <xs:attribute name="InstrLZBZielweg" type="xs:string"/>
-          <xs:attribute name="BalkenLZBZielweg" type="xs:string"/>
-        </xs:extension>
+        <xs:extension base="LZB80_PZB90_20"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
@@ -564,6 +365,24 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="FtdFunktionalitaetTuersystem">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetSchalter"/>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="FtdFunktionalitaetTuersystemZweiseitig">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetTuersystem">
+        <xs:attribute name="NameDrehSchalter" type="xs:string"/>
+        <xs:attribute name="LMLi" type="xs:string"/>
+        <xs:attribute name="LMRe" type="xs:string"/>
+        <xs:attribute name="LMZwangsschliessen" type="xs:string"/>
+        <xs:attribute name="SchalterTyp" type="xs:int"/>
+        <xs:attribute name="LMinvers" type="boolean"/>
+        <xs:attribute name="HaltebremseImmer" type="boolean"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="TuerenTB0">
     <xs:complexType>
       <xs:complexContent>
@@ -576,88 +395,50 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="FtdFunktionalitaetTuersystemZweiseitigMitSound">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetTuersystemZweiseitig">
+        <xs:all minOccurs="0">
+          <xs:element name="SoundErinnerung" type="Sound"/>
+          <xs:element name="SoundSchliessvorgang" type="Sound"/>
+        </xs:all>
+        <xs:attribute name="Sprachausgabe" type="boolean"/>
+        <xs:attribute name="OhneFreigabe" type="boolean"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="TuerenSAT">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundErinnerung" type="Sound"/>
-            <xs:element name="SoundSchliessvorgang" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-          <xs:attribute name="OhneFreigabe" type="boolean"/>
-          <xs:attribute name="NameDrehSchalter" type="xs:string"/>
-          <xs:attribute name="LMLi" type="xs:string"/>
-          <xs:attribute name="LMRe" type="xs:string"/>
-          <xs:attribute name="LMZwangsschliessen" type="xs:string"/>
-          <xs:attribute name="SchalterTyp" type="xs:int"/>
-          <xs:attribute name="LMinvers" type="boolean"/>
-          <xs:attribute name="HaltebremseImmer" type="boolean"/>
-        </xs:extension>
+        <xs:extension base="FtdFunktionalitaetTuersystemZweiseitigMitSound"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="TuerenTAV">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundErinnerung" type="Sound"/>
-            <xs:element name="SoundSchliessvorgang" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-          <xs:attribute name="OhneFreigabe" type="boolean"/>
-          <xs:attribute name="NameDrehSchalter" type="xs:string"/>
-          <xs:attribute name="LMLi" type="xs:string"/>
-          <xs:attribute name="LMRe" type="xs:string"/>
-          <xs:attribute name="LMZwangsschliessen" type="xs:string"/>
-          <xs:attribute name="SchalterTyp" type="xs:int"/>
-          <xs:attribute name="LMinvers" type="boolean"/>
-          <xs:attribute name="HaltebremseImmer" type="boolean"/>
-        </xs:extension>
+        <xs:extension base="FtdFunktionalitaetTuersystemZweiseitigMitSound"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="TuerenSST">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:all minOccurs="0">
-            <xs:element name="SoundErinnerung" type="Sound"/>
-            <xs:element name="SoundSchliessvorgang" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-          <xs:attribute name="OhneFreigabe" type="boolean"/>
-          <xs:attribute name="NameDrehSchalter" type="xs:string"/>
-          <xs:attribute name="LMLi" type="xs:string"/>
-          <xs:attribute name="LMRe" type="xs:string"/>
-          <xs:attribute name="LMZwangsschliessen" type="xs:string"/>
-          <xs:attribute name="SchalterTyp" type="xs:int"/>
-          <xs:attribute name="LMinvers" type="boolean"/>
-          <xs:attribute name="HaltebremseImmer" type="boolean"/>
-        </xs:extension>
+        <xs:extension base="FtdFunktionalitaetTuersystemZweiseitigMitSound"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="TuerenUICWTB">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetSchalter">
-          <xs:attribute name="NameDrehSchalter" type="xs:string"/>
-          <xs:attribute name="LMLi" type="xs:string"/>
-          <xs:attribute name="LMRe" type="xs:string"/>
-          <xs:attribute name="LMZwangsschliessen" type="xs:string"/>
-          <xs:attribute name="SchalterTyp" type="xs:int"/>
-          <xs:attribute name="LMinvers" type="boolean"/>
-          <xs:attribute name="HaltebremseImmer" type="boolean"/>
-        </xs:extension>
+        <xs:extension base="FtdFunktionalitaetTuersystemZweiseitig"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="TuerenSBahn">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetSchalter">
+        <xs:extension base="FtdFunktionalitaetTuersystem">
           <xs:attribute name="MelderLinks" type="xs:string"/>
           <xs:attribute name="MelderRechts" type="xs:string"/>
           <xs:attribute name="MelderSchliessen" type="xs:string"/>
@@ -668,52 +449,38 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="FtdFunktionalitaetNotbremssystem">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaet">
+        <xs:all minOccurs="0">
+          <xs:element name="Sound" type="Sound"/>
+        </xs:all>
+        <xs:attribute name="Invers" type="boolean"/>
+        <xs:attribute name="Taster" type="boolean"/>
+        <xs:attribute name="NameLMBereit" type="xs:string"/>
+        <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
+        <xs:attribute name="Sprachausgabe" type="boolean"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="NotbremssystemUICNBUe">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaet">
-          <xs:all minOccurs="0">
-            <xs:element name="Sound" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="Invers" type="boolean"/>
-          <xs:attribute name="Taster" type="boolean"/>
-          <xs:attribute name="NameLMBereit" type="xs:string"/>
-          <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-        </xs:extension>
+        <xs:extension base="FtdFunktionalitaetNotbremssystem"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="NotbremsSystemNBUe2004">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaet">
-          <xs:all minOccurs="0">
-            <xs:element name="Sound" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="Invers" type="boolean"/>
-          <xs:attribute name="Taster" type="boolean"/>
-          <xs:attribute name="NameLMBereit" type="xs:string"/>
-          <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-        </xs:extension>
+        <xs:extension base="FtdFunktionalitaetNotbremssystem"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="NotbremsSystemSBahn">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaet">
-          <xs:all minOccurs="0">
-            <xs:element name="Sound" type="Sound"/>
-            <xs:element name="SoundNotbremsung" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="NameSchalter" type="xs:string"/>
-          <xs:attribute name="Taster" type="boolean"/>
-          <xs:attribute name="NameLMBereit" type="xs:string"/>
-          <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
-          <xs:attribute name="Sprachausgabe" type="boolean"/>
-        </xs:extension>
+        <xs:extension base="FtdFunktionalitaetNotbremssystem"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
