@@ -524,11 +524,29 @@ static void parse_float(Ch*& text, float& result) {
       for (const auto& attr : allAttributes) {
         parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
         if (attr.deprecated()) {
-          parse_attributes << "          // deprecated" << std::endl;
-          parse_attributes << "          if (unlikely(quote == Ch('\\'')))" << std::endl;
-          parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-          parse_attributes << "          else" << std::endl;
-          parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+          if (attr.name == "C" || attr.name == "CA" || attr.name == "CE") {
+            if (!startWhitespaceSkip) {
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            }
+            parse_attributes << "          uint32_t tmp;" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);" << std::endl;
+            parse_attributes << "          parseResultTyped->";
+            if (attr.name == "C") {
+              parse_attributes << "Cd";
+            } else if (attr.name == "CA") {
+              parse_attributes << "Ca";
+            } else if (attr.name == "CE") {
+              parse_attributes << "Ce";
+            }
+            parse_attributes << " = (tmp & 0xFF000000) | ((tmp & 0x00FF0000) >> 16) | (tmp & 0x0000FF00) | ((tmp & 0x000000FF) << 16);" << std::endl;
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+          } else {
+            parse_attributes << "          // deprecated" << std::endl;
+            parse_attributes << "          if (unlikely(quote == Ch('\\'')))" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
+            parse_attributes << "          else" << std::endl;
+            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+          }
           parse_attributes << "        }" << std::endl;
           continue;
         }
