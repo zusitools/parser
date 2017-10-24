@@ -33,6 +33,7 @@ enum class AttributeType {
   DateTime,
   HexInt32,
   FaceIndexes,
+  ArgbColor,
 };
 
 struct ElementType;
@@ -89,6 +90,9 @@ class ParserGenerator {
     out << "#include <memory>  // for std::unique_ptr" << std::endl;
     out << "#include <optional>// for std::optional" << std::endl;
     out << "#include <ctime>   // for struct tm, strptime" << std::endl;
+    out << "struct ArgbColor {\n";
+    out << "  uint8_t a, r, g, b;\n";
+    out << "};\n";
   }
 
   void GenerateTypeDeclarations(std::ostream& out) {
@@ -206,6 +210,10 @@ class ParserGenerator {
           case AttributeType::FaceIndexes:
             out << "std::array<uint16_t, 3>";
             elementSize = align(elementSize, alignof(std::array<uint16_t, 3>)) + sizeof(std::array<uint16_t, 3>);
+            break;
+          case AttributeType::ArgbColor:
+            out << "ArgbColor";
+            elementSize = align(elementSize, alignof(uint32_t)) + sizeof(uint32_t);
             break;
         }
         out << " " << attribute.name << ";" << std::endl;
@@ -538,7 +546,7 @@ static void parse_float(Ch*& text, float& result) {
             } else if (attr.name == "CE") {
               parse_attributes << "Ce";
             }
-            parse_attributes << " = (tmp & 0xFF000000) | ((tmp & 0x00FF0000) >> 16) | (tmp & 0x0000FF00) | ((tmp & 0x000000FF) << 16);" << std::endl;
+            parse_attributes << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>(tmp & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF) };" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
           } else {
             parse_attributes << "          // deprecated" << std::endl;
@@ -604,6 +612,15 @@ static void parse_float(Ch*& text, float& result) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            break;
+          case AttributeType::ArgbColor:
+            if (!startWhitespaceSkip) {
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            }
+            parse_attributes << "          uint32_t tmp;" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);" << std::endl;
+            parse_attributes << "          parseResultTyped->" << attr.name << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>(tmp & 0xFF) };" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::FaceIndexes:
@@ -895,6 +912,8 @@ class ParserGeneratorBuilder {
         attributeType = AttributeType::DateTime;
       } else if (attributeTypeString == "faceIndexes") {
         attributeType = AttributeType::FaceIndexes;
+      } else if (attributeTypeString == "argbColor") {
+        attributeType = AttributeType::ArgbColor;
       } else {
         std::cerr << "Unknown attribute type '" << attributeTypeString << "' of attribute '" << child.attribute("name").as_string() << "' of complex type '" << typeName << "'" << std::endl;
         continue;

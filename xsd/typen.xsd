@@ -16,6 +16,9 @@
       <xs:pattern value="[0-9]+;[0-9]+;[0-9]+"/>
     </xs:restriction>
   </xs:simpleType>
+  <xs:simpleType name="argbColor">
+    <xs:restriction base="xs:hexBinary"/>
+  </xs:simpleType>
   <xs:complexType name="Dateiverknuepfung">
     <xs:attribute name="Dateiname" type="xs:string">
       <xs:annotation>
