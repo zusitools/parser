@@ -532,7 +532,7 @@ static void parse_float(Ch*& text, float& result) {
       for (const auto& attr : allAttributes) {
         parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
         if (attr.deprecated()) {
-          if (attr.name == "C" || attr.name == "CA" || attr.name == "CE") {
+          if (attr.name == "C" || attr.name == "CA" || attr.name == "E") {
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
@@ -543,7 +543,7 @@ static void parse_float(Ch*& text, float& result) {
               parse_attributes << "Cd";
             } else if (attr.name == "CA") {
               parse_attributes << "Ca";
-            } else if (attr.name == "CE") {
+            } else if (attr.name == "E") {
               parse_attributes << "Ce";
             }
             parse_attributes << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>(tmp & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF) };" << std::endl;
