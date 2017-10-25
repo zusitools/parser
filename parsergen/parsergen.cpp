@@ -170,61 +170,63 @@ class ParserGenerator {
 
       size_t elementSize = 0;
 
+      std::ostringstream attrs;
       for (const auto& attribute : elementType->attributes) {
         if (attribute.deprecated()) {
           continue;
         }
         if (!attribute.documentation.empty()) {
-          out << "  /** " << attribute.documentation << "*/" << std::endl;
+          attrs << "  /** " << attribute.documentation << "*/" << std::endl;
         }
-        out << "  ";
+        attrs << "  ";
         switch (attribute.type) {
           case AttributeType::Int32:
-            out << "int32_t";
+            attrs << "int32_t";
             elementSize = align(elementSize, alignof(int32_t)) + sizeof(int32_t);
             break;
           case AttributeType::Int64:
-            out << "int64_t";
+            attrs << "int64_t";
             elementSize = align(elementSize, alignof(int64_t)) + sizeof(int64_t);
             break;
           case AttributeType::Boolean:
-            out << "bool";
+            attrs << "bool";
             elementSize = align(elementSize, alignof(bool)) + sizeof(bool);
             break;
           case AttributeType::String:
-            out << "std::string";
+            attrs << "std::string";
             elementSize = align(elementSize, alignof(std::string)) + sizeof(std::string);
             break;
           case AttributeType::Float:
-            out << "float";
+            attrs << "float";
             elementSize = align(elementSize, alignof(float)) + sizeof(float);
             break;
           case AttributeType::DateTime:
-            out << "struct tm";
+            attrs << "struct tm";
             elementSize = align(elementSize, alignof(struct tm)) + sizeof(struct tm);
             break;
           case AttributeType::HexInt32:
-            out << "int32_t";
+            attrs << "int32_t";
             elementSize = align(elementSize, alignof(int32_t)) + sizeof(int32_t);
             break;
           case AttributeType::FaceIndexes:
-            out << "std::array<uint16_t, 3>";
+            attrs << "std::array<uint16_t, 3>";
             elementSize = align(elementSize, alignof(std::array<uint16_t, 3>)) + sizeof(std::array<uint16_t, 3>);
             break;
           case AttributeType::ArgbColor:
-            out << "ArgbColor";
+            attrs << "ArgbColor";
             elementSize = align(elementSize, alignof(uint32_t)) + sizeof(uint32_t);
             break;
         }
-        out << " " << attribute.name << ";" << std::endl;
+        attrs << " " << attribute.name << ";" << std::endl;
       }
 
+      std::ostringstream children;
       for (const auto& child : elementType->children) {
         if (child.deprecated()) {
           continue;
         }
         if (!child.documentation.empty()) {
-          out << "  /** " << child.documentation << "*/" << std::endl;
+          children << "  /** " << child.documentation << "*/" << std::endl;
         }
         auto childStrategy = GetChildStrategy(*elementType, child);
         if (child.multiple) {
@@ -232,30 +234,30 @@ class ParserGenerator {
           size_t smallVectorSize = SmallVectorSize(*elementType, child);
           if (smallVectorSize > 0) {
             if (childStrategy == ChildStrategy::Inline) {
-              out << "  boost::container::small_vector<struct " << child.type->name << ", " << smallVectorSize << ">";
+              children << "  boost::container::small_vector<struct " << child.type->name << ", " << smallVectorSize << ">";
               elementSize = align(elementSize, alignof(std::vector<int>)) + smallVectorSize * m_element_type_sizes.at(child.type) + sizeof(size_t);
             } else {
-              out << "  boost::container::small_vector<std::unique_ptr<struct " << child.type->name << ">, " << smallVectorSize << ">";
+              children << "  boost::container::small_vector<std::unique_ptr<struct " << child.type->name << ">, " << smallVectorSize << ">";
               elementSize = align(elementSize, alignof(std::vector<int>)) + smallVectorSize * sizeof(void*) + sizeof(size_t);
             }
           } else {
             if (childStrategy == ChildStrategy::Inline) {
-              out << "  std::vector<struct " << child.type->name << ">";
+              children << "  std::vector<struct " << child.type->name << ">";
             } else {
-              out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">>";
+              children << "  std::vector<std::unique_ptr<struct " << child.type->name << ">>";
             }
             elementSize = align(elementSize, alignof(std::vector<int>)) + sizeof(std::vector<int>);
           }
-          out << " children_" << child.name << ";" << std::endl;
+          children << " children_" << child.name << ";" << std::endl;
         } else {
           if (childStrategy == ChildStrategy::Inline) {
-            out << "  struct " << child.type->name << " " << child.name << "; // inlined: size = " << m_element_type_sizes.at(child.type) << std::endl;
+            children << "  struct " << child.type->name << " " << child.name << "; // inlined: size = " << m_element_type_sizes.at(child.type) << std::endl;
             elementSize = align(elementSize, alignof(void*)) + m_element_type_sizes.at(child.type);
           } else if (childStrategy == ChildStrategy::Optional) {
-            out << "  std::optional<struct " << child.type->name << "> " << child.name << ";" << std::endl;
+            children << "  std::optional<struct " << child.type->name << "> " << child.name << ";" << std::endl;
             elementSize = align(elementSize + 1, alignof(void*)) + m_element_type_sizes.at(child.type);
           } else {
-            out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
+            children << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
             elementSize = align(elementSize, alignof(std::unique_ptr<int>)) + sizeof(std::unique_ptr<int>);
           }
         }
@@ -263,6 +265,12 @@ class ParserGenerator {
 
       m_element_type_sizes[elementType] = elementSize;
 
+      if (elementType->name == "Vertex") {
+        // make compatible with you-know-what
+        out << children.str() << attrs.str();
+      } else {
+        out << attrs.str() << children.str();
+      }
       out << "};" << std::endl;
     }
   }
