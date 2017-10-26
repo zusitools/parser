@@ -85,6 +85,7 @@ class ParserGenerator {
   ParserGenerator(std::vector<std::unique_ptr<ElementType>>* elementTypes) : m_element_types(std::move(*elementTypes)) { }
 
   void GenerateTypeIncludes(std::ostream& out) {
+    out << "#pragma once" << std::endl;
     out << "#include \"boost/container/small_vector.hpp\"" << std::endl;
     out << "#include <vector>  // for std::vector" << std::endl;
     out << "#include <memory>  // for std::unique_ptr" << std::endl;
@@ -303,6 +304,9 @@ class ParserGenerator {
   }
 
   void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
+    out << "#pragma once" << std::endl;
+    out << "#include \"rapidxml.hpp\"" << std::endl;
+
     out << "#include <array>" << std::endl;
     out << "#include <cstring>  // for memcmp" << std::endl;
     out << "#include <cfloat>   // Workaround for https://svn.boost.org/trac10/ticket/12642" << std::endl;

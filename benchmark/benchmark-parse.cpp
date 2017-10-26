@@ -12,9 +12,8 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-#include "zusi_types.hpp"
-#include "rapidxml.hpp"
-#include "zusi_parser.hpp"
+#include "zusi_parser/zusi_types.hpp"
+#include "zusi_parser/zusi_parser.hpp"
 
 #ifndef MMAP_THRESHOLD_BYTES
 #  ifdef USE_MMAP

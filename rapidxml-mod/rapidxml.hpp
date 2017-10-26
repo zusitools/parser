@@ -453,7 +453,7 @@ namespace rapidxml
     }
 }
 
-#include "zusi_parser_fwd.hpp"
+#include "zusi_parser/zusi_parser_fwd.hpp"
 
 namespace rapidxml {
 
