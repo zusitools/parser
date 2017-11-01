@@ -4,7 +4,15 @@
 #include <array>
 #include <cassert>
 #include <cstring>
-#include <experimental/filesystem>
+#ifdef USE_BOOST_FILESYSTEM
+  #include <boost/filesystem.hpp>
+  namespace fs = boost::filesystem;
+  using ofstream = fs::ofstream;
+#else
+  #include <experimental/filesystem>
+  namespace fs = std::experimental::filesystem;
+  using ofstream = std::ofstream;
+#endif
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -15,8 +23,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-
-namespace fs = std::experimental::filesystem;
 
 namespace {
   size_t align(size_t size, size_t alignment) {
@@ -790,7 +796,7 @@ class ParserGeneratorBuilder {
   void AddXsdFile(const fs::path& fileName) {
     fs::path fileNameCanonical = fs::canonical(fileName);
 
-    if (m_docs_by_name.find(fileNameCanonical) != std::end(m_docs_by_name)) {
+    if (m_docs_by_name.find(fileNameCanonical.string()) != std::end(m_docs_by_name)) {
       return;
     }
 
@@ -809,7 +815,7 @@ class ParserGeneratorBuilder {
       ParseComplexType(complexType.node());
     }
 
-    m_docs_by_name.emplace(fileNameCanonical, std::move(document));
+    m_docs_by_name.emplace(fileNameCanonical.string(), std::move(document));
 
     for (const auto& includeFileName : includes) {
       AddXsdFile(includeFileName);
@@ -944,16 +950,16 @@ int main(int argc, char** argv) {
 
   ParserGenerator generator = builder.Build();
 
-  std::ofstream out_types(fs::path(argv[2]) / "zusi_types.hpp");
+  ofstream out_types(fs::path(argv[2]) / "zusi_types.hpp");
   generator.GenerateTypeIncludes(out_types);
   generator.GenerateTypeDeclarations(out_types);
   generator.GenerateTypeDefinitions(out_types);
 
   const auto& concreteTypes = generator.GetConcreteTypes();
 
-  std::ofstream out_parser_fwd(fs::path(argv[2]) / "zusi_parser_fwd.hpp");
+  ofstream out_parser_fwd(fs::path(argv[2]) / "zusi_parser_fwd.hpp");
   generator.GenerateParseFunctionDeclarations(out_parser_fwd, concreteTypes);
 
-  std::ofstream out_parser(fs::path(argv[2]) / "zusi_parser.hpp");
+  ofstream out_parser(fs::path(argv[2]) / "zusi_parser.hpp");
   generator.GenerateParseFunctionDefinitions(out_parser, concreteTypes);
 }
