@@ -75,7 +75,7 @@ add_library(zusi_parser INTERFACE)
 target_include_directories(zusi_parser INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/include include rapidxml-mod)
 add_dependencies(zusi_parser INTERFACE zusi_parser_includes)
 
-add_executable(benchmark benchmark/benchmark-parse.cpp)
+add_executable(benchmark EXCLUDE_FROM_ALL benchmark/benchmark-parse.cpp)
 target_link_libraries(benchmark PRIVATE zusi_parser)
 target_compile_options(benchmark PRIVATE -Wall -Wextra)
 target_compile_definitions(benchmark PRIVATE -DUSE_MMAP)
