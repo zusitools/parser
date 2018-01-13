@@ -31,113 +31,127 @@
 
 namespace zusixml {
 
-static std::unique_ptr<Zusi> parse(std::string_view dateiname) {
+class FileReader {
+ public:
+  FileReader(std::string_view dateiname) {
 #ifdef _WIN32
-  // TODO mmap
-  std::basic_ifstream<std::remove_const_t<rapidxml::Ch>> stream;
-  stream.exceptions(std::ifstream::failbit | std::ifstream::eofbit | std::ifstream::badbit);
-  try {
-    stream.open(std::string(dateiname), std::ios::binary);
-  } catch (const std::ifstream::failure& e) {
-    throw std::runtime_error(std::string(dateiname) + ": open() failed: " + e.what());
-  }
-  try {
-    stream.seekg(0, std::ios::end);
-  } catch (const std::ifstream::failure& e) {
-    throw std::runtime_error(std::string(dateiname) + ": seek() failed: " + e.what());
-  }
-  size_t size = stream.tellg();
-  std::vector<std::remove_const_t<rapidxml::Ch>> buffer(size + 1, 0);
-  try {
-    stream.seekg(0);
-    stream.read(buffer.data(), size);
-  } catch (const std::ifstream::failure& e) {
-    throw std::runtime_error(std::string(dateiname) + ": read() failed: " + e.what());
-  }
-  try {
-    return rapidxml::parse<Zusi>(buffer.data());
-  } catch (const rapidxml::parse_error& e) {
-    std::cerr << "Error parsing " << dateiname << ": " << e.what() << " at char " << (e.where() - buffer.data()) << "\n";
-    return nullptr;
-  }
+    // TODO mmap
+    std::basic_ifstream<std::remove_const_t<rapidxml::Ch>> stream;
+    stream.exceptions(std::ifstream::failbit | std::ifstream::eofbit | std::ifstream::badbit);
+    try {
+      stream.open(std::string(dateiname), std::ios::binary);
+    } catch (const std::ifstream::failure& e) {
+      throw std::runtime_error(std::string(dateiname) + ": open() failed: " + e.what());
+    }
+    try {
+      stream.seekg(0, std::ios::end);
+    } catch (const std::ifstream::failure& e) {
+      throw std::runtime_error(std::string(dateiname) + ": seek() failed: " + e.what());
+    }
+    size_t size = stream.tellg();
+    m_buffer = std::vector<std::remove_const_t<rapidxml::Ch>>(size + 1, 0);
+    try {
+      stream.seekg(0);
+      stream.read(m_buffer.data(), size);
+    } catch (const std::ifstream::failure& e) {
+      throw std::runtime_error(std::string(dateiname) + ": read() failed: " + e.what());
+    }
 #else
-  struct FdHelper {
-    ~FdHelper() {
-      if (fd != -1) { close(fd); }
-    }
-    int fd = -1;
-  } fdHelper;
-
-  fdHelper.fd = open(std::string(dateiname).c_str(), O_RDONLY);
-  if (fdHelper.fd == -1) {
-    throw std::runtime_error(std::string(dateiname) + ": open() failed: " + std::strerror(errno));
-  }
-
-  struct stat sb;
-  if (fstat(fdHelper.fd, &sb) == -1) {
-    throw std::runtime_error(std::string(dateiname) + ": fstat() failed: " + std::strerror(errno));
-  }
-
-  if (!S_ISREG(sb.st_mode)) {
-    throw std::runtime_error(std::string(dateiname) + ": not a file");
-  }
-
-  std::unique_ptr<Zusi> result;
-
-  if (sb.st_size > MMAP_THRESHOLD_BYTES && sb.st_size % getpagesize() != 0) {
-    struct MmapHelper {
-      ~MmapHelper() {
-        if (buffer != MAP_FAILED) {
-          munmap(const_cast<void*>(reinterpret_cast<const void*>(buffer)), size);
-        }
+    struct FdHelper {
+      ~FdHelper() {
+        if (fd != -1) { close(fd); }
       }
-      void* buffer = MAP_FAILED;
-      off_t size;
-    } mmapHelper;
+      int fd { -1 };
+    } fdHelper;
 
-    mmapHelper.size = sb.st_size;
-    mmapHelper.buffer = mmap(
-      nullptr,          // addr: kernel chooses mapping address
-      sb.st_size,       // length
-      PROT_READ,        // prot
-      MAP_SHARED,       // flags
-      fdHelper.fd,      // fd
-      0                 // offset in file
-    );
-    if (mmapHelper.buffer == MAP_FAILED) {
-      throw std::runtime_error(std::string(dateiname) + ": mmap() failed: " + std::strerror(errno));
+
+    fdHelper.fd = open(std::string(dateiname).c_str(), O_RDONLY);
+    if (fdHelper.fd == -1) {
+      throw std::runtime_error(std::string(dateiname) + ": open() failed: " + std::strerror(errno));
     }
 
-    try {
-      result = rapidxml::parse<Zusi>(static_cast<rapidxml::Ch*>(mmapHelper.buffer));
-    } catch (const rapidxml::parse_error& e) {
-      std::cerr << "Error parsing " << dateiname << ": " << e.what() << " at char " << (e.where() - static_cast<rapidxml::Ch*>(mmapHelper.buffer)) << "\n";
+    struct stat sb;
+    if (fstat(fdHelper.fd, &sb) == -1) {
+      throw std::runtime_error(std::string(dateiname) + ": fstat() failed: " + std::strerror(errno));
     }
 
-    int munmap_result = munmap(mmapHelper.buffer, mmapHelper.size);
-    mmapHelper.buffer = MAP_FAILED;
-    if (munmap_result == -1) {
-      throw std::runtime_error(std::string(dateiname) + ": munmap() failed: " + std::strerror(errno));
+    if (!S_ISREG(sb.st_mode)) {
+      throw std::runtime_error(std::string(dateiname) + ": not a file");
     }
 
-  } else {
-    std::vector<std::remove_const_t<rapidxml::Ch>> buffer(sb.st_size + 1, 0);
-    read(fdHelper.fd, buffer.data(), sb.st_size);
-    try {
-      result = rapidxml::parse<Zusi>(buffer.data());
-    } catch (const rapidxml::parse_error& e) {
-      std::cerr << "Error parsing " << dateiname << ": " << e.what() << " at char " << (e.where() - buffer.data()) << "\n";
+    if (sb.st_size > MMAP_THRESHOLD_BYTES && sb.st_size % getpagesize() != 0) {
+      m_mmap = true;
+      m_mapsize = sb.st_size;
+      m_data = mmap(
+        nullptr,          // addr: kernel chooses mapping address
+        sb.st_size,       // length
+        PROT_READ,        // prot
+        MAP_SHARED,       // flags
+        fdHelper.fd,      // fd
+        0                 // offset in file
+      );
+      if (m_data == MAP_FAILED) {
+        throw std::runtime_error(std::string(dateiname) + ": mmap() failed: " + std::strerror(errno));
+      }
+    } else {
+      m_buffer = std::vector<std::remove_const_t<rapidxml::Ch>>(sb.st_size + 1, 0);
+      read(fdHelper.fd, m_buffer.data(), sb.st_size);
+      m_data = m_buffer.data();
     }
+
+    int close_result = close(fdHelper.fd);
+    fdHelper.fd = -1;
+    if (close_result == -1) {
+      throw std::runtime_error(std::string(dateiname) + ": close() failed: " + std::strerror(errno));
+    }
+#endif
   }
 
-  int close_result = close(fdHelper.fd);
-  fdHelper.fd = -1;
-  if (close_result == -1) {
-    throw std::runtime_error(std::string(dateiname) + ": close() failed: " + std::strerror(errno));
+  ~FileReader() {
+#ifdef _WIN32
+#else
+    if (m_mmap) {
+      munmap(const_cast<void*>(reinterpret_cast<const void*>(m_data)), m_mapsize);
+    }
+#endif
   }
 
-  return result;
-#endif  // ifdef _WIN32
+  FileReader(const FileReader&) = delete;
+  FileReader(FileReader&&) = delete;
+
+  FileReader& operator=(const FileReader&) = delete;
+  FileReader& operator=(FileReader&&) = delete;
+
+  const rapidxml::Ch* data() {
+#ifdef _WIN32
+    return m_buffer.data();
+#else
+    return static_cast<rapidxml::Ch*>(m_data);
+#endif
+  }
+
+ private:
+#ifdef _WIN32
+#else
+  void* m_data { MAP_FAILED };
+  off_t m_mapsize { 0 };
+  bool m_mmap { false };
+#endif
+  std::vector<std::remove_const_t<rapidxml::Ch>> m_buffer;
+};
+
+static std::unique_ptr<Zusi> parse(std::string_view dateiname) {
+  try {
+    FileReader reader(dateiname);
+    try {
+      return zusixml::parse(reader.data());
+    } catch (const rapidxml::parse_error& e) {
+      std::cerr << "Error parsing " << dateiname << ": " << e.what() << " at char " << (e.where() - reader.data()) << "\n";
+    }
+  } catch (const std::exception& e) {
+    std::cerr << "Error reading " << dateiname << ": " << e.what() << "\n";
+  }
+  return nullptr;
 }
 
 static std::unique_ptr<Zusi> tryParse(std::string_view dateiname) {
