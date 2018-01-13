@@ -140,6 +140,15 @@ static std::unique_ptr<Zusi> parse(std::string_view dateiname) {
 #endif  // ifdef _WIN32
 }
 
+static std::unique_ptr<Zusi> tryParse(std::string_view dateiname) {
+  try {
+    return parse(dateiname);
+  } catch (const std::runtime_error& e) {
+    std::cerr << e.what() << "\n";
+    return nullptr;
+  }
+}
+
 static std::string bestimmeZusiDatenpfad() {
 #ifdef _WIN32
   HKEY key;
