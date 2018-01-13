@@ -3,7 +3,29 @@ cmake_minimum_required(VERSION 3.2)
 project(parser)
 
 add_subdirectory(pugixml)
-add_subdirectory(parsergen)
+
+# parsergen
+# (has to be in the same CMakeLists.txt as add_custom_command)
+if(CMAKE_CROSSCOMPILING)
+  set(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
+  include(${IMPORT_EXECUTABLES})
+else()
+  add_executable(parsergen parsergen/parsergen.cpp)
+  set_property(TARGET parsergen PROPERTY CXX_STANDARD 17)
+  set_property(TARGET parsergen PROPERTY CXX_STANDARD_REQUIRED TRUE)
+  target_link_libraries(parsergen PRIVATE pugixml stdc++ m)
+
+  if(USE_BOOST_FILESYSTEM)
+    find_package(Boost COMPONENTS filesystem REQUIRED)
+    target_compile_definitions(parsergen PRIVATE -DUSE_BOOST_FILESYSTEM)
+    target_link_libraries(parsergen PRIVATE ${Boost_LIBRARIES})
+    target_include_directories(parsergen PRIVATE ${Boost_INCLUDE_DIRS})
+  else()
+    target_link_libraries(parsergen PRIVATE stdc++fs)
+  endif()
+
+  export(TARGETS parsergen FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+endif()
 
 set(xsd_sources
   ${CMAKE_CURRENT_SOURCE_DIR}/xsd/authority.xml.xsd
@@ -65,8 +87,7 @@ set(xsd_sources
 )
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser")
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_types.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_parser.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_parser_fwd.hpp
-  # COMMAND parsergen "${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd" "${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser"
-  COMMAND parsergen "${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_ls3.xsd" "${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser"
+  COMMAND parsergen "${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd" "${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser"
   DEPENDS ${xsd_sources} parsergen)
 
 add_custom_target(zusi_parser_includes SOURCES ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_types.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_parser.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_parser_fwd.hpp)
