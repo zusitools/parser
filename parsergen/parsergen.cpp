@@ -320,6 +320,7 @@ class ParserGenerator {
 
     out << "#include <boost/spirit/include/qi_real.hpp>" << std::endl;
     out << "#include <boost/spirit/include/qi_int.hpp>" << std::endl;
+    out << "#include <boost/version.hpp>" << std::endl;
 
     out << R""(template <typename T>
 struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
@@ -449,7 +450,13 @@ static void parse_float(Ch*& text, float& result) {
         auto childStrategy = GetChildStrategy(*elementType, child);
         if (child.multiple) {
           if (childStrategy == ChildStrategy::Inline) {
+            // Boost < 1.62 (as used in MXE) does not return an iterator to the emplaced element
+            parse_children << "#if BOOST_VERSION < 106200\n";
+            parse_children << "  parseResultTyped->children_" << child.name << ".emplace_back();" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, &parseResultTyped->children_" << child.name << ".back());" << std::endl;
+            parse_children << "#else\n";
             parse_children << "  parse_element_" << child.type->name << "(text, &parseResultTyped->children_" << child.name << ".emplace_back());" << std::endl;
+            parse_children << "#endif\n";
           } else {
             parse_children << "  parse_element_" << child.type->name << "(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
           }
