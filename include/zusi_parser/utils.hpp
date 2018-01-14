@@ -36,7 +36,7 @@ class FileReader {
   FileReader(std::string_view dateiname) {
 #ifdef _WIN32
     // TODO mmap
-    std::basic_ifstream<std::remove_const_t<rapidxml::Ch>> stream;
+    std::basic_ifstream<std::remove_const_t<zusixml::Ch>> stream;
     stream.exceptions(std::ifstream::failbit | std::ifstream::eofbit | std::ifstream::badbit);
     try {
       stream.open(std::string(dateiname), std::ios::binary);
@@ -49,7 +49,7 @@ class FileReader {
       throw std::runtime_error(std::string(dateiname) + ": seek() failed: " + e.what());
     }
     size_t size = stream.tellg();
-    m_buffer = std::vector<std::remove_const_t<rapidxml::Ch>>(size + 1, 0);
+    m_buffer = std::vector<std::remove_const_t<zusixml::Ch>>(size + 1, 0);
     try {
       stream.seekg(0);
       stream.read(m_buffer.data(), size);
@@ -94,7 +94,7 @@ class FileReader {
         throw std::runtime_error(std::string(dateiname) + ": mmap() failed: " + std::strerror(errno));
       }
     } else {
-      m_buffer = std::vector<std::remove_const_t<rapidxml::Ch>>(sb.st_size + 1, 0);
+      m_buffer = std::vector<std::remove_const_t<zusixml::Ch>>(sb.st_size + 1, 0);
       read(fdHelper.fd, m_buffer.data(), sb.st_size);
       m_data = m_buffer.data();
     }
@@ -122,11 +122,11 @@ class FileReader {
   FileReader& operator=(const FileReader&) = delete;
   FileReader& operator=(FileReader&&) = delete;
 
-  const rapidxml::Ch* data() {
+  const zusixml::Ch* data() {
 #ifdef _WIN32
     return m_buffer.data();
 #else
-    return static_cast<rapidxml::Ch*>(m_data);
+    return static_cast<zusixml::Ch*>(m_data);
 #endif
   }
 
@@ -137,15 +137,15 @@ class FileReader {
   off_t m_mapsize { 0 };
   bool m_mmap { false };
 #endif
-  std::vector<std::remove_const_t<rapidxml::Ch>> m_buffer;
+  std::vector<std::remove_const_t<zusixml::Ch>> m_buffer;
 };
 
-static std::unique_ptr<Zusi> parse(std::string_view dateiname) {
+static std::unique_ptr<Zusi> parseFile(std::string_view dateiname) {
   try {
     FileReader reader(dateiname);
     try {
-      return zusixml::parse(reader.data());
-    } catch (const rapidxml::parse_error& e) {
+      return zusixml::parse_root<Zusi>(reader.data());
+    } catch (const zusixml::parse_error& e) {
       std::cerr << "Error parsing " << dateiname << ": " << e.what() << " at char " << (e.where() - reader.data()) << "\n";
     }
   } catch (const std::exception& e) {
@@ -154,9 +154,9 @@ static std::unique_ptr<Zusi> parse(std::string_view dateiname) {
   return nullptr;
 }
 
-static std::unique_ptr<Zusi> tryParse(std::string_view dateiname) {
+static std::unique_ptr<Zusi> tryParseFile(std::string_view dateiname) {
   try {
-    return parse(dateiname);
+    return parseFile(dateiname);
   } catch (const std::runtime_error& e) {
     std::cerr << e.what() << "\n";
     return nullptr;

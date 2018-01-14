@@ -97,8 +97,8 @@ int main(int argc, char** argv) {
   std::vector<std::unique_ptr<Zusi>> results;
   for (size_t i = 0; i < dateien.size(); i++) {
     try {
-      results.push_back(rapidxml::parse<Zusi>(&dateien[i][0]));
-    } catch (rapidxml::parse_error& e) {
+      results.push_back(zusixml::parse_root<Zusi>(&dateien[i][0]));
+    } catch (zusixml::parse_error& e) {
       std::cerr << dateinamen[i] << ": " << e.what() << " @ char " << (e.where() - &dateien[i][0]) << std::endl;
     }
   }

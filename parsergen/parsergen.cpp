@@ -297,7 +297,7 @@ class ParserGenerator {
   }
 
   void GenerateParseFunctionDeclarations(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
-    out << "namespace rapidxml {" << std::endl;
+    out << "namespace zusixml {" << std::endl;
     for (const auto& elementType : m_element_types) {
       if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
         continue;
@@ -306,12 +306,12 @@ class ParserGenerator {
       out << "  static void parse_node_attributes_" << elementType->name << "(Ch *& text, void* parseResult);" << std::endl;
       (void)elementType;
     }
-    out << "}  // namespace rapidxml" << std::endl;
+    out << "}  // namespace zusixml" << std::endl;
   }
 
   void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
     out << "#pragma once" << std::endl;
-    out << "#include \"rapidxml.hpp\"" << std::endl;
+    out << "#include \"zusixml.hpp\"" << std::endl;
 
     out << "#include <array>" << std::endl;
     out << "#include <cstring>  // for memcmp" << std::endl;
@@ -333,7 +333,7 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
     }
 };
 
-namespace rapidxml {
+namespace zusixml {
 
 template<Ch Quote>
 static void parse_string(Ch*& text, std::string& result) {
@@ -728,7 +728,7 @@ static void parse_float(Ch*& text, float& result) {
 
       (void)elementType;
     }
-    out << "}  // namespace rapidxml" << std::endl;
+    out << "}  // namespace zusixml" << std::endl;
   }
 
  private:

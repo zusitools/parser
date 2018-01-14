@@ -1,13 +1,13 @@
-#ifndef RAPIDXML_HPP_INCLUDED
-#define RAPIDXML_HPP_INCLUDED
+#ifndef ZUSIXML_HPP_INCLUDED
+#define ZUSIXML_HPP_INCLUDED
 
 // Copyright (C) 2006, 2009 Marcin Kalicinski
 // Version 1.13
 // Revision $DateTime: 2009/05/13 01:46:17 $
-//! \file rapidxml.hpp This file contains rapidxml parser and DOM implementation
+//! \file zusixml.hpp This file contains zusixml parser and DOM implementation
 
 // If standard library is disabled, user must provide implementations of required functions and typedefs
-#if !defined(RAPIDXML_NO_STDLIB)
+#if !defined(ZUSIXML_NO_STDLIB)
     #include <cstdlib>      // For std::size_t
     #include <cassert>      // For assert
     #include <memory>       // For std::unique_ptr
@@ -24,15 +24,15 @@
 #define unlikely(x) __builtin_expect((x), 0)
 
 ///////////////////////////////////////////////////////////////////////////
-// RAPIDXML_PARSE_ERROR
+// ZUSIXML_PARSE_ERROR
     
-#if defined(RAPIDXML_NO_EXCEPTIONS)
+#if defined(ZUSIXML_NO_EXCEPTIONS)
 
-#define RAPIDXML_PARSE_ERROR(what, where) { parse_error_handler(what, where); assert(0); }
+#define ZUSIXML_PARSE_ERROR(what, where) { parse_error_handler(what, where); assert(0); }
 
-namespace rapidxml
+namespace zusixml
 {
-    //! When exceptions are disabled by defining RAPIDXML_NO_EXCEPTIONS, 
+    //! When exceptions are disabled by defining ZUSIXML_NO_EXCEPTIONS, 
     //! this function is called to notify user about the error.
     //! It must be defined by the user.
     //! <br><br>
@@ -40,7 +40,7 @@ namespace rapidxml
     //! <br><br>
     //! A very simple definition might look like that:
     //! <pre>
-    //! void %rapidxml::%parse_error_handler(const char *what, void *where)
+    //! void %zusixml::%parse_error_handler(const char *what, void *where)
     //! {
     //!     std::cout << "Parse error: " << what << "\n";
     //!     std::abort();
@@ -55,9 +55,9 @@ namespace rapidxml
     
 #include <exception>    // For std::exception
 
-#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)
+#define ZUSIXML_PARSE_ERROR(what, where) throw parse_error(what, where)
 
-namespace rapidxml
+namespace zusixml
 {
     using Ch = const char;
     using parse_function = void (*)(Ch *&, void*);
@@ -68,8 +68,8 @@ namespace rapidxml
     //! Use where() function to get a pointer to position within source text where error was detected.
     //! <br><br>
     //! If throwing exceptions by the parser is undesirable, 
-    //! it can be disabled by defining RAPIDXML_NO_EXCEPTIONS macro before rapidxml.hpp is included.
-    //! This will cause the parser to call rapidxml::parse_error_handler() function instead of throwing an exception.
+    //! it can be disabled by defining ZUSIXML_NO_EXCEPTIONS macro before zusixml.hpp is included.
+    //! This will cause the parser to call zusixml::parse_error_handler() function instead of throwing an exception.
     //! This function must be defined by the user.
     //! <br><br>
     //! This class derives from <code>std::exception</code> class.
@@ -110,7 +110,7 @@ namespace rapidxml
 
 #endif
 
-namespace rapidxml
+namespace zusixml
 {
     ///////////////////////////////////////////////////////////////////////
     // Internals
@@ -309,7 +309,7 @@ namespace rapidxml
         }
         else    // Invalid, only codes up to 0x10FFFF are allowed in Unicode
         {
-            RAPIDXML_PARSE_ERROR("invalid numeric character entity", text);
+            ZUSIXML_PARSE_ERROR("invalid numeric character entity", text);
         }
     }
 
@@ -433,7 +433,7 @@ namespace rapidxml
                     if (*src == Ch(';'))
                         ++src;
                     else
-                        RAPIDXML_PARSE_ERROR("expected ;", src);
+                        ZUSIXML_PARSE_ERROR("expected ;", src);
                     continue;
 
                 // Something else
@@ -455,12 +455,12 @@ namespace rapidxml
 
 #include "zusi_parser/zusi_parser_fwd.hpp"
 
-namespace rapidxml {
+namespace zusixml {
 
     //! Parses zero-terminated XML string according to given flags.
-    //! Passed string will be modified by the parser, unless rapidxml::parse_non_destructive flag is used.
+    //! Passed string will be modified by the parser, unless zusixml::parse_non_destructive flag is used.
     //! The string must persist for the lifetime of the document.
-    //! In case of error, rapidxml::parse_error exception will be thrown.
+    //! In case of error, zusixml::parse_error exception will be thrown.
     //! <br><br>
     //! If you want to parse contents of a file, you must first load the file into the memory, and pass pointer to its beginning.
     //! Make sure that data is zero-terminated.
@@ -469,7 +469,7 @@ namespace rapidxml {
     //! Each new call to parse removes previous nodes and attributes (if any), but does not clear memory pool.
     //! \param text XML data to parse; pointer is non-const to denote fact that this data may be modified by the parser.
     template<typename Result>
-    static std::unique_ptr<Result> parse(Ch *text)
+    static std::unique_ptr<Result> parse_root(Ch *text)
     {
         assert(text);
         std::unique_ptr<Result> parseResult { nullptr };
@@ -496,7 +496,7 @@ namespace rapidxml {
                     Ch *name = text;
                     skip<node_name_pred>(text);
                     if (text == name)
-                        RAPIDXML_PARSE_ERROR("expected element name", text);
+                        ZUSIXML_PARSE_ERROR("expected element name", text);
 
                     // Skip whitespace between element name and attributes or >
                     skip<whitespace_pred>(text);
@@ -505,7 +505,7 @@ namespace rapidxml {
 
             }
             else
-                RAPIDXML_PARSE_ERROR("expected <", text);
+                ZUSIXML_PARSE_ERROR("expected <", text);
         }
 
         return parseResult;
@@ -533,7 +533,7 @@ namespace rapidxml {
         while (text[0] != Ch('?') || text[1] != Ch('>'))
         {
             if (!text[0])
-                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                ZUSIXML_PARSE_ERROR("unexpected end of data", text);
             ++text;
         }
         text += 2;    // Skip '?>'
@@ -546,7 +546,7 @@ namespace rapidxml {
         while (text[0] != Ch('-') || text[1] != Ch('-') || text[2] != Ch('>'))
         {
             if (!text[0])
-                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                ZUSIXML_PARSE_ERROR("unexpected end of data", text);
             ++text;
         }
         text += 3;     // Skip '-->'
@@ -574,7 +574,7 @@ namespace rapidxml {
                     {
                         case Ch('['): ++depth; break;
                         case Ch(']'): --depth; break;
-                        case 0: RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                        case 0: ZUSIXML_PARSE_ERROR("unexpected end of data", text);
                     }
                     ++text;
                 }
@@ -583,7 +583,7 @@ namespace rapidxml {
             
             // Error on end of text
             case Ch('\0'):
-                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                ZUSIXML_PARSE_ERROR("unexpected end of data", text);
             
             // Other character, skip it
             default:
@@ -602,7 +602,7 @@ namespace rapidxml {
         while (text[0] != Ch('?') || text[1] != Ch('>'))
         {
             if (*text == Ch('\0'))
-                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                ZUSIXML_PARSE_ERROR("unexpected end of data", text);
             ++text;
         }
         text += 2;    // Skip '?>'
@@ -628,7 +628,7 @@ namespace rapidxml {
         while (text[0] != Ch(']') || text[1] != Ch(']') || text[2] != Ch('>'))
         {
             if (!text[0])
-                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                ZUSIXML_PARSE_ERROR("unexpected end of data", text);
             ++text;
         }
         text += 3;      // Skip ]]>
@@ -719,7 +719,7 @@ namespace rapidxml {
             while (*text != Ch('>'))
             {
                 if (*text == 0)
-                    RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                    ZUSIXML_PARSE_ERROR("unexpected end of data", text);
                 ++text;
             }
             ++text;     // Skip '>'
@@ -744,7 +744,7 @@ namespace rapidxml {
                 Ch *name = text;
                 skip<node_name_pred>(text);
                 if (text == name)
-                    RAPIDXML_PARSE_ERROR("expected element name", text);
+                    ZUSIXML_PARSE_ERROR("expected element name", text);
 
                 // Skip whitespace between element name and attributes or >
                 skip<whitespace_pred>(text);
@@ -755,11 +755,11 @@ namespace rapidxml {
         {
             ++text;
             if (*text != Ch('>'))
-                RAPIDXML_PARSE_ERROR("expected >", text);
+                ZUSIXML_PARSE_ERROR("expected >", text);
             ++text;
         }
         else
-            RAPIDXML_PARSE_ERROR("expected >", text);
+            ZUSIXML_PARSE_ERROR("expected >", text);
     }
 
     // Parse contents of the node - children, data etc.
@@ -796,7 +796,7 @@ namespace rapidxml {
                     // Skip remaining whitespace after node name
                     skip<whitespace_pred>(text);
                     if (*text != Ch('>'))
-                        RAPIDXML_PARSE_ERROR("expected >", text);
+                        ZUSIXML_PARSE_ERROR("expected >", text);
                     ++text;     // Skip '>'
                     return;     // Node closed, finished parsing contents
                 }
@@ -810,7 +810,7 @@ namespace rapidxml {
 
             // End of data - error
             case Ch('\0'):
-                RAPIDXML_PARSE_ERROR("unexpected end of data", text);
+                ZUSIXML_PARSE_ERROR("unexpected end of data", text);
 
             // Data node
             default:
@@ -836,7 +836,7 @@ namespace rapidxml {
 
             // Skip =
             if (*text != Ch('='))
-                RAPIDXML_PARSE_ERROR("expected =", text);
+                ZUSIXML_PARSE_ERROR("expected =", text);
             ++text;
 
             // Skip whitespace after =
@@ -845,7 +845,7 @@ namespace rapidxml {
             // Skip quote and remember if it was ' or "
             Ch quote = *text;
             if (quote != Ch('\'') && quote != Ch('"'))
-                RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+                ZUSIXML_PARSE_ERROR("expected ' or \"", text);
             ++text;
 
             // Extract attribute value
@@ -856,7 +856,7 @@ namespace rapidxml {
             
             // Make sure that end quote is present
             if (*text != quote)
-                RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+                ZUSIXML_PARSE_ERROR("expected ' or \"", text);
             ++text;     // Skip quote
 
             // Skip whitespace after attribute value
@@ -1151,7 +1151,7 @@ namespace rapidxml {
 }
 
 // Undefine internal macros
-#undef RAPIDXML_PARSE_ERROR
+#undef ZUSIXML_PARSE_ERROR
 
 // On MSVC, restore warnings state
 #ifdef _MSC_VER
