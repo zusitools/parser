@@ -127,45 +127,13 @@ namespace zusixml
             static const unsigned char lookup_whitespace[256];              // Whitespace table
             static const unsigned char lookup_node_name[256];               // Node name table
             static const unsigned char lookup_text[256];                    // Text table
-            static const unsigned char lookup_text_pure_no_ws[256];         // Text table
-            static const unsigned char lookup_text_pure_with_ws[256];       // Text table
             static const unsigned char lookup_attribute_name[256];          // Attribute name table
             static const unsigned char lookup_attribute_data_1[256];        // Attribute data table with single quote
             static const unsigned char lookup_attribute_data_1_pure[256];   // Attribute data table with single quote
             static const unsigned char lookup_attribute_data_2[256];        // Attribute data table with double quotes
             static const unsigned char lookup_attribute_data_2_pure[256];   // Attribute data table with double quotes
             static const unsigned char lookup_digits[256];                  // Digits
-            static const unsigned char lookup_upcase[256];                  // To uppercase conversion table for ASCII characters
         };
-
-        // Find length of the string
-        inline std::size_t measure(const Ch *p)
-        {
-            const Ch *tmp = p;
-            while (*tmp) 
-                ++tmp;
-            return tmp - p;
-        }
-
-        // Compare strings for equality
-        inline bool compare(const Ch *p1, std::size_t size1, const Ch *p2, std::size_t size2, bool case_sensitive)
-        {
-            if (size1 != size2)
-                return false;
-            if (case_sensitive)
-            {
-                for (const Ch *end = p1 + size1; p1 < end; ++p1, ++p2)
-                    if (*p1 != *p2)
-                        return false;
-            }
-            else
-            {
-                for (const Ch *end = p1 + size1; p1 < end; ++p1, ++p2)
-                    if (lookup_tables<0>::lookup_upcase[static_cast<unsigned char>(*p1)] != lookup_tables<0>::lookup_upcase[static_cast<unsigned char>(*p2)])
-                        return false;
-            }
-            return true;
-        }
     }
     //! \endcond
     
@@ -219,24 +187,6 @@ namespace zusixml
         static unsigned char test(Ch ch)
         {
             return internal::lookup_tables<0>::lookup_text[static_cast<unsigned char>(ch)];
-        }
-    };
-
-    // Detect text character (PCDATA) that does not require processing
-    struct text_pure_no_ws_pred
-    {
-        static unsigned char test(Ch ch)
-        {
-            return internal::lookup_tables<0>::lookup_text_pure_no_ws[static_cast<unsigned char>(ch)];
-        }
-    };
-
-    // Detect text character (PCDATA) that does not require processing
-    struct text_pure_with_ws_pred
-    {
-        static unsigned char test(Ch ch)
-        {
-            return internal::lookup_tables<0>::lookup_text_pure_with_ws[static_cast<unsigned char>(ch)];
         }
     };
 
@@ -937,54 +887,6 @@ namespace zusixml {
              1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1   // F
         };
 
-        // Text (i.e. PCDATA) that does not require processing when ws normalization is disabled 
-        // (anything but < \0 &)
-        template<int Dummy>
-        const unsigned char lookup_tables<Dummy>::lookup_text_pure_no_ws[256] = 
-        {
-          // 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-             0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 0
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 1
-             1,  1,  1,  1,  1,  1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 2
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  1,  1,  1,  // 3
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 4
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 5
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 6
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 7
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 8
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 9
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // A
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // B
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // C
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // D
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1   // F
-        };
-
-        // Text (i.e. PCDATA) that does not require processing when ws normalizationis is enabled
-        // (anything but < \0 & space \n \r \t)
-        template<int Dummy>
-        const unsigned char lookup_tables<Dummy>::lookup_text_pure_with_ws[256] = 
-        {
-          // 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-             0,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  1,  1,  0,  1,  1,  // 0
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 1
-             0,  1,  1,  1,  1,  1,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 2
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  1,  1,  1,  // 3
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 4
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 5
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 6
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 7
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 8
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // 9
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // A
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // B
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // C
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // D
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  // E
-             1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1   // F
-        };
-
         // Attribute name (anything but space \n \r \t / < > = ? ! \0)
         template<int Dummy>
         const unsigned char lookup_tables<Dummy>::lookup_attribute_name[256] = 
@@ -1121,29 +1023,6 @@ namespace zusixml {
            255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  // D
            255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,  // E
            255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255   // F
-        };
-    
-        // Upper case conversion
-        template<int Dummy>
-        const unsigned char lookup_tables<Dummy>::lookup_upcase[256] = 
-        {
-          // 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  A   B   C   D   E   F
-           0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,   // 0
-           16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,   // 1
-           32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,   // 2
-           48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,   // 3
-           64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,   // 4
-           80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,   // 5
-           96, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,   // 6
-           80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 123,124,125,126,127,  // 7
-           128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,  // 8
-           144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,  // 9
-           160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,  // A
-           176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,  // B
-           192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,  // C
-           208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,  // D
-           224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,  // E
-           240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255   // F
         };
     }
     //! \endcond
