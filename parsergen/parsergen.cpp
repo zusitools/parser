@@ -302,8 +302,8 @@ class ParserGenerator {
       if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
         continue;
       }
-      out << "  static void parse_element_" << elementType->name << "(Ch *& text, void* parseResult);" << std::endl;
-      out << "  static void parse_node_attributes_" << elementType->name << "(Ch *& text, void* parseResult);" << std::endl;
+      out << "  static void parse_element_" << elementType->name << "(Ch *&, " << elementType->name << "*);" << std::endl;
+      out << "  static void parse_node_attributes_" << elementType->name << "(Ch *&, " << elementType->name << "*);" << std::endl;
       (void)elementType;
     }
     out << "}  // namespace zusixml" << std::endl;
@@ -437,7 +437,7 @@ static void parse_float(Ch*& text, float& result) {
       auto allAttributes = GetAllAttributes(*elementType.get());
 
       std::ostringstream parse_children;
-      parse_children << "if (false) { (void)parseResultTyped; }" << std::endl;
+      parse_children << "if (false) { (void)parseResult; }" << std::endl;
 
       for (const auto& child : allChildren) {
         parse_children << "else if (name_size == " << child.name.size() << " && !memcmp(name, \"" << child.name << "\", " << child.name.size() << ")) {" << std::endl;
@@ -452,27 +452,27 @@ static void parse_float(Ch*& text, float& result) {
           if (childStrategy == ChildStrategy::Inline) {
             // Boost < 1.62 (as used in MXE) does not return an iterator to the emplaced element
             parse_children << "#if BOOST_VERSION < 106200\n";
-            parse_children << "  parseResultTyped->children_" << child.name << ".emplace_back();" << std::endl;
-            parse_children << "  parse_element_" << child.type->name << "(text, &parseResultTyped->children_" << child.name << ".back());" << std::endl;
+            parse_children << "  parseResult->children_" << child.name << ".emplace_back();" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".back());" << std::endl;
             parse_children << "#else\n";
-            parse_children << "  parse_element_" << child.type->name << "(text, &parseResultTyped->children_" << child.name << ".emplace_back());" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".emplace_back());" << std::endl;
             parse_children << "#endif\n";
           } else {
-            parse_children << "  parse_element_" << child.type->name << "(text, parseResultTyped->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
           }
         } else {
           if (childStrategy == ChildStrategy::Inline) {
-            parse_children << "  parse_element_" << child.type->name << "(text, &parseResultTyped->" << child.name << ");" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->" << child.name << ");" << std::endl;
           } else if (childStrategy == ChildStrategy::Optional) {
-            parse_children << "  parseResultTyped->" << child.name << ".emplace();" << std::endl;
-            parse_children << "  parse_element_" << child.type->name << "(text, &parseResultTyped->" << child.name << ");" << std::endl;
+            parse_children << "  parseResult->" << child.name << ".emplace();" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, &*parseResult->" << child.name << ");" << std::endl;
           } else {
             parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());" << std::endl;
-            parse_children << "  parseResultTyped->" << child.name << ".swap(childResult);" << std::endl;
+            parse_children << "  parseResult->" << child.name << ".swap(childResult);" << std::endl;
 #if 0
             parse_children << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }" << std::endl;
 #endif
-            parse_children << "  parse_element_" << child.type->name << "(text, parseResultTyped->" << child.name << ".get());" << std::endl;
+            parse_children << "  parse_element_" << child.type->name << "(text, parseResult->" << child.name << ".get());" << std::endl;
           }
         }
         parse_children << "}" << std::endl;
@@ -483,7 +483,7 @@ static void parse_float(Ch*& text, float& result) {
       parse_children << "  skip_element(text);" << std::endl;
       parse_children << "}" << std::endl;
 
-      out << R""(  static void parse_element_)"" << elementType->name << R""((Ch *& text, void* parseResult) {
+      out << R""(  static void parse_element_)"" << elementType->name << "(Ch *& text, " << elementType->name << R""(* parseResult) {
 
     // Parse attributes, if any
     parse_node_attributes_)"" << elementType->name << R""((text, parseResult);
@@ -492,9 +492,8 @@ static void parse_float(Ch*& text, float& result) {
     if (*text == Ch('>'))
     {
         ++text;
-        parse_node_contents(text, [](Ch *&text, void* parseResult) {
-            )"" << elementType->name << R""(* parseResultTyped = static_cast<)"" << elementType->name << R""(*>(parseResult);
-            (void)parseResult;
+        parse_node_contents(text, [](Ch *&text, void* parseResultUntyped) {
+            )"" << elementType->name << R""(* parseResult = static_cast<)"" << elementType->name << R""(*>(parseResultUntyped);
             // Extract element name
             Ch *name = text;
             skip<node_name_pred>(text);
@@ -528,27 +527,27 @@ static void parse_float(Ch*& text, float& result) {
         parse_attributes << "        skip_unlikely<whitespace_pred>(text);" << std::endl;
       }
 
-      parse_attributes << "        if (false) { (void)parseResultTyped; }" << std::endl;
+      parse_attributes << "        if (false) { (void)parseResult; }" << std::endl;
 
       // Special treatment for types with WXYZ as attributes
       if (elementType->name == "Vec2") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Y') {
           std::array<float Vec2::*, 2> members = { &Vec2::X, &Vec2::Y };
-          parse_float(text, parseResultTyped->*members[*name - 'X']);
+          parse_float(text, parseResult->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
         })"" << std::endl;
         allAttributes.clear();
       } else if (elementType->name == "Vec3") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Z') {
           std::array<float Vec3::*, 3> members = { &Vec3::X, &Vec3::Y, &Vec3::Z };
-          parse_float(text, parseResultTyped->*members[*name - 'X']);
+          parse_float(text, parseResult->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
         })"" << std::endl;
         allAttributes.clear();
       } else if (elementType->name == "Quaternion") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'W' && *name <= 'Z') {
           std::array<float Quaternion::*, 4> members = { &Quaternion::W, &Quaternion::X, &Quaternion::Y, &Quaternion::Z };
-          parse_float(text, parseResultTyped->*members[*name - 'W']);
+          parse_float(text, parseResult->*members[*name - 'W']);
           skip_unlikely<whitespace_pred>(text);
         })"" << std::endl;
         allAttributes.clear();
@@ -563,7 +562,7 @@ static void parse_float(Ch*& text, float& result) {
             }
             parse_attributes << "          uint32_t tmp;" << std::endl;
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);" << std::endl;
-            parse_attributes << "          parseResultTyped->";
+            parse_attributes << "          parseResult->";
             if (attr.name == "C") {
               parse_attributes << "Cd";
             } else if (attr.name == "CA") {
@@ -588,35 +587,35 @@ static void parse_float(Ch*& text, float& result) {
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_, parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_, parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::Int64:
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::long_long, parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::long_long, parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::Boolean:
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
-            parse_attributes << "          parseResultTyped->" << attr.name << " = (text[0] == '1');" << std::endl;
+            parse_attributes << "          parseResult->" << attr.name << " = (text[0] == '1');" << std::endl;
             parse_attributes << "          ++text;" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::String:
             parse_attributes << "          if (unlikely(quote == Ch('\\\'')))" << std::endl;
-            parse_attributes << "            parse_string<Ch('\\\'')>(text, parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "            parse_string<Ch('\\\'')>(text, parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          else" << std::endl;
-            parse_attributes << "            parse_string<Ch('\"')>(text, parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "            parse_string<Ch('\"')>(text, parseResult->" << attr.name << ");" << std::endl;
             break;
           case AttributeType::Float:
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
-            parse_attributes << "          parse_float(text, parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          parse_float(text, parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::DateTime:
@@ -624,11 +623,11 @@ static void parse_float(Ch*& text, float& result) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
             parse_attributes << "          Ch* value = text;" << std::endl;
-            parse_attributes << "          text = strptime(text, \"%Y-%m-%d\", &parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          text = strptime(text, \"%Y-%m-%d\", &parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          if (text == nullptr) { text = value; }" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             parse_attributes << "          value = text;" << std::endl;
-            parse_attributes << "          text = strptime(text, \"%H:%M:%S\", &parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          text = strptime(text, \"%H:%M:%S\", &parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          if (text == nullptr) { text = value; }" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
@@ -636,7 +635,7 @@ static void parse_float(Ch*& text, float& result) {
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), parseResultTyped->" << attr.name << ");" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::ArgbColor:
@@ -645,7 +644,7 @@ static void parse_float(Ch*& text, float& result) {
             }
             parse_attributes << "          uint32_t tmp;" << std::endl;
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);" << std::endl;
-            parse_attributes << "          parseResultTyped->" << attr.name << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>(tmp & 0xFF) };" << std::endl;
+            parse_attributes << "          parseResult->" << attr.name << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>(tmp & 0xFF) };" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             break;
           case AttributeType::FaceIndexes:
@@ -677,7 +676,7 @@ static void parse_float(Ch*& text, float& result) {
             parse_attributes << "                default: RAPIDXML_PARSE_ERROR(\"value too long\", text);" << std::endl;
             parse_attributes << "              }" << std::endl;
             parse_attributes << "            }" << std::endl;
-            parse_attributes << "            parseResultTyped->" << attr.name << "[i] = result;" << std::endl;
+            parse_attributes << "            parseResult->" << attr.name << "[i] = result;" << std::endl;
             parse_attributes << "          }" << std::endl;
             break;
         }
@@ -692,8 +691,7 @@ static void parse_float(Ch*& text, float& result) {
       parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
       parse_attributes << "        }" << std::endl;
 
-      out << R""(  static void parse_node_attributes_)"" << elementType->name << R""((Ch *& text, void* parseResult) {
-        )"" << elementType->name << R""(* parseResultTyped = static_cast<)"" << elementType->name << R""(*>(parseResult);
+      out << R""(  static void parse_node_attributes_)"" << elementType->name << "(Ch *& text, " << elementType->name << R""(* parseResult) {
         // For all attributes 
         while (attribute_name_pred::test(*text))
         {

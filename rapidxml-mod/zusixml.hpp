@@ -450,7 +450,7 @@ namespace zusixml {
 
                     // Skip whitespace between element name and attributes or >
                     skip<whitespace_pred>(text);
-                    parse_element_Zusi(text, parseResult);
+                    parse_element_Zusi(text, static_cast<Result*>(parseResult));
                 }, parseResult.get());
 
             }
