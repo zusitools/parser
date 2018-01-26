@@ -96,7 +96,7 @@ class ParserGenerator {
     out << "#include <vector>  // for std::vector" << std::endl;
     out << "#include <memory>  // for std::unique_ptr" << std::endl;
     out << "#include <optional>// for std::optional" << std::endl;
-    out << "#include <ctime>   // for struct tm, strptime" << std::endl;
+    out << "#include <ctime>   // for struct tm" << std::endl;
     out << "struct ArgbColor {\n";
     out << "  uint8_t a, r, g, b;\n";
     out << "};\n";
@@ -424,6 +424,120 @@ static void parse_float(Ch*& text, float& result) {
   boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::real_parser<float, decimal_comma_real_policies<float> >(), result);
 }
 
+template<Ch Quote>
+static bool parse_datetime(Ch*& text, struct tm& result) {
+  // Delphi (and Zusi) accept a very wide range of things here,
+  // e.g. two-digit years, times that don't specify seconds or minutes, etc.
+  // We are more restrictive: we parse a date yyyy-mm-dd, or a time hh:nn:ss,
+  // or both separated by a blank,
+
+  Ch* prev = text;
+  skip_max<digit_pred, 4>(text);
+
+  if (*text == Ch('-')) {
+    // date
+    const size_t year_len = text - prev;
+    int year = 0;
+    switch (year_len) {
+      case 4: year += (*(prev + (year_len-4)) - '0') * 1000; [[fallthrough]];
+      case 3: year += (*(prev + (year_len-3)) - '0') * 100; [[fallthrough]];
+      case 2: year += (*(prev + (year_len-2)) - '0') * 10; [[fallthrough]];
+      case 1: year += (*(prev + (year_len-1)) - '0') * 1; break;
+      default: return false;
+    }
+
+    result.tm_year = year - 1900;
+
+    ++text;
+    prev = text;
+    skip_max<digit_pred, 2>(text);
+
+    if (*text != Ch('-')) {
+      return false;
+    }
+
+    const size_t month_len = text - prev;
+    int month = 0;
+    switch (month_len) {
+      case 2: month += (*(prev + (month_len-2)) - '0') * 10; [[fallthrough]];
+      case 1: month += (*(prev + (month_len-1)) - '0') * 1; break;
+      default: return false;
+    }
+
+    result.tm_mon = month;
+
+    ++text;
+    prev = text;
+    skip_max<digit_pred, 2>(text);
+
+    const size_t day_len = text - prev;
+    int day = 0;
+    switch (day_len) {
+      case 2: day += (*(prev + (day_len-2)) - '0') * 10; [[fallthrough]];
+      case 1: day += (*(prev + (day_len-1)) - '0') * 1; break;
+      default: return false;
+    }
+
+    result.tm_mday = day;
+
+    if (*text == Quote) {
+      return true;
+    } else if (*text == Ch(' ')) {
+      ++text;
+      prev = text;
+      skip_max<digit_pred, 2>(text);
+    }
+  }
+
+  if (*text == Ch(':')) {
+    const size_t hour_len = text - prev;
+    int hour = 0;
+    switch (hour_len) {
+      case 4: hour += (*(prev + (hour_len-4)) - '0') * 1000; [[fallthrough]];
+      case 3: hour += (*(prev + (hour_len-3)) - '0') * 100; [[fallthrough]];
+      case 2: hour += (*(prev + (hour_len-2)) - '0') * 10; [[fallthrough]];
+      case 1: hour += (*(prev + (hour_len-1)) - '0') * 1; break;
+      default: return false;
+    }
+
+    result.tm_hour = hour;
+
+    ++text;
+    prev = text;
+    skip_max<digit_pred, 2>(text);
+
+    if (*text != Ch(':')) {
+      return false;
+    }
+
+    const size_t minute_len = text - prev;
+    int minute = 0;
+    switch (minute_len) {
+      case 2: minute += (*(prev + (minute_len-2)) - '0') * 10; [[fallthrough]];
+      case 1: minute += (*(prev + (minute_len-1)) - '0') * 1; break;
+      default: return false;
+    }
+
+    result.tm_min = minute;
+
+    ++text;
+    prev = text;
+    skip_max<digit_pred, 2>(text);
+
+    const size_t second_len = text - prev;
+    int second = 0;
+    switch (second_len) {
+      case 2: second += (*(prev + (second_len-2)) - '0') * 10; [[fallthrough]];
+      case 1: second += (*(prev + (second_len-1)) - '0') * 1; break;
+      default: return false;
+    }
+
+    result.tm_sec = second;
+  }
+
+  return true;
+}
+
 )"" << std::endl;
 
     out << "#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)" << std::endl;
@@ -622,14 +736,9 @@ static void parse_float(Ch*& text, float& result) {
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
-            parse_attributes << "          Ch* value = text;" << std::endl;
-            parse_attributes << "          text = strptime(text, \"%Y-%m-%d\", &parseResult->" << attr.name << ");" << std::endl;
-            parse_attributes << "          if (text == nullptr) { text = value; }" << std::endl;
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
-            parse_attributes << "          value = text;" << std::endl;
-            parse_attributes << "          text = strptime(text, \"%H:%M:%S\", &parseResult->" << attr.name << ");" << std::endl;
-            parse_attributes << "          if (text == nullptr) { text = value; }" << std::endl;
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          [[maybe_unused]] bool result = (unlikely(quote == Ch('\\\''))) ?" << std::endl;
+            parse_attributes << "            parse_datetime<Ch('\\\'')>(text, parseResult->" << attr.name << ") :" << std::endl;
+            parse_attributes << "            parse_datetime<Ch('\"')>(text, parseResult->" << attr.name << ");" << std::endl;
             break;
           case AttributeType::HexInt32:
             if (!startWhitespaceSkip) {

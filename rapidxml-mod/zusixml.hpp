@@ -274,6 +274,18 @@ namespace zusixml
     }
 
     // Skip characters until predicate evaluates to false
+    // or the given number of characters has been skipped
+    template<class StopPred, size_t MaxSkip>
+    static void skip_max(Ch *&text)
+    {
+        Ch *tmp = text;
+        for (size_t i = 0; i < MaxSkip && StopPred::test(*tmp); ++i) {
+            ++tmp;
+        }
+        text = tmp;
+    }
+
+    // Skip characters until predicate evaluates to false
     // while assuming that the predicate will evaluate to false on the first iteration
     template<class StopPred>
     static void skip_unlikely(Ch *&text)
