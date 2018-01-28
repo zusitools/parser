@@ -27,7 +27,7 @@
 #include "zusi_parser/zusi_types.hpp"
 #include "zusi_parser/zusi_parser.hpp"
 
-#define MMAP_THRESHOLD_BYTES 1000000000
+#define MMAP_THRESHOLD_BYTES 0
 
 namespace zusixml {
 
@@ -117,9 +117,22 @@ class FileReader {
   }
 
   FileReader(const FileReader&) = delete;
-  FileReader(FileReader&&) = delete;
-
   FileReader& operator=(const FileReader&) = delete;
+
+#ifdef _WIN32
+  FileReader(FileReader&&) = default;
+#else
+  FileReader(FileReader&& other) {
+    m_data = other.m_data;
+    m_mapsize = other.m_mapsize;
+    m_mmap = other.m_mmap;
+    m_buffer = std::move(other.m_buffer);
+
+    other.m_data = MAP_FAILED;
+    other.m_mapsize = 0;
+    other.m_mmap = false;
+  }
+#endif
   FileReader& operator=(FileReader&&) = delete;
 
   const zusixml::Ch* data() {
@@ -127,6 +140,14 @@ class FileReader {
     return m_buffer.data();
 #else
     return static_cast<zusixml::Ch*>(m_data);
+#endif
+  }
+
+  size_t size() const {
+#ifdef _WIN32
+    return m_buffer.size();
+#else
+    return m_mmap ? m_mapsize : m_buffer.size();
 #endif
   }
 

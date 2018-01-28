@@ -5,23 +5,9 @@
 #include <fstream>
 #include <vector>
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mman.h>
-
 #include "zusi_parser/zusi_types.hpp"
 #include "zusi_parser/zusi_parser.hpp"
-
-#ifndef MMAP_THRESHOLD_BYTES
-#  ifdef USE_MMAP
-#    define MMAP_THRESHOLD_BYTES 0
-#  else
-#    define MMAP_THRESHOLD_BYTES 1000000000
-#  endif
-#endif
+#include "zusi_parser/utils.hpp"
 
 int main(int argc, char** argv) {
 #ifdef NDEBUG
@@ -32,64 +18,15 @@ int main(int argc, char** argv) {
 
   // argv[1]: Liste von Dateinamen
   std::vector<std::string> dateinamen;
-  using Ch = char;
-
-  std::vector<Ch*> dateien;
-  std::vector<size_t> dateigroessen;
-
+  std::vector<zusixml::FileReader> dateien;
   size_t total_size = 0;
+
   char buf[256];
   std::ifstream i(argv[1]);
   while (i.getline(buf, 256)) {
-    int fd = open (buf, O_RDONLY);
-    if (fd == -1) {
-      perror ("open");
-      return 1;
-    }
-
-    struct stat sb;
-    if (fstat (fd, &sb) == -1) {
-      perror ("fstat");
-      return 1;
-    }
-
-    if (!S_ISREG (sb.st_mode)) {
-      fprintf (stderr, "%s is not a file\n", argv[1]);
-      return 1;
-    }
-
-    if (sb.st_size > MMAP_THRESHOLD_BYTES && sb.st_size % getpagesize() != 0) {
-      Ch* p = static_cast<Ch*>(mmap(
-        nullptr,          // addr: kernel chooses mapping address
-        sb.st_size,       // length
-        PROT_READ,        // prot
-        MAP_SHARED,       // flags
-        fd,               // fd
-        0                 // offset in file
-        ));
-
-      if (p == MAP_FAILED) {
-        perror ("mmap");
-        return 1;
-      }
-
-      dateien.push_back(p);
-    } else {
-      char* buffer = reinterpret_cast<char*>(malloc(sb.st_size + 1));
-      read(fd, buffer, sb.st_size);
-      buffer[sb.st_size] = '\0';
-      dateien.push_back(std::move(buffer));
-    }
-
-    dateigroessen.push_back(sb.st_size);
-    total_size += sb.st_size;
-
-    if (close (fd) == -1) {
-      perror ("close");
-      return 1;
-    }
-
     dateinamen.push_back(buf);
+    const auto& fileReader = dateien.emplace_back(std::string_view(buf, i.gcount()));
+    total_size += fileReader.size();
   }
 
   auto ende_laden = std::chrono::high_resolution_clock::now();
@@ -97,9 +34,9 @@ int main(int argc, char** argv) {
   std::vector<std::unique_ptr<Zusi>> results;
   for (size_t i = 0; i < dateien.size(); i++) {
     try {
-      results.push_back(zusixml::parse_root<Zusi>(&dateien[i][0]));
+      results.push_back(zusixml::parse_root<Zusi>(dateien[i].data()));
     } catch (zusixml::parse_error& e) {
-      std::cerr << dateinamen[i] << ": " << e.what() << " @ char " << (e.where() - &dateien[i][0]) << std::endl;
+      std::cerr << dateinamen[i] << ": " << e.what() << " @ char " << (e.where() - dateien[i].data()) << std::endl;
     }
   }
   auto ende_parsen = std::chrono::high_resolution_clock::now();
