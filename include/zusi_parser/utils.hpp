@@ -6,8 +6,15 @@
 #include <chrono>
 #include <exception>
 #include <ios>
-#include <iostream>
-#include <fstream>
+
+#if ZUSI_PARSER_USE_BOOST_NOWIDE
+#  include <boost/nowide/iostream.hpp>
+#  include <boost/nowide/fstream.hpp>
+#else
+#  include <iostream>
+#  include <fstream>
+#endif
+
 #include <string>
 #include <string_view>
 #include <vector>
@@ -29,6 +36,12 @@
 
 #define MMAP_THRESHOLD_BYTES 0
 
+#if ZUSI_PARSER_USE_BOOST_NOWIDE
+namespace io = boost::nowide;
+#else
+namespace io = std;
+#endif
+
 namespace zusixml {
 
 class FileReader {
@@ -36,7 +49,7 @@ class FileReader {
   FileReader(std::string_view dateiname) {
 #ifdef _WIN32
     // TODO mmap
-    std::basic_ifstream<std::remove_const_t<zusixml::Ch>> stream;
+    io::basic_ifstream<std::remove_const_t<zusixml::Ch>> stream;
     stream.exceptions(std::ifstream::failbit | std::ifstream::eofbit | std::ifstream::badbit);
     try {
       stream.open(std::string(dateiname), std::ios::binary);
@@ -167,10 +180,10 @@ static std::unique_ptr<Zusi> parseFile(std::string_view dateiname) {
     try {
       return zusixml::parse_root<Zusi>(reader.data());
     } catch (const zusixml::parse_error& e) {
-      std::cerr << "Error parsing " << dateiname << ": " << e.what() << " at char " << (e.where() - reader.data()) << "\n";
+      io::cerr << "Error parsing " << dateiname << ": " << e.what() << " at char " << (e.where() - reader.data()) << "\n";
     }
   } catch (const std::exception& e) {
-    std::cerr << "Error reading " << dateiname << ": " << e.what() << "\n";
+    io::cerr << "Error reading " << dateiname << ": " << e.what() << "\n";
   }
   return nullptr;
 }
@@ -179,7 +192,7 @@ static std::unique_ptr<Zusi> tryParseFile(std::string_view dateiname) {
   try {
     return parseFile(dateiname);
   } catch (const std::runtime_error& e) {
-    std::cerr << e.what() << "\n";
+    io::cerr << e.what() << "\n";
     return nullptr;
   }
 }
