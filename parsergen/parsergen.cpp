@@ -564,13 +564,18 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
         auto childStrategy = GetChildStrategy(*elementType, child);
         if (child.multiple) {
           if (childStrategy == ChildStrategy::Inline) {
-            // Boost < 1.62 (as used in MXE) does not return an iterator to the emplaced element
-            parse_children << "#if BOOST_VERSION < 106200\n";
-            parse_children << "  parseResult->children_" << child.name << ".emplace_back();" << std::endl;
-            parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".back());" << std::endl;
-            parse_children << "#else\n";
+            size_t smallVectorSize = SmallVectorSize(*elementType, child);
+            if (smallVectorSize > 0) {
+              // Boost < 1.62 (as used in MXE) does not return an iterator to the emplaced element
+              parse_children << "#if BOOST_VERSION < 106200\n";
+              parse_children << "  parseResult->children_" << child.name << ".emplace_back();" << std::endl;
+              parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".back());" << std::endl;
+              parse_children << "#else\n";
+            }
             parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".emplace_back());" << std::endl;
-            parse_children << "#endif\n";
+            if (smallVectorSize > 0) {
+              parse_children << "#endif\n";
+            }
           } else if (child.type->name == "StrElement" || child.type->name == "ReferenzElement") {
             parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());\n";
             parse_children << "  parse_element_" << child.type->name << "(text, childResult.get());\n";
