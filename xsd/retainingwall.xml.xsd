@@ -9,7 +9,7 @@
         <xs:element name="Abschluss" type="Material"/>
         <xs:element name="AbschlussSenkr" type="Material"/>
       </xs:all>
-      <xs:attribute name="RadioGroupBauart" use="required" type="boolean"/>
+      <xs:attribute name="RadioGroupBauart" use="required" type="xs:int"/>
       <xs:attribute name="RadioButtonAbstOberbau" use="required" type="boolean"/>
       <xs:attribute name="RadioButtonLageManuell" use="required" type="boolean"/>
       <xs:attribute name="LabeledEditCHAbstand" use="required" type="xs:float"/>

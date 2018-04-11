@@ -254,6 +254,7 @@
     <xs:attribute name="SignalTyp" type="xs:int"/>
     <xs:attribute name="Weichenbauart" type="xs:int"/>
     <xs:attribute name="WeichenGrundstellung" type="xs:int"/>
+    <xs:attribute name="WeicheStumpfIgnorieren" type="boolean"/>
     <xs:attribute name="BoundingR" type="xs:int"/>
     <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
   </xs:complexType>

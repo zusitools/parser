@@ -23,6 +23,7 @@
         <xs:element ref="IndusiI60R_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V15" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="PZB90I60R_V20" type="PZB90I60R_V20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZB90ER24_V20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90_PZ80R_V20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V20_ZUB122" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
@@ -32,6 +33,9 @@
         <xs:element ref="LZB80_I80_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="LZB80_PZB90_20" type="LZB80_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_CE_I80" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_CE_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_CESBahn_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Textmelder" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Sifa_ZeitZeit" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Sifa_RZM" minOccurs="0" maxOccurs="unbounded"/>
@@ -44,6 +48,8 @@
         <xs:element ref="TuerenSST" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="TuerenUICWTB" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="TuerenSBahn" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TuerenSBahn423" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TuerenSBahn474" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="NotbremssystemUICNBUe" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="NotbremsSystemNBUe2004" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="NotbremsSystemSBahn" minOccurs="0" maxOccurs="unbounded"/>
@@ -94,6 +100,7 @@
         <xs:attribute name="SchalterWachsam" type="xs:string"/>
         <xs:attribute name="SchalterFrei" type="xs:string"/>
         <xs:attribute name="SchalterBefehl" type="xs:string"/>
+        <xs:attribute name="IndusiGrenzdruckHL" type="xs:float"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -205,6 +212,13 @@
       <xs:extension base="FtdFunktionalitaetPZB"/>
     </xs:complexContent>
   </xs:complexType>
+  <xs:element name="PZB90ER24_V20">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaetPZB"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="PZB90_PZ80R_V20">
     <xs:complexType>
       <xs:complexContent>
@@ -315,9 +329,34 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+  <xs:element name="LZB80_CE_I80">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="LZB80_I80"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LZB80_CE_PZB90_20">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="LZB80_PZB90_20"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LZB80_CESBahn_PZB90_20">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="LZB80_CE_PZB90_20"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="Textmelder">
     <xs:complexType>
-      <xs:attribute name="NameLM" type="xs:string"/>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaet">
+          <xs:attribute name="NameLM" type="xs:string"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="Sifa_ZeitZeit">
@@ -435,17 +474,44 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="TuerenSBahnBasis">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetTuersystem">
+        <xs:attribute name="MelderLinks" type="xs:string"/>
+        <xs:attribute name="MelderRechts" type="xs:string"/>
+        <xs:attribute name="MelderSchliessen" type="xs:string"/>
+        <xs:attribute name="TasterLinks" type="xs:string"/>
+        <xs:attribute name="TasterRechts" type="xs:string"/>
+        <xs:attribute name="TasterSchliessen" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="TuerenSBahn">
+    <xs:documentation xml:lang="de">@deprecated</xs:documentation>
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetTuersystem">
-          <xs:attribute name="MelderLinks" type="xs:string"/>
-          <xs:attribute name="MelderRechts" type="xs:string"/>
-          <xs:attribute name="MelderSchliessen" type="xs:string"/>
-          <xs:attribute name="TasterLinks" type="xs:string"/>
-          <xs:attribute name="TasterRechts" type="xs:string"/>
-          <xs:attribute name="TasterSchliessen" type="xs:string"/>
+        <xs:extension base="TuerenSBahnBasis"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TuerenSBahn423">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="TuerenSBahnBasis">
+          <xs:attribute name="MelderZentrOeffLinks" type="xs:string"/>
+          <xs:attribute name="MelderZentrOeffRechts" type="xs:string"/>
+          <xs:attribute name="TasterZentrOeffLinks" type="xs:string"/>
+          <xs:attribute name="TasterZentrOeffRechts" type="xs:string"/>
+          <xs:attribute name="TastaturzuordnungLinks" type="xs:int"/>
+          <xs:attribute name="TastaturzuordnungRechts" type="xs:int"/>
         </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TuerenSBahn474">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="TuerenSBahnBasis"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
@@ -480,7 +546,12 @@
   <xs:element name="NotbremsSystemSBahn">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetNotbremssystem"/>
+        <xs:extension base="FtdFunktionalitaetNotbremssystem">
+          <xs:all minOccurs="0">
+            <xs:element name="SoundNotbremsung" type="Sound"/>
+          </xs:all>
+          <xs:attribute name="NameSchalter" type="xs:string"/>
+        </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
@@ -623,6 +694,9 @@
   </xs:element>
   <xs:element name="FtdIndividuell">
     <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaet"/>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="Angleicher">
@@ -722,6 +796,8 @@
           <xs:attribute name="NullenFuellen" type="boolean"/>
           <xs:attribute name="KleinerGrenzwertDunkel" type="boolean"/>
           <xs:attribute name="KleinerGrenzwert" type="xs:float"/>
+          <xs:attribute name="GroesserGrenzwertDunkel" type="boolean"/>
+          <xs:attribute name="GroesserGrenzwert" type="xs:float"/>
           <xs:attribute name="Farbe" type="xs:hexBinary"/>
           <xs:attribute name="MinWert" type="xs:float"/>
           <xs:attribute name="MaxWert" type="xs:float"/>

@@ -18,8 +18,13 @@
       <xs:attribute name="BRAngabe" type="xs:string"/>
       <xs:attribute name="Prio" type="xs:int"/>
       <xs:attribute name="Standortmodus" type="xs:int"/>
-      <xs:attribute name="StartVorschubweg" type="xs:int"/>
-      <xs:attribute name="Bremsstellung" type="xs:int"/>
+      <xs:attribute name="StartVorschubweg" type="xs:float"/>
+      <xs:attribute name="Bremsstellung" type="xs:int">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="BremsstellungZug" type="xs:int"/>
       <xs:attribute name="EnergieVorgabe" type="xs:float"/>
       <xs:attribute name="spAnfang" type="xs:float"/>
       <xs:attribute name="MBrh" type="xs:float"/>
@@ -85,6 +90,7 @@
     <xs:attribute name="AbhOperator" type="xs:int"/>
     <xs:attribute name="AbhBedingung" type="xs:int"/>
     <xs:attribute name="AbhParameter" type="xs:float"/>
+    <xs:attribute name="AbhAndererZug" type="xs:string"/>
   </xs:complexType>
   <xs:element name="FahrzeugVarianten">
     <xs:complexType>
@@ -107,7 +113,12 @@
       <xs:attribute name="IDHaupt" type="xs:int"/>
       <xs:attribute name="IDNeben" type="xs:int"/>
       <xs:attribute name="EigeneBremsstellung" type="boolean"/>
-      <xs:attribute name="Bremsstellung" type="xs:int"/>
+      <xs:attribute name="Bremsstellung" type="xs:int">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="BremsstellungFahrzeug" type="xs:int"/>
       <xs:attribute name="EigeneZugart" type="boolean"/>
       <xs:attribute name="Tuerignorieren" type="boolean"/>
       <xs:attribute name="DotraModus" type="xs:int"/>

@@ -5,6 +5,7 @@
     <xs:complexType>
       <xs:all minOccurs="0">
         <xs:element ref="FahrtEintrag" maxOccurs="unbounded"/>
+        <xs:element ref="FahrtEventEintrag" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Zugnummer" type="xs:string"/>
       <xs:attribute name="TfNummer" type="xs:string"/>
@@ -31,6 +32,14 @@
       <xs:attribute name="FahrtParameter" type="xs:int"/>
       <xs:attribute name="FahrtFplAnk" type="xs:float"/>
       <xs:attribute name="FahrtFplAbf" type="xs:float"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FahrtEventEintrag">
+    <xs:complexType>
+      <xs:attribute name="FahrtEventTyp" type="xs:int"/>
+      <xs:attribute name="FahrtWeg" type="xs:float"/>
+      <xs:attribute name="FahrtZeit" type="dateTime"/>
+      <xs:attribute name="FahrtText" type="xs:string"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

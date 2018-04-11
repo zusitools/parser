@@ -12,6 +12,7 @@
         <xs:element name="Signalbezeichnungen" type="Varianten"/>
         <xs:element name="ZugSchlussLaterne" type="Dateiverknuepfung"/>
       </xs:all>
+      <xs:attribute name="ErsatzsignalGiltUeberHaltplatz" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Zuordnung">

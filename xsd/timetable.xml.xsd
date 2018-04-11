@@ -19,7 +19,12 @@
       <xs:attribute name="MBrh" type="xs:float"/>
       <xs:attribute name="Laenge" type="xs:float"/>
       <xs:attribute name="kmStart" type="xs:float"/>
-      <xs:attribute name="Bremsstellung" type="xs:int"/>
+      <xs:attribute name="Bremsstellung" type="xs:int">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="BremsstellungZug" type="xs:int"/>
       <xs:attribute name="GNTSpalte" type="boolean"/>
     </xs:complexType>
   </xs:element>

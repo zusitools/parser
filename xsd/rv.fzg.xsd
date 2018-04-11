@@ -380,7 +380,7 @@
           <xs:attribute name="Volt" type="xs:int"/>
           <xs:attribute name="etaTrafo" type="xs:float"/>
           <xs:attribute name="MaxOberstrom" type="xs:float"/>
-          <xs:attribute name="GrenzwertUeberwacht" type="xs:float"/>
+          <xs:attribute name="GrenzwertUeberwacht" type="boolean"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -396,7 +396,7 @@
           <xs:attribute name="Volt" type="xs:int"/>
           <xs:attribute name="etaTrafo" type="xs:float"/>
           <xs:attribute name="MaxOberstrom" type="xs:float"/>
-          <xs:attribute name="GrenzwertUeberwacht" type="xs:float"/>
+          <xs:attribute name="GrenzwertUeberwacht" type="boolean"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -452,7 +452,7 @@
             <xs:element name="BremseE160" type="Bremsgewicht"/>
           </xs:all>
           <xs:attribute name="Bremswiderstand" type="xs:float"/>
-          <xs:attribute name="Fremderregt" type="xs:float"/>
+          <xs:attribute name="Fremderregt" type="boolean"/>
           <xs:attribute name="Volt" type="xs:int"/>
           <xs:attribute name="Leistung" type="xs:float"/>
           <xs:attribute name="Antriebsachsen" type="xs:int"/>
@@ -535,6 +535,7 @@
       <xs:attribute name="Stopzeit" type="xs:float"/>
       <xs:attribute name="nTraegheit" type="xs:float"/>
       <xs:attribute name="FuellungsGeregelt" type="boolean"/>
+      <xs:attribute name="StartAus" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="GetrStufen">
