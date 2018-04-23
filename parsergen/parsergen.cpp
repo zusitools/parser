@@ -745,21 +745,21 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
       // Special treatment for types with WXYZ as attributes
       if (elementType->name == "Vec2") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Y') {
-          std::array<float Vec2::*, 2> members = { &Vec2::X, &Vec2::Y };
+          std::array<float Vec2::*, 2> members = {{ &Vec2::X, &Vec2::Y }};
           parse_float(text, parseResult->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
         })"" << std::endl;
         allAttributes.clear();
       } else if (elementType->name == "Vec3") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Z') {
-          std::array<float Vec3::*, 3> members = { &Vec3::X, &Vec3::Y, &Vec3::Z };
+          std::array<float Vec3::*, 3> members = {{ &Vec3::X, &Vec3::Y, &Vec3::Z }};
           parse_float(text, parseResult->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
         })"" << std::endl;
         allAttributes.clear();
       } else if (elementType->name == "Quaternion") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'W' && *name <= 'Z') {
-          std::array<float Quaternion::*, 4> members = { &Quaternion::W, &Quaternion::X, &Quaternion::Y, &Quaternion::Z };
+          std::array<float Quaternion::*, 4> members = {{ &Quaternion::W, &Quaternion::X, &Quaternion::Y, &Quaternion::Z }};
           parse_float(text, parseResult->*members[*name - 'W']);
           skip_unlikely<whitespace_pred>(text);
         })"" << std::endl;
