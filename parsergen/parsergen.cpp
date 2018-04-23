@@ -79,11 +79,153 @@ struct ElementTypeRaw : Thing {
   std::vector<ChildRaw> children;
 };
 
+/** Returns a size > 0 if a small vector of this size can be used to hold @p child
+ * inside @p parentType. This is the case if the collection will rarely contain more than size elements,
+ * but also rarely significantly less. */
+size_t SmallVectorSize(const ElementType& parentType, const Child& child) {
+  assert(child.multiple);
+  if (child.type->name == "NachfolgerSelbesModul" || child.type->name == "NachfolgerAnderesModul") {
+    return 2;
+  }
+  return 0;
+}
+
 /** Strategy to embed a single child or a collection of children into a parent struct. */
-enum class ChildStrategy {
-  UniquePtr,        ///<  std::unique_ptr<Child> member / std::vector<std::unique_ptr<Child>> children_Child
-  Optional,         ///<  std::optional<Child> member
-  Inline,           ///<  Child member / std::vector<Child> children_Child
+class ChildStrategy {
+ public:
+  virtual std::string GetMemberDeclaration(const ElementType& elementType, const Child& child) = 0;
+  virtual std::string GetParseMemberCode(const ElementType& elementType, const Child& child) = 0;
+  virtual std::size_t UpdateElementSize(const ElementType& elementType, const Child& child, std::size_t elementSize, std::size_t childElementSize) = 0;
+  virtual ~ChildStrategy() = default;
+};
+
+class UniquePtrChildStrategy : public ChildStrategy {
+ public:
+  std::string GetMemberDeclaration(const ElementType& elementType, const Child& child) override {
+    std::ostringstream out;
+
+    if (child.multiple) {
+      size_t smallVectorSize = SmallVectorSize(elementType, child);
+      if (smallVectorSize > 0) {
+        out << "  boost::container::small_vector<std::unique_ptr<struct " << child.type->name << ">, " << smallVectorSize << ">";
+      } else {
+        out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">>";
+      }
+      out << " children_" << child.name << ";" << std::endl;
+    } else {
+      out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";\n";
+    }
+
+    return out.str();
+  }
+
+  std::string GetParseMemberCode(const ElementType& elementType, const Child& child) override {
+    std::ostringstream out;
+
+    if (child.multiple) {
+      out << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());\n";
+    } else {
+      out << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());\n";
+      out << "  parseResult->" << child.name << ".swap(childResult);\n";
+#if 0
+      out << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }\n";
+#endif
+      out << "  parse_element_" << child.type->name << "(text, parseResult->" << child.name << ".get());\n";
+    }
+    return out.str();
+  }
+
+  std::size_t UpdateElementSize(const ElementType& elementType, const Child& child, std::size_t elementSize, std::size_t childElementSize) override {
+    if (child.multiple) {
+      size_t smallVectorSize = SmallVectorSize(elementType, child);
+      if (smallVectorSize > 0) {
+        return align(elementSize, alignof(std::vector<int>)) + smallVectorSize * sizeof(void*) + sizeof(size_t);
+      } else {
+        return align(elementSize, alignof(std::vector<int>)) + sizeof(std::vector<int>);
+      }
+    } else {
+      return align(elementSize, alignof(std::unique_ptr<int>)) + sizeof(std::unique_ptr<int>);
+    }
+  }
+};
+
+class OptionalChildStrategy : public ChildStrategy {
+ public:
+  std::string GetMemberDeclaration(const ElementType& elementType, const Child& child) override {
+    assert(!child.multiple);
+    std::ostringstream out;
+    out << "  std::optional<struct " << child.type->name << "> " << child.name << ";\n";
+    return out.str();
+  }
+
+  std::string GetParseMemberCode(const ElementType& elementType, const Child& child) override {
+    assert(!child.multiple);
+    std::ostringstream out;
+    out << "  parseResult->" << child.name << ".emplace();\n";
+    out << "  parse_element_" << child.type->name << "(text, &*parseResult->" << child.name << ");\n";
+    return out.str();
+  }
+
+  std::size_t UpdateElementSize(const ElementType& elementType, const Child& child, std::size_t elementSize, std::size_t childElementSize) override {
+    return align(elementSize + 1, alignof(void*)) + childElementSize;
+  }
+};
+
+class InlineChildStrategy : public ChildStrategy {
+ public:
+  std::string GetMemberDeclaration(const ElementType& elementType, const Child& child) override {
+    std::ostringstream out;
+
+    if (child.multiple) {
+      size_t smallVectorSize = SmallVectorSize(elementType, child);
+      if (smallVectorSize > 0) {
+        out << "  boost::container::small_vector<struct " << child.type->name << ", " << smallVectorSize << ">";
+      } else {
+        out << "  std::vector<struct " << child.type->name << ">";
+      }
+      out << " children_" << child.name << ";\n";
+    } else {
+      out << "  struct " << child.type->name << " " << child.name << "; // inlined\n";
+    }
+
+    return out.str();
+  }
+
+  std::string GetParseMemberCode(const ElementType& elementType, const Child& child) override {
+    std::ostringstream out;
+
+    if (child.multiple) {
+      size_t smallVectorSize = SmallVectorSize(elementType, child);
+      if (smallVectorSize > 0) {
+        // Boost < 1.62 (as used in MXE) does not return an iterator to the emplaced element
+        out << "#if BOOST_VERSION < 106200\n";
+        out << "  parseResult->children_" << child.name << ".emplace_back();\n";
+        out << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".back());\n";
+        out << "#else\n";
+      }
+      out << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".emplace_back());\n";
+      if (smallVectorSize > 0) {
+        out << "#endif\n";
+      }
+    } else {
+      out << "  parse_element_" << child.type->name << "(text, &parseResult->" << child.name << ");\n";
+    }
+
+    return out.str();
+  }
+
+  std::size_t UpdateElementSize(const ElementType& elementType, const Child& child, std::size_t elementSize, std::size_t childElementSize) override {
+    if (child.multiple) {
+      size_t smallVectorSize = SmallVectorSize(elementType, child);
+      if (smallVectorSize > 0) {
+        return align(elementSize, alignof(std::vector<int>)) + smallVectorSize * childElementSize + sizeof(size_t);
+      } else {
+        return align(elementSize, alignof(std::vector<int>)) + sizeof(std::vector<int>);
+      }
+    } else {
+      return align(elementSize, alignof(void*)) + childElementSize;
+    }
+  }
 };
 
 class ParserGenerator {
@@ -235,39 +377,11 @@ class ParserGenerator {
         if (!child.documentation.empty()) {
           children << "  /** " << child.documentation << "*/" << std::endl;
         }
-        auto childStrategy = GetChildStrategy(*elementType, child);
-        if (child.multiple) {
-          // Special treatment for children whose multiplicity is almost always between 1 and 2
-          size_t smallVectorSize = SmallVectorSize(*elementType, child);
-          if (smallVectorSize > 0) {
-            if (childStrategy == ChildStrategy::Inline) {
-              children << "  boost::container::small_vector<struct " << child.type->name << ", " << smallVectorSize << ">";
-              elementSize = align(elementSize, alignof(std::vector<int>)) + smallVectorSize * m_element_type_sizes.at(child.type) + sizeof(size_t);
-            } else {
-              children << "  boost::container::small_vector<std::unique_ptr<struct " << child.type->name << ">, " << smallVectorSize << ">";
-              elementSize = align(elementSize, alignof(std::vector<int>)) + smallVectorSize * sizeof(void*) + sizeof(size_t);
-            }
-          } else {
-            if (childStrategy == ChildStrategy::Inline) {
-              children << "  std::vector<struct " << child.type->name << ">";
-            } else {
-              children << "  std::vector<std::unique_ptr<struct " << child.type->name << ">>";
-            }
-            elementSize = align(elementSize, alignof(std::vector<int>)) + sizeof(std::vector<int>);
-          }
-          children << " children_" << child.name << ";" << std::endl;
-        } else {
-          if (childStrategy == ChildStrategy::Inline) {
-            children << "  struct " << child.type->name << " " << child.name << "; // inlined: size = " << m_element_type_sizes.at(child.type) << std::endl;
-            elementSize = align(elementSize, alignof(void*)) + m_element_type_sizes.at(child.type);
-          } else if (childStrategy == ChildStrategy::Optional) {
-            children << "  std::optional<struct " << child.type->name << "> " << child.name << ";" << std::endl;
-            elementSize = align(elementSize + 1, alignof(void*)) + m_element_type_sizes.at(child.type);
-          } else {
-            children << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";" << std::endl;
-            elementSize = align(elementSize, alignof(std::unique_ptr<int>)) + sizeof(std::unique_ptr<int>);
-          }
-        }
+        const auto& childStrategy = GetChildStrategy(*elementType, child);
+        children << childStrategy->GetMemberDeclaration(*elementType, child);
+
+        const auto& childSizeIt = m_element_type_sizes.find(child.type);
+        elementSize = childStrategy->UpdateElementSize(*elementType, child, elementSize, childSizeIt == std::end(m_element_type_sizes) ? 9999 : childSizeIt->second);
       }
 
       m_element_type_sizes[elementType] = elementSize;
@@ -561,57 +675,7 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
           parse_children << "}" << std::endl;
           continue;
         }
-        auto childStrategy = GetChildStrategy(*elementType, child);
-        if (child.multiple) {
-          if (childStrategy == ChildStrategy::Inline) {
-            size_t smallVectorSize = SmallVectorSize(*elementType, child);
-            if (smallVectorSize > 0) {
-              // Boost < 1.62 (as used in MXE) does not return an iterator to the emplaced element
-              parse_children << "#if BOOST_VERSION < 106200\n";
-              parse_children << "  parseResult->children_" << child.name << ".emplace_back();" << std::endl;
-              parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".back());" << std::endl;
-              parse_children << "#else\n";
-            }
-            parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".emplace_back());" << std::endl;
-            if (smallVectorSize > 0) {
-              parse_children << "#endif\n";
-            }
-          } else if (child.type->name == "StrElement" || child.type->name == "ReferenzElement") {
-            parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());\n";
-            parse_children << "  parse_element_" << child.type->name << "(text, childResult.get());\n";
-            parse_children << "  size_t index = childResult->";
-            if (child.type->name == "StrElement") {
-              parse_children << "Nr";
-            } else if (child.type->name == "ReferenzElement") {
-              parse_children << "ReferenzNr";
-            }
-            parse_children << ";\n";
-            parse_children << "  if (index >= parseResult->children_" << child.name << ".size()) {\n";
-            parse_children << "    parseResult->children_" << child.name << ".resize(index + 1);\n";
-            parse_children << "  }\n";
-            parse_children << "  parseResult->children_" << child.name << "[index].swap(childResult);\n";
-            parse_children << "  if (childResult) {\n";
-            parse_children << "    std::cerr << \"Ignoring duplicate " << child.name << " entry: \" << index << \"\\n\";\n";
-            parse_children << "    parseResult->children_" << child.name << "[index].swap(childResult);\n";
-            parse_children << "  }\n";
-          } else {
-            parse_children << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
-          }
-        } else {
-          if (childStrategy == ChildStrategy::Inline) {
-            parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->" << child.name << ");" << std::endl;
-          } else if (childStrategy == ChildStrategy::Optional) {
-            parse_children << "  parseResult->" << child.name << ".emplace();" << std::endl;
-            parse_children << "  parse_element_" << child.type->name << "(text, &*parseResult->" << child.name << ");" << std::endl;
-          } else {
-            parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());" << std::endl;
-            parse_children << "  parseResult->" << child.name << ".swap(childResult);" << std::endl;
-#if 0
-            parse_children << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }" << std::endl;
-#endif
-            parse_children << "  parse_element_" << child.type->name << "(text, parseResult->" << child.name << ".get());" << std::endl;
-          }
-        }
+        parse_children << GetChildStrategy(*elementType, child)->GetParseMemberCode(*elementType, child);
         parse_children << "}" << std::endl;
       }
 
@@ -872,31 +936,20 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
   const std::vector<std::unique_ptr<ElementType>> m_element_types = {};
   std::unordered_map<const ElementType*, size_t> m_element_type_sizes;
 
-  /** Returns a size > 0 if a small vector of this size can be used to hold @p child
-   * inside @p parentType. This is the case if the collection will rarely contain more than size elements,
-   * but also rarely significantly less. */
-  size_t SmallVectorSize(const ElementType& parentType, const Child& child) const {
-    assert(child.multiple);
-    if (child.type->name == "NachfolgerSelbesModul" || child.type->name == "NachfolgerAnderesModul") {
-      return 2;
-    }
-    return 0;
-  }
-
   /** Returns the strategy to use when embedding the given @p child into the given @parentType as a member. */
-  ChildStrategy GetChildStrategy(const ElementType& parentType, const Child& child) const {
+  std::unique_ptr<ChildStrategy> GetChildStrategy(const ElementType& parentType, const Child& child) const {
     if (child.type != &parentType) {
+      if (!child.multiple && child.type->name == "StreckenelementRichtungsInfo") {
+        return std::make_unique<OptionalChildStrategy>();
+      }
       if (child.multiple && SmallVectorSize(parentType, child) > 0) {
-        return ChildStrategy::Inline;
+        return std::make_unique<InlineChildStrategy>();
       }
       if (!child.multiple && m_element_type_sizes.at(child.type) <= 40) {
-        return ChildStrategy::Inline;
-      }
-      if (!child.multiple && child.type->name == "StreckenelementRichtungsInfo") {
-        return ChildStrategy::Optional;
+        return std::make_unique<InlineChildStrategy>();
       }
     }
-    return ChildStrategy::UniquePtr;
+    return std::make_unique<UniquePtrChildStrategy>();
   }
 
   /** Returns the base type, i.e. the least derived parent type, of the given element type. */
