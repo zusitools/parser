@@ -1,5 +1,7 @@
 #include "pugixml.hpp"
 
+// #define ZUSIXML_SCHEMA_XML_MODE
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -652,9 +654,18 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
   return true;
 }
 
+#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)
 )"" << std::endl;
 
-    out << "#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)" << std::endl;
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+    out << R""(void expect(const char* expected, const char*& text) {
+  if (memcmp(text, expected, strlen(expected)) != 0) {
+    RAPIDXML_PARSE_ERROR("Wrong data type", text);
+  }
+  text += strlen(expected);
+}
+)"" << std::endl;
+#endif
 
     for (const auto& elementType : m_element_types) {
       if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
@@ -730,6 +741,7 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
 
       parse_attributes << "        if (false) { (void)parseResult; }" << std::endl;
 
+#ifndef ZUSIXML_SCHEMA_XML_MODE
       // Special treatment for types with WXYZ as attributes
       if (elementType->name == "Vec2") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Y') {
@@ -753,6 +765,7 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
         })"" << std::endl;
         allAttributes.clear();
       }
+#endif
 
       for (const auto& attr : allAttributes) {
         parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
@@ -785,56 +798,95 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
         }
         switch (attr.type) {
           case AttributeType::Int32:
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+            parse_attributes << "          expect(\"integer\", text);\n";
+            parse_attributes << "          const char* enum_str = \" enum\";\n";
+            parse_attributes << "          if (!memcmp(enum_str, text, strlen(enum_str))) {\n";
+            parse_attributes << "            text += strlen(enum_str);\n";
+            parse_attributes << "          }\n";
+#else
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_, parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+#endif
             break;
           case AttributeType::Int64:
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+            parse_attributes << "          expect(\"integer 64bit\", text);\n";
+#else
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::long_long, parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+#endif
             break;
           case AttributeType::Boolean:
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+            parse_attributes << "          expect(\"bool\", text);\n";
+#else
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
             parse_attributes << "          parseResult->" << attr.name << " = (text[0] == '1');" << std::endl;
             parse_attributes << "          ++text;" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+#endif
             break;
           case AttributeType::String:
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+            parse_attributes << "          expect(\"string\", text);\n";
+#else
             parse_attributes << "          if (unlikely(quote == Ch('\\\'')))" << std::endl;
             parse_attributes << "            parse_string<Ch('\\\'')>(text, parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          else" << std::endl;
             parse_attributes << "            parse_string<Ch('\"')>(text, parseResult->" << attr.name << ");" << std::endl;
+#endif
             break;
           case AttributeType::Float:
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+            parse_attributes << "          expect(\"single\", text);\n";
+            parse_attributes << "          const char* decimal_places_str = \", 6 decimal places\";\n";
+            parse_attributes << "          if (!memcmp(decimal_places_str, text, strlen(decimal_places_str))) {\n";
+            parse_attributes << "            text += strlen(decimal_places_str);\n";
+            parse_attributes << "          }\n";
+#else
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
             parse_attributes << "          parse_float(text, parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+#endif
             break;
           case AttributeType::DateTime:
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+            parse_attributes << "          expect(\"date,time\", text);\n";
+#else
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
             parse_attributes << "          [[maybe_unused]] bool result = (unlikely(quote == Ch('\\\''))) ?" << std::endl;
             parse_attributes << "            parse_datetime<Ch('\\\'')>(text, parseResult->" << attr.name << ") :" << std::endl;
             parse_attributes << "            parse_datetime<Ch('\"')>(text, parseResult->" << attr.name << ");" << std::endl;
+#endif
             break;
           case AttributeType::HexInt32:
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+            parse_attributes << "          expect(\"D3DColor\", text);\n";
+#else
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), parseResult->" << attr.name << ");" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+#endif
             break;
           case AttributeType::ArgbColor:
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+            parse_attributes << "          expect(\"D3DColor\", text);\n";
+#else
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
@@ -842,8 +894,12 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
             parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);" << std::endl;
             parse_attributes << "          parseResult->" << attr.name << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>(tmp & 0xFF) };" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+#endif
             break;
           case AttributeType::FaceIndexes:
+#ifdef ZUSIXML_SCHEMA_XML_MODE
+            parse_attributes << "          expect(\"string\", text);\n";
+#else
             // no whitespace skipping here, Zusi doesn't do that either
             parse_attributes << "          Ch* values[4];" << std::endl;
             parse_attributes << "          values[0] = text;" << std::endl;
@@ -874,6 +930,7 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
             parse_attributes << "            }" << std::endl;
             parse_attributes << "            parseResult->" << attr.name << "[i] = result;" << std::endl;
             parse_attributes << "          }" << std::endl;
+#endif
             break;
         }
         parse_attributes << "        }" << std::endl;
