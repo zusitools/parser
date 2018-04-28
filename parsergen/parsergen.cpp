@@ -1049,7 +1049,12 @@ class ParserGeneratorBuilder {
 
     std::cerr << "Loading XSD file: " << fileNameCanonical << std::endl;
     auto document = std::make_unique<pugi::xml_document>();
-    document->load_file(fileNameCanonical.c_str());
+    auto parse_result = document->load_file(fileNameCanonical.c_str());
+
+    if (!parse_result) {
+      std::cerr << "Error loading XSD file: " << fileNameCanonical << "\n";
+      return;
+    }
 
     // Load <xs:include>d files and save them for later
     std::vector<fs::path> includes;
