@@ -1007,6 +1007,9 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
       if (!child.multiple && child.type->name == "StreckenelementRichtungsInfo") {
         return std::make_unique<OptionalChildStrategy>();
       }
+      if (child.type->name == "Vertex" || child.type->name == "Face") {
+        return std::make_unique<InlineChildStrategy>();
+      }
       if (child.multiple && SmallVectorSize(parentType, child) > 0) {
         return std::make_unique<InlineChildStrategy>();
       }
