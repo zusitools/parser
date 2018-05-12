@@ -756,7 +756,7 @@ namespace zusixml {
                     // No validation, just skip name
                     skip<node_name_pred>(text);
                     // Skip remaining whitespace after node name
-                    skip<whitespace_pred>(text);
+                    skip_unlikely<whitespace_pred>(text);
                     if (*text != Ch('>'))
                         ZUSIXML_PARSE_ERROR("expected >", text);
                     ++text;     // Skip '>'
