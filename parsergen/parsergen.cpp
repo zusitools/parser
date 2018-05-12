@@ -464,9 +464,9 @@ static void parse_string(Ch*& text, std::string& result) {
   Ch* const value = text;
   skip<attribute_value_pure_pred<Quote>>(text);
   if (*text == Quote) {
-    // No character refs in attribute value
+    // No character refs in attribute value, copy the string verbatim
     result = std::string(value, text - value);
-  } else {
+  } else if (*text == Ch('&')) {
     Ch* first_ampersand = text;
     skip<attribute_value_pred<Quote>>(text);
     result.resize(text - value);
@@ -474,6 +474,7 @@ static void parse_string(Ch*& text, std::string& result) {
     memcpy(&result[0], value, first_ampersand - value);
     result.resize(first_ampersand - value + copy_and_expand_character_refs<attribute_value_pred<Quote>>(first_ampersand, &result[first_ampersand - value]));
   }
+  // else: *text == '\0'
 }
 
 static void parse_float(Ch*& text, float& result) {
