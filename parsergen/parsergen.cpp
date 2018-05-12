@@ -351,7 +351,7 @@ class ParserGenerator {
             elementSize = align(elementSize, alignof(bool)) + sizeof(bool);
             break;
           case AttributeType::String:
-            attrs << "std::string";
+            attrs << "std::basic_string<char, std::char_traits<char>, zusixml::allocator<char>>";
             elementSize = align(elementSize, alignof(std::string)) + sizeof(std::string);
             break;
           case AttributeType::Float:
