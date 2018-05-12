@@ -691,24 +691,24 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
       auto allAttributes = GetAllAttributes(*elementType.get());
 
       std::ostringstream parse_children;
-      parse_children << "if (false) { (void)parseResult; }" << std::endl;
+      parse_children << "if (false) { (void)parseResult; }\n";
 
       for (const auto& child : allChildren) {
-        parse_children << "else if (name_size == " << child.name.size() << " && !memcmp(name, \"" << child.name << "\", " << child.name.size() << ")) {" << std::endl;
+        parse_children << "            else if (name_size == " << child.name.size() << " && !memcmp(name, \"" << child.name << "\", " << child.name.size() << ")) {\n";
         if (child.deprecated()) {
-          parse_children << "  // deprecated" << std::endl;
-          parse_children << "  skip_element(text);" << std::endl;
-          parse_children << "}" << std::endl;
+          parse_children << "                // deprecated\n";
+          parse_children << "                skip_element(text);\n";
+          parse_children << "            }\n";
           continue;
         }
-        parse_children << GetChildStrategy(*elementType, child)->GetParseMemberCode(*elementType, child);
-        parse_children << "}" << std::endl;
+        parse_children << "                " << GetChildStrategy(*elementType, child)->GetParseMemberCode(*elementType, child);
+        parse_children << "            }\n";
       }
 
-      parse_children << "else {" << std::endl;
-      parse_children << "  std::cerr << \"Unexpected child of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";" << std::endl;
-      parse_children << "  skip_element(text);" << std::endl;
-      parse_children << "}" << std::endl;
+      parse_children << "            else {\n";
+      parse_children << "              std::cerr << \"Unexpected child of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";\n";
+      parse_children << "              skip_element(text);\n";
+      parse_children << "            }\n";
 
       out << R""(  static void parse_element_)"" << elementType->name << "(Ch *& text, " << elementType->name << R""(* parseResult) {
 
