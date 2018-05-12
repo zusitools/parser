@@ -87,6 +87,9 @@
     <xs:attribute name="Beschreibung" type="xs:string"/>
   </xs:complexType>
   <xs:complexType name="FahrplanVorgangAbhaengigkeit">
+    <xs:all>
+      <xs:element name="AbhAbhaengigkeit" type="FahrplanVorgangAbhaengigkeit" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:all>
     <xs:attribute name="AbhOperator" type="xs:int"/>
     <xs:attribute name="AbhBedingung" type="xs:int"/>
     <xs:attribute name="AbhParameter" type="xs:float"/>
