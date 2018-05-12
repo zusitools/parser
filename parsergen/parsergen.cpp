@@ -426,8 +426,6 @@ class ParserGenerator {
         continue;
       }
       out << "  static void parse_element_" << elementType->name << "(Ch *&, " << elementType->name << "*);" << std::endl;
-      out << "  static void parse_node_attributes_" << elementType->name << "(Ch *&, " << elementType->name << "*);" << std::endl;
-      (void)elementType;
     }
     out << "}  // namespace zusixml" << std::endl;
   }
@@ -710,41 +708,7 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
       parse_children << "              skip_element(text);\n";
       parse_children << "            }\n";
 
-      out << R""(  static void parse_element_)"" << elementType->name << "(Ch *& text, " << elementType->name << R""(* parseResult) {
-
-    // Parse attributes, if any
-    parse_node_attributes_)"" << elementType->name << R""((text, parseResult);
-
-    // Determine ending type
-    if (*text == Ch('>'))
-    {
-        ++text;
-        parse_node_contents(text, [](Ch *&text, void* parseResultUntyped) {
-            )"" << elementType->name << R""(* parseResult = static_cast<)"" << elementType->name << R""(*>(parseResultUntyped);
-            // Extract element name
-            Ch *name = text;
-            skip<node_name_pred>(text);
-            if (text == name)
-                RAPIDXML_PARSE_ERROR("expected element name", text);
-            size_t name_size = text - name;
-
-            // Skip whitespace between element name and attributes or >
-            skip<whitespace_pred>(text);
-
-            )"" << parse_children.str() << R""(
-        }, parseResult);
-    }
-    else if (*text == Ch('/'))
-    {
-        ++text;
-        if (*text != Ch('>'))
-            RAPIDXML_PARSE_ERROR("expected >", text);
-        ++text;
-    }
-    else
-        RAPIDXML_PARSE_ERROR("expected >", text);
-  })"" << std::endl;
-
+      // Generate attribute parsing code
       std::ostringstream parse_attributes;
 
       bool startWhitespaceSkip = std::none_of(std::begin(allAttributes), std::end(allAttributes), [](const auto& attr) {
@@ -959,47 +923,74 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
       parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
       parse_attributes << "        }" << std::endl;
 
-      out << R""(  static void parse_node_attributes_)"" << elementType->name << "(Ch *& text, " << elementType->name << R""(* parseResult) {
-        // For all attributes 
-        while (attribute_name_pred::test(*text))
-        {
-            // Extract attribute name
-            Ch *name = text;
-            ++text;     // Skip first character of attribute name
-            skip<attribute_name_pred>(text);
-            size_t name_size = text - name;
+      // Generate code for parsing method
+      out << R""(  static void parse_element_)"" << elementType->name << "(Ch *& text, " << elementType->name << R""(* parseResult) {
 
-            // Skip whitespace after attribute name
-            skip_unlikely<whitespace_pred>(text);
+      // For all attributes
+      while (attribute_name_pred::test(*text))
+      {
+          // Extract attribute name
+          Ch *name = text;
+          ++text;     // Skip first character of attribute name
+          skip<attribute_name_pred>(text);
+          size_t name_size = text - name;
 
-            // Skip =
-            if (*text != Ch('='))
-                RAPIDXML_PARSE_ERROR("expected =", text);
-            ++text;
+          // Skip whitespace after attribute name
+          skip_unlikely<whitespace_pred>(text);
 
-            // Skip whitespace after =
-            skip_unlikely<whitespace_pred>(text);
+          // Skip =
+          if (*text != Ch('='))
+              RAPIDXML_PARSE_ERROR("expected =", text);
+          ++text;
 
-            // Skip quote and remember if it was ' or "
-            Ch quote = *text;
-            if (quote != Ch('\'') && quote != Ch('"'))
-                RAPIDXML_PARSE_ERROR("expected ' or \"", text);
-            ++text;
+          // Skip whitespace after =
+          skip_unlikely<whitespace_pred>(text);
 
-            // Extract attribute value
-            )"" << parse_attributes.str() << R""(
+          // Skip quote and remember if it was ' or "
+          Ch quote = *text;
+          if (quote != Ch('\'') && quote != Ch('"'))
+              RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+          ++text;
 
-            // Make sure that end quote is present
-            if (*text != quote)
-                RAPIDXML_PARSE_ERROR("expected ' or \"", text);
-            ++text;     // Skip quote
+          // Extract attribute value
+          )"" << parse_attributes.str() << R""(
 
-            // Skip whitespace after attribute value
-            skip<whitespace_pred>(text);
-        }
-  })"" << std::endl;
+          // Make sure that end quote is present
+          if (*text != quote)
+              RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+          ++text;     // Skip quote
 
-      (void)elementType;
+          // Skip whitespace after attribute value
+          skip<whitespace_pred>(text);
+      }
+
+      // Determine ending type
+      if ()"" << (allChildren.empty() ? "unlikely(*text == Ch('>'))" : "*text == Ch('>')") << R""()
+      {
+          ++text;
+          parse_node_contents(text, [](Ch *&text, void* parseResultUntyped) {
+              )"" << elementType->name << R""(* parseResult = static_cast<)"" << elementType->name << R""(*>(parseResultUntyped);
+              // Extract element name
+              Ch *name = text;
+              skip<node_name_pred>(text);
+              if (text == name)
+                  RAPIDXML_PARSE_ERROR("expected element name", text);
+              size_t name_size = text - name;
+
+              // Skip whitespace between element name and attributes or >
+              skip<whitespace_pred>(text);
+
+              )"" << parse_children.str() << R""(
+          }, parseResult);
+      }
+      else if ((text[0] == Ch('/')) && (text[1] == Ch('>')))
+      {
+          text += 2;
+      }
+      else
+          RAPIDXML_PARSE_ERROR("expected > or />", text);
+    })"" << std::endl;
+
     }
     out << "}  // namespace zusixml" << std::endl;
   }
