@@ -443,8 +443,15 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
 {
     template <typename Iterator> static bool parse_dot(Iterator& first, Iterator const& last)
     {
-        if (first == last || (*first != ',' && *first != '.'))
+        if (first == last) {
             return false;
+        }
+
+        const auto ch = *first;
+        if (ch != ',' && ch != '.') {
+            return false;
+        }
+
         ++first;
         return true;
     }
