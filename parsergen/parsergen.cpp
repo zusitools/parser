@@ -105,17 +105,18 @@ class UniquePtrChildStrategy : public ChildStrategy {
  public:
   std::string GetMemberDeclaration(const ElementType& elementType, const Child& child) override {
     std::ostringstream out;
+    std::string unique_ptr_type = std::string("std::unique_ptr<struct ") + child.type->name + ", zusixml::deleter<struct " + child.type->name + ">>";
 
     if (child.multiple) {
       size_t smallVectorSize = SmallVectorSize(elementType, child);
       if (smallVectorSize > 0) {
-        out << "  boost::container::small_vector<std::unique_ptr<struct " << child.type->name << ">, " << smallVectorSize << ">";
+        out << "  boost::container::small_vector<" << unique_ptr_type << ", " << smallVectorSize << ", zusixml::allocator<" << unique_ptr_type << ">>";
       } else {
-        out << "  std::vector<std::unique_ptr<struct " << child.type->name << ">>";
+        out << "  std::vector<" << unique_ptr_type << ", zusixml::allocator<" << unique_ptr_type << ">>";
       }
       out << " children_" << child.name << ";" << std::endl;
     } else {
-      out << "  std::unique_ptr<struct " << child.type->name << "> " << child.name << ";\n";
+      out << "  " << unique_ptr_type << " " << child.name << ";\n";
     }
 
     return out.str();
@@ -125,9 +126,9 @@ class UniquePtrChildStrategy : public ChildStrategy {
     std::ostringstream out;
 
     if (child.multiple) {
-      out << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());\n";
+      out << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new struct " << child.type->name << "()).get());\n";
     } else {
-      out << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());\n";
+      out << "  std::unique_ptr<struct " << child.type->name << ", zusixml::deleter<struct " << child.type->name << ">> childResult(new struct " << child.type->name << "());\n";
       out << "  parseResult->" << child.name << ".swap(childResult);\n";
 #if 0
       out << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }\n";
@@ -244,6 +245,12 @@ class ParserGenerator {
     out << "struct ArgbColor {\n";
     out << "  uint8_t a, r, g, b;\n";
     out << "};\n";
+    out << "namespace zusixml {\n";
+    out << "  template <typename T>\n";
+    out << "  using allocator = std::allocator<T>;\n";
+    out << "  template <typename T>\n";
+    out << "  using deleter = std::default_delete<T>;\n";
+    out << "}\n";
   }
 
   void GenerateTypeDeclarations(std::ostream& out) {
