@@ -54,68 +54,119 @@
       <xs:attribute name="FahrstrStrecke" type="xs:string"/>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="FplZeileEintrag">
+    <xs:complexContent/>
+  </xs:complexType>
   <xs:element name="FplvMax">
     <xs:complexType>
-      <xs:attribute name="vMax" type="xs:float"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="vMax" type="xs:float"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplvMaxGNT">
     <xs:complexType>
-      <xs:attribute name="vMax" type="xs:float"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="vMax" type="xs:float"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="Fplkm">
     <xs:complexType>
-      <xs:attribute name="km" type="xs:float"/>
-      <xs:attribute name="FplSprung" type="boolean"/>
-      <xs:attribute name="FplkmNeu" type="xs:float"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="km" type="xs:float"/>
+          <xs:attribute name="FplSprung" type="boolean"/>
+          <xs:attribute name="FplkmNeu" type="xs:float"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplName">
     <xs:complexType>
-      <xs:attribute name="FplNameText" type="xs:string"/>
-      <xs:attribute name="FplWichtigkeit" type="xs:int"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="FplNameText" type="xs:string"/>
+          <xs:attribute name="FplWichtigkeit" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplSignaltyp">
     <xs:complexType>
-      <xs:attribute name="FplSignaltypNr" type="xs:int"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="FplSignaltypNr" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplIcon">
     <xs:complexType>
-      <xs:attribute name="FplIconNr" type="xs:int"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="FplIconNr" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplTunnel">
     <xs:complexType>
-      <xs:attribute name="FplNameText" type="xs:string"/>
-      <xs:attribute name="FplTunnelAnfang" type="boolean"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="FplNameText" type="xs:string"/>
+          <xs:attribute name="FplTunnelAnfang" type="boolean"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplNameRechts">
     <xs:complexType>
-      <xs:attribute name="FplNameText" type="xs:string"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="FplNameText" type="xs:string"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplSaegelinien">
     <xs:complexType>
-      <xs:attribute name="FplAnzahl" type="xs:int"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="FplAnzahl" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplAnk">
     <xs:complexType>
-      <xs:attribute name="Ank" type="dateTime"/>
-      <xs:attribute name="FplEintrag" type="xs:int"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="Ank" type="dateTime"/>
+          <xs:attribute name="FplEintrag" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplAbf">
     <xs:complexType>
-      <xs:attribute name="Abf" type="dateTime"/>
-      <xs:attribute name="FplEintrag" type="xs:int"/>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:attribute name="Abf" type="dateTime"/>
+          <xs:attribute name="FplEintrag" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FplRichtungswechsel">
-    <xs:complexType/>
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag"/>
+      </xs:complexContent>
+    </xs:complexType>
   </xs:element>
 </xs:schema>
