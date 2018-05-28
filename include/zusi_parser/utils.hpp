@@ -190,7 +190,7 @@ static std::string bestimmeZusiDatenpfad() {
   char buffer[MAX_PATH];
   DWORD len = MAX_PATH;
   std::string result;
-  if (SUCCEEDED(RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key)) &&
+  if (SUCCEEDED(RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key)) &&
       SUCCEEDED(RegGetValueA(key, nullptr, "DatenVerzeichnis", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len))) {
     result = std::string(buffer, len - 1);  // buffer ist nullterminiert
     RegCloseKey(key);
