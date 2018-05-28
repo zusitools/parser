@@ -571,6 +571,24 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
             parse_children << "#else\n";
             parse_children << "  parse_element_" << child.type->name << "(text, &parseResult->children_" << child.name << ".emplace_back());" << std::endl;
             parse_children << "#endif\n";
+          } else if (child.type->name == "StrElement" || child.type->name == "ReferenzElement") {
+            parse_children << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());\n";
+            parse_children << "  parse_element_" << child.type->name << "(text, childResult.get());\n";
+            parse_children << "  size_t index = childResult->";
+            if (child.type->name == "StrElement") {
+              parse_children << "Nr";
+            } else if (child.type->name == "ReferenzElement") {
+              parse_children << "ReferenzNr";
+            }
+            parse_children << ";\n";
+            parse_children << "  if (index >= parseResult->children_" << child.name << ".size()) {\n";
+            parse_children << "    parseResult->children_" << child.name << ".resize(index + 1);\n";
+            parse_children << "  }\n";
+            parse_children << "  parseResult->children_" << child.name << "[index].swap(childResult);\n";
+            parse_children << "  if (childResult) {\n";
+            parse_children << "    std::cerr << \"Ignoring duplicate " << child.name << " entry: \" << index << \"\\n\";\n";
+            parse_children << "    parseResult->children_" << child.name << "[index].swap(childResult);\n";
+            parse_children << "  }\n";
           } else {
             parse_children << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new " << child.type->name << "()).get());" << std::endl;
           }
