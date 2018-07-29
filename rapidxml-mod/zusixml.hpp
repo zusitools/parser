@@ -59,8 +59,8 @@ namespace zusixml
 
 namespace zusixml
 {
-    using Ch = const char;
-    using parse_function = void (*)(Ch *&, void*);
+    using Ch = char;
+    using parse_function = void (*)(const Ch *&, void*);
 
     //! Parse error exception. 
     //! This exception is thrown by the parser when an error occurs. 
@@ -95,9 +95,9 @@ namespace zusixml
         //! Gets pointer to character data where error happened.
         //! Ch should be the same as char type of xml_document that produced the error.
         //! \return Pointer to location within the parsed string where error occured.
-        Ch *where() const
+        const Ch *where() const
         {
-            return reinterpret_cast<Ch *>(m_where);
+            return reinterpret_cast<const Ch *>(m_where);
         }
 
     private:  
@@ -138,18 +138,18 @@ namespace zusixml
     //! \endcond
     
     // Forward declarations.
-    static void parse_bom(Ch *&text);
-    static void parse_xml_declaration(Ch *&text);
-    static void parse_comment(Ch *&text);
-    static void parse_doctype(Ch *&text);
-    static void parse_pi(Ch *&text);
-    static void parse_cdata(Ch *&text);
+    static void parse_bom(const Ch *&text);
+    static void parse_xml_declaration(const Ch *&text);
+    static void parse_comment(const Ch *&text);
+    static void parse_doctype(const Ch *&text);
+    static void parse_pi(const Ch *&text);
+    static void parse_cdata(const Ch *&text);
 
-    static void parse_node(Ch *&text, parse_function parse_element_function, void* parseResult);
-    static void parse_node_contents(Ch *&text, parse_function parse_element_function, void* parseResult);
+    static void parse_node(const Ch *&text, parse_function parse_element_function, void* parseResult);
+    static void parse_node_contents(const Ch *&text, parse_function parse_element_function, void* parseResult);
 
-    static void skip_element(Ch *&text);
-    static void skip_node_attributes(Ch *&text);
+    static void skip_element(const Ch *&text);
+    static void skip_node_attributes(const Ch *&text);
 
     ///////////////////////////////////////////////////////////////////////
     // Internal character utility functions
@@ -228,7 +228,7 @@ namespace zusixml
     };
 
     // Insert coded character, using UTF8 or 8-bit ASCII
-    static void insert_coded_character(std::remove_const_t<Ch> *&text, unsigned long code)
+    static void insert_coded_character(Ch *&text, unsigned long code)
     {
         // Insert UTF8 sequence
         if (code < 0x80)    // 1 byte sequence
@@ -265,9 +265,9 @@ namespace zusixml
 
     // Skip characters until predicate evaluates to false
     template<class StopPred>
-    static void skip(Ch *&text)
+    static void skip(const Ch *&text)
     {
-        Ch *tmp = text;
+        const Ch *tmp = text;
         while (StopPred::test(*tmp))
             ++tmp;
         text = tmp;
@@ -276,9 +276,9 @@ namespace zusixml
     // Skip characters until predicate evaluates to false
     // or the given number of characters has been skipped
     template<class StopPred, size_t MaxSkip>
-    static void skip_max(Ch *&text)
+    static void skip_max(const Ch *&text)
     {
-        Ch *tmp = text;
+        const Ch *tmp = text;
         for (size_t i = 0; i < MaxSkip && StopPred::test(*tmp); ++i) {
             ++tmp;
         }
@@ -288,9 +288,9 @@ namespace zusixml
     // Skip characters until predicate evaluates to false
     // while assuming that the predicate will evaluate to false on the first iteration
     template<class StopPred>
-    static void skip_unlikely(Ch *&text)
+    static void skip_unlikely(const Ch *&text)
     {
-        Ch *tmp = text;
+        const Ch *tmp = text;
         while (unlikely(StopPred::test(*tmp)))
             ++tmp;
         text = tmp;
@@ -299,9 +299,9 @@ namespace zusixml
     // Skip characters until predicate evaluates to true while
     // replacing XML character entity references with proper characters (&apos; &amp; &quot; &lt; &gt; &#...;)
     template<class StopPred>
-    static size_t copy_and_expand_character_refs(Ch *&src, std::remove_const_t<Ch> *dest)
+    static size_t copy_and_expand_character_refs(const Ch *&src, Ch *dest)
     {
-        Ch *dest_start = dest;
+        const Ch *dest_start = dest;
 
         while (StopPred::test(*src))
         {
@@ -431,7 +431,7 @@ namespace zusixml {
     //! Each new call to parse removes previous nodes and attributes (if any), but does not clear memory pool.
     //! \param text XML data to parse; pointer is non-const to denote fact that this data may be modified by the parser.
     template<typename Result>
-    static std::unique_ptr<Result> parse_root(Ch *text)
+    static std::unique_ptr<Result> parse_root(const Ch *text)
     {
         assert(text);
         std::unique_ptr<Result> parseResult { nullptr };
@@ -453,9 +453,9 @@ namespace zusixml {
                 parseResult.reset(new Result());
                 ++text;     // Skip '<'
 
-                parse_node(text, [](Ch *&text, void* parseResult) {
+                parse_node(text, [](const Ch *&text, void* parseResult) {
                     // Extract element name
-                    Ch *name = text;
+                    const Ch *name = text;
                     skip<node_name_pred>(text);
                     if (text == name)
                         ZUSIXML_PARSE_ERROR("expected element name", text);
@@ -477,7 +477,7 @@ namespace zusixml {
     // Internal parsing functions
     
     // Parse BOM, if any
-    static void parse_bom(Ch *&text)
+    static void parse_bom(const Ch *&text)
     {
         // UTF-8?
         if (static_cast<unsigned char>(text[0]) == 0xEF && 
@@ -489,7 +489,7 @@ namespace zusixml {
     }
 
     // Parse XML declaration (<?xml...)
-    static void parse_xml_declaration(Ch *&text)
+    static void parse_xml_declaration(const Ch *&text)
     {
         // Skip until end of declaration
         while (text[0] != Ch('?') || text[1] != Ch('>'))
@@ -502,7 +502,7 @@ namespace zusixml {
     }
 
     // Parse XML comment (<!--...)
-    static void parse_comment(Ch *&text)
+    static void parse_comment(const Ch *&text)
     {
         // Skip until end of comment
         while (text[0] != Ch('-') || text[1] != Ch('-') || text[2] != Ch('>'))
@@ -515,7 +515,7 @@ namespace zusixml {
     }
 
     // Parse DOCTYPE
-    static void parse_doctype(Ch *&text)
+    static void parse_doctype(const Ch *&text)
     {
         // Skip to >
         while (*text != Ch('>'))
@@ -558,7 +558,7 @@ namespace zusixml {
     }
 
     // Parse PI
-    static void parse_pi(Ch *&text)
+    static void parse_pi(const Ch *&text)
     {
         // Skip to '?>'
         while (text[0] != Ch('?') || text[1] != Ch('>'))
@@ -571,7 +571,7 @@ namespace zusixml {
     }
 
     // Skip data.
-    static std::remove_const_t<Ch> parse_and_append_data(Ch *&text, Ch *contents_start)
+    static Ch parse_and_append_data(const Ch *&text, const Ch *contents_start)
     {
         // Backup to contents start if whitespace trimming is disabled
         text = contents_start;     
@@ -584,7 +584,7 @@ namespace zusixml {
     }
 
     // Parse CDATA
-    static void parse_cdata(Ch *&text)
+    static void parse_cdata(const Ch *&text)
     {
         // Skip until end of cdata
         while (text[0] != Ch(']') || text[1] != Ch(']') || text[2] != Ch('>'))
@@ -598,7 +598,7 @@ namespace zusixml {
 
     // Parses an XML node. For element nodes, calls the provided parse_element_function with the provided result as parameter.
     // All other nodes (XML declaration etc.) are ignored.
-    static void parse_node(Ch *&text, parse_function parse_element_function, void* parseResult)
+    static void parse_node(const Ch *&text, parse_function parse_element_function, void* parseResult)
     {
         // Parse proper node type
         switch (text[0])
@@ -691,7 +691,7 @@ namespace zusixml {
     }
     
     // Skip element node
-    static void skip_element(Ch *&text)
+    static void skip_element(const Ch *&text)
     {
         // Parse attributes, if any
         skip_node_attributes(text);
@@ -700,10 +700,10 @@ namespace zusixml {
         if (*text == Ch('>'))
         {
             ++text;
-            parse_node_contents(text, [](Ch *&text, void* parseResult) {
+            parse_node_contents(text, [](const Ch *&text, void* parseResult) {
                 (void)parseResult;
                 // Extract element name
-                Ch *name = text;
+                const Ch *name = text;
                 skip<node_name_pred>(text);
                 if (text == name)
                     ZUSIXML_PARSE_ERROR("expected element name", text);
@@ -727,15 +727,15 @@ namespace zusixml {
     // Parse contents of the node - children, data etc.
     // In order to avoid having to specialize this function for all possible result types,
     // the result is passed as a void* pointer and must be cast to the appropriate type in parse_element_function.
-    static void parse_node_contents(Ch *&text, parse_function parse_element_function, void* parseResult)
+    static void parse_node_contents(const Ch *&text, parse_function parse_element_function, void* parseResult)
     {
         // For all children and text
         while (1)
         {
             // Skip whitespace between > and node contents
-            Ch *contents_start = text;      // Store start of node contents before whitespace is skipped
+            const Ch *contents_start = text;      // Store start of node contents before whitespace is skipped
             skip<whitespace_pred>(text);
-            std::remove_const_t<Ch> next_char = *text;
+            Ch next_char = *text;
 
         // After data nodes, instead of continuing the loop, control jumps here.
         // This is because zero termination inside parse_and_append_data() function
@@ -784,7 +784,7 @@ namespace zusixml {
     }
     
     // Parse XML attributes of the node
-    static void skip_node_attributes(Ch *&text)
+    static void skip_node_attributes(const Ch *&text)
     {
         // For all attributes 
         while (attribute_name_pred::test(*text))

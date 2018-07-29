@@ -425,7 +425,7 @@ class ParserGenerator {
       if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
         continue;
       }
-      out << "  static void parse_element_" << elementType->name << "(Ch *&, " << elementType->name << "*);" << std::endl;
+      out << "  static void parse_element_" << elementType->name << "(const Ch *&, " << elementType->name << "*);" << std::endl;
     }
     out << "}  // namespace zusixml" << std::endl;
   }
@@ -465,14 +465,14 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
 namespace zusixml {
 
 template<Ch Quote>
-static void parse_string(Ch*& text, std::string& result) {
-  Ch* const value = text;
+static void parse_string(const Ch*& text, std::string& result) {
+  const Ch* const value = text;
   skip<attribute_value_pure_pred<Quote>>(text);
   if (*text == Quote) {
     // No character refs in attribute value, copy the string verbatim
     result = std::string(value, text - value);
   } else if (*text == Ch('&')) {
-    Ch* first_ampersand = text;
+    const Ch* first_ampersand = text;
     skip<attribute_value_pred<Quote>>(text);
     result.resize(text - value);
     // Copy characters until the first ampersand verbatim, use copy_and_expand_character_refs for the rest.
@@ -482,7 +482,7 @@ static void parse_string(Ch*& text, std::string& result) {
   // else: *text == '\0'
 }
 
-static void parse_float(Ch*& text, float& result) {
+static void parse_float(const Ch*& text, float& result) {
   const Ch* text_save = text;
   // Fast path for numbers of the form "-XXX.YYY" (enclosed in double quotes), where X and Y are both <= 7 characters long and the minus sign is optional
   bool neg = false;
@@ -490,14 +490,14 @@ static void parse_float(Ch*& text, float& result) {
     neg = true;
     ++text;  // Skip "-"
   }
-  Ch* const integer_start = text;
+  const Ch* const integer_start = text;
   for (size_t i = 0; i < 7; i++) {
     if (!digit_pred::test(*text)) {
       break;
     }
     ++text;
   }
-  Ch* const dot_and_fractional_start = text;
+  const Ch* const dot_and_fractional_start = text;
   if (*text == Ch('.')) {
     ++text;  // skip "."
     for (size_t i = 0; i < 7; i++) {
@@ -554,13 +554,13 @@ static void parse_float(Ch*& text, float& result) {
 }
 
 template<Ch Quote>
-static bool parse_datetime(Ch*& text, struct tm& result) {
+static bool parse_datetime(const Ch*& text, struct tm& result) {
   // Delphi (and Zusi) accept a very wide range of things here,
   // e.g. two-digit years, times that don't specify seconds or minutes, etc.
   // We are more restrictive: we parse a date yyyy-mm-dd, or a time hh:nn:ss,
   // or both separated by a blank,
 
-  Ch* prev = text;
+  const Ch* prev = text;
   skip_max<digit_pred, 4>(text);
 
   if (*text == Ch('-')) {
@@ -880,7 +880,7 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
             parse_attributes << "          expect(\"string\", text);\n";
 #else
             // no whitespace skipping here, Zusi doesn't do that either
-            parse_attributes << "          Ch* values[4];" << std::endl;
+            parse_attributes << "          const Ch* values[4];" << std::endl;
             parse_attributes << "          values[0] = text;" << std::endl;
             parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
             parse_attributes << "          if (*text != ';') RAPIDXML_PARSE_ERROR(\"expected ';'\", text);" << std::endl;
@@ -924,13 +924,13 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
       parse_attributes << "        }" << std::endl;
 
       // Generate code for parsing method
-      out << R""(  static void parse_element_)"" << elementType->name << "(Ch *& text, " << elementType->name << R""(* parseResult) {
+      out << R""(  static void parse_element_)"" << elementType->name << "(const Ch *& text, " << elementType->name << R""(* parseResult) {
 
       // For all attributes
       while (attribute_name_pred::test(*text))
       {
           // Extract attribute name
-          Ch *name = text;
+          const Ch *name = text;
           ++text;     // Skip first character of attribute name
           skip<attribute_name_pred>(text);
           size_t name_size = text - name;
@@ -968,10 +968,10 @@ static bool parse_datetime(Ch*& text, struct tm& result) {
       if ()"" << (allChildren.empty() ? "unlikely(*text == Ch('>'))" : "*text == Ch('>')") << R""()
       {
           ++text;
-          parse_node_contents(text, [](Ch *&text, void* parseResultUntyped) {
+          parse_node_contents(text, [](const Ch *&text, void* parseResultUntyped) {
               )"" << elementType->name << R""(* parseResult = static_cast<)"" << elementType->name << R""(*>(parseResultUntyped);
               // Extract element name
-              Ch *name = text;
+              const Ch *name = text;
               skip<node_name_pred>(text);
               if (text == name)
                   RAPIDXML_PARSE_ERROR("expected element name", text);
