@@ -29,9 +29,11 @@
       <xs:attribute name="FahrtAutopilot" type="boolean"/>
       <xs:attribute name="FahrtText" type="xs:string"/>
       <xs:attribute name="Fahrtkm" type="xs:float"/>
+      <xs:attribute name="FahrtHLDruck" type="xs:float"/>
       <xs:attribute name="FahrtParameter" type="xs:int"/>
       <xs:attribute name="FahrtFplAnk" type="xs:float"/>
       <xs:attribute name="FahrtFplAbf" type="xs:float"/>
+      <xs:attribute name="FahrtFBSchalter" type="xs:int"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrtEventEintrag">

@@ -36,6 +36,7 @@
         <xs:element ref="LZB80_CE_I80" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_CE_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_CESBahn_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="Fahrsperre" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Textmelder" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Sifa_ZeitZeit" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Sifa_RZM" minOccurs="0" maxOccurs="unbounded"/>
@@ -87,6 +88,14 @@
         </xs:all>
         <xs:attribute name="Taster" type="xs:int"/>
         <xs:attribute name="NameSchalter" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="Fahrsperre">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaet">
+        <xs:attribute name="SchalterBefehl" type="xs:string"/>
+        <xs:attribute name="LMBefehl" type="xs:string"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -276,8 +285,8 @@
       <xs:extension base="FtdFunktionalitaetIndusiOderPZB">
         <xs:all minOccurs="0">
           <xs:element name="SoundIndusiSchnarre" type="Sound"/>
-          <xs:element name="IndusiGrunddaten" type="IndusiZugdaten"/>
-          <xs:element name="IndusiErsatzzugdaten" type="IndusiZugdaten"/>
+          <xs:element name="IndusiGrunddaten" type="LZBZugdaten"/>
+          <xs:element name="IndusiErsatzzugdaten" type="LZBZugdaten"/>
           <xs:element ref="PZB"/>
           <xs:element name="SoundIndusiZB" type="Sound"/>
         </xs:all>
@@ -802,6 +811,7 @@
           <xs:attribute name="MinWert" type="xs:float"/>
           <xs:attribute name="MaxWert" type="xs:float"/>
           <xs:attribute name="MittelNr" type="xs:int"/>
+          <xs:attribute name="ZusiDisplayAuswahl" type="xs:string"/>
           <xs:attribute name="Tastaturzuordnung" type="xs:int"/>
           <xs:attribute name="TastaturkommandoRauf" type="xs:int"/>
           <xs:attribute name="TastaturkommandoRunter" type="xs:int"/>
@@ -857,14 +867,6 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
-  <xs:complexType name="IndusiZugdaten">
-    <xs:attribute name="VMZ" type="xs:int"/>
-    <xs:attribute name="ZL" type="xs:int"/>
-    <xs:attribute name="TfNummer" type="xs:string"/>
-    <xs:attribute name="Zugnummer" type="xs:string"/>
-    <xs:attribute name="BRA" type="xs:int"/>
-    <xs:attribute name="BRH" type="xs:int"/>
-  </xs:complexType>
   <xs:element name="PZB">
     <xs:complexType>
       <xs:all minOccurs="0">

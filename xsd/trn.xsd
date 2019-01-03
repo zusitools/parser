@@ -112,6 +112,10 @@
     <xs:complexType>
       <xs:all>
         <xs:element name="Datei" type="Dateiverknuepfung"/>
+        <xs:element name="ZugdatenLZB80" type="LZBZugdaten"/>
+        <xs:element name="ZugdatenIndusiAnalog" type="IndusiAnalogZugdaten"/>
+        <xs:element name="ZugdatenIndusiRechner" type="IndusiZugdaten"/>
+        <xs:element name="ZugdatenPZ80" type="PZ80Zugdaten"/>
       </xs:all>
       <xs:attribute name="IDHaupt" type="xs:int"/>
       <xs:attribute name="IDNeben" type="xs:int"/>
@@ -127,7 +131,6 @@
       <xs:attribute name="DotraModus" type="xs:int"/>
       <xs:attribute name="SASchaltung" type="xs:int"/>
       <xs:attribute name="Gedreht" type="boolean"/>
-      <xs:attribute name="Zugart" type="xs:string"/>
       <xs:attribute name="FahrzeugZusatzinfo" type="xs:string"/>
       <xs:attribute name="VariantenIndex" type="xs:int">
         <xs:annotation>

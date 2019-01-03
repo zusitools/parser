@@ -28,6 +28,7 @@
 Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenverzeichnis liegen, nicht referenziert werden.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="inst" type="boolean"/>
     <xs:attribute name="NurInfo" type="boolean"/>
   </xs:complexType>
   <xs:complexType name="Vec2">
@@ -119,5 +120,33 @@ Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenv
       <xs:element name="Sound" type="Sound"/>
       <xs:element ref="Abhaengigkeit" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
+  </xs:complexType>
+  <xs:complexType name="PZ80Zugdaten">
+    <xs:attribute name="IndusiZugart" type="xs:int"/>
+  </xs:complexType>
+  <xs:complexType name="IndusiAnalogZugdaten">
+    <xs:attribute name="IndusiZugart" type="xs:int"/>
+    <xs:attribute name="ZugsicherungHS" type="xs:int"/>
+    <xs:attribute name="Lufthahn" type="xs:int"/>
+    <xs:attribute name="PZBStoerschalter" type="xs:int"/>
+  </xs:complexType>
+  <xs:complexType name="IndusiZugdaten">
+    <xs:attribute name="BRH" type="xs:int"/>
+    <xs:attribute name="TfNummer" type="xs:string"/>
+    <xs:attribute name="Zugnummer" type="xs:string"/>
+    <xs:attribute name="BRA" type="xs:int"/>
+    <xs:attribute name="ZugsicherungHS" type="xs:int"/>
+    <xs:attribute name="Lufthahn" type="xs:int"/>
+    <xs:attribute name="PZBStoerschalter" type="xs:int"/>
+  </xs:complexType>
+  <xs:complexType name="LZBZugdaten">
+    <xs:complexContent>
+      <xs:extension base="IndusiZugdaten">
+        <xs:attribute name="VMZ" type="xs:int"/>
+        <xs:attribute name="ZL" type="xs:int"/>
+        <xs:attribute name="LZBStoerschalter" type="xs:int"/>
+        <xs:attribute name="LZBGefuehrt" type="xs:int"/>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 </xs:schema>
