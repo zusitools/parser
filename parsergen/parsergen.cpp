@@ -11,8 +11,8 @@
   namespace fs = boost::filesystem;
   using ofstream = fs::ofstream;
 #else
-  #include <experimental/filesystem>
-  namespace fs = std::experimental::filesystem;
+  #include <filesystem>
+  namespace fs = std::filesystem;
   using ofstream = std::ofstream;
 #endif
 #include <iostream>
