@@ -220,6 +220,13 @@ const std::string& getZusiDatenpfad() {
   return zusiDatenpfad;
 }
 
+constexpr char zusiSep = '\\';
+#ifdef _WIN32
+constexpr char osSep = '\\';
+#else
+constexpr char osSep = '/';
+#endif
+
 /**
  * Konvertiert den angegebenen Zusi-Pfad in einen Betriebssystempfad.
  * Wenn @p zusiPfad nur aus einem Dateinamen besteht, wird er als relativ zu
@@ -227,13 +234,6 @@ const std::string& getZusiDatenpfad() {
  * eines Verzeichnisses ist, muss es mit einem Backslash (Windows) bzw. Slash (Unix) enden.
  */
 std::string zusiPfadZuOsPfad(std::string_view zusiPfad, std::string_view osPfadUebergeordnet) {
-  constexpr char zusiSep = '\\';
-#ifdef _WIN32
-  constexpr char osSep = '\\';
-#else
-  constexpr char osSep = '/';
-#endif
-
   std::string result;
   if (zusiPfad.find(zusiSep) == std::string::npos) {
     // Relativ zu uebergeordnetem Pfad
