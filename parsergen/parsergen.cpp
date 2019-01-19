@@ -126,7 +126,29 @@ class UniquePtrChildStrategy : public ChildStrategy {
     std::ostringstream out;
 
     if (child.multiple) {
-      out << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new struct " << child.type->name << "()).get());\n";
+      if (child.type->name == "StrElement" || child.type->name == "ReferenzElement") {
+        out << "  std::unique_ptr<" << child.type->name << "> childResult(new " << child.type->name << "());\n";
+        out << "  parse_element_" << child.type->name << "(text, childResult.get());\n";
+        out << "  size_t index = childResult->";
+        if (child.type->name == "StrElement") {
+          out << "Nr";
+        } else if (child.type->name == "ReferenzElement") {
+          out << "ReferenzNr";
+        }
+        out << ";\n";
+        out << "  if (index == parseResult->children_" << child.name << ".size()) {\n";  // contiguous elements
+        out << "    parseResult->children_" << child.name << ".push_back(std::move(childResult));\n";
+        out << "  } else {\n";
+        out << "    if (index > parseResult->children_" << child.name << ".size()) {\n";
+        out << "      parseResult->children_" << child.name << ".resize(index + 1);\n";
+        out << "    } else if (parseResult->children_" << child.name << "[index]) {\n";
+        out << "      std::cerr << \"Ignoriere doppelten Eintrag fuer " << child.name << ": \" << index << \"\\n\";\n";
+        out << "    }\n";
+        out << "    parseResult->children_" << child.name << "[index] = std::move(childResult);\n";
+        out << "  }\n";
+      } else {
+        out << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new struct " << child.type->name << "()).get());\n";
+      }
     } else {
       out << "  std::unique_ptr<struct " << child.type->name << ", zusixml::deleter<struct " << child.type->name << ">> childResult(new struct " << child.type->name << "());\n";
       out << "  parseResult->" << child.name << ".swap(childResult);\n";
