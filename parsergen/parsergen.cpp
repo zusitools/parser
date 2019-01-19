@@ -1109,8 +1109,7 @@ class ParserGeneratorBuilder {
     std::vector<std::unique_ptr<ElementType>> elementTypes;
     for (const auto& [ typeName, elementTypeRaw] : m_element_types) {
       elementTypes.push_back(std::unique_ptr<ElementType>(new ElementType {
-          elementTypeRaw.name,
-          elementTypeRaw.documentation,
+          { elementTypeRaw.name, elementTypeRaw.documentation },
           nullptr,
           elementTypeRaw.attributes,
           std::vector<Child>()}));
@@ -1127,7 +1126,7 @@ class ParserGeneratorBuilder {
       for (const auto& childRaw : elementTypeRaw.children) {
         const auto& childType = std::find_if(std::begin(elementTypes), std::end(elementTypes), [&childRaw](const auto& type) { return type->name == childRaw.type; });
         assert(childType != std::end(elementTypes));
-        elementType->children.emplace_back(Child { childRaw.name, childRaw.documentation, childType->get(), childRaw.multiple });
+        elementType->children.emplace_back(Child { { childRaw.name, childRaw.documentation }, childType->get(), childRaw.multiple });
       }
     }
     return ParserGenerator(&elementTypes);
@@ -1148,9 +1147,9 @@ class ParserGeneratorBuilder {
             (child.attribute("maxOccurs").as_string() == std::string("unbounded") || child.attribute("maxOccurs").as_int() > 1);
         if (child.attribute("ref")) {
           std::string childTypeName = child.attribute("ref").as_string();
-          elementType->children.push_back(ChildRaw { childTypeName, GetDocumentation(child), childTypeName, multiple });
+          elementType->children.push_back(ChildRaw { { childTypeName, GetDocumentation(child) }, childTypeName, multiple });
         } else {
-          elementType->children.push_back(ChildRaw { child.attribute("name").as_string(), GetDocumentation(child), child.attribute("type").as_string(), multiple });
+          elementType->children.push_back(ChildRaw { { child.attribute("name").as_string(), GetDocumentation(child) }, child.attribute("type").as_string(), multiple });
         }
       } else {
         FindChildTypes(elementType, child);
@@ -1220,7 +1219,7 @@ class ParserGeneratorBuilder {
         continue;
       }
 
-      elementType.attributes.push_back(Attribute { child.attribute("name").as_string(), GetDocumentation(child), attributeType });
+      elementType.attributes.push_back(Attribute { { child.attribute("name").as_string(), GetDocumentation(child) }, attributeType });
     }
   }
 };
