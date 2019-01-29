@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(parser)
-
-add_subdirectory(pugixml)
+project(zusi_parser)
 
 # parsergen
 # (has to be in the same CMakeLists.txt as add_custom_command)
@@ -10,16 +8,16 @@ if(CMAKE_CROSSCOMPILING)
   set(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build")
   include(${IMPORT_EXECUTABLES})
 else()
+  add_subdirectory(pugixml)
   add_executable(parsergen parsergen/parsergen.cpp)
   set_property(TARGET parsergen PROPERTY CXX_STANDARD 17)
   set_property(TARGET parsergen PROPERTY CXX_STANDARD_REQUIRED TRUE)
   target_link_libraries(parsergen PRIVATE pugixml stdc++ m)
 
-  if(USE_BOOST_FILESYSTEM)
+  if(ZUSI_PARSER_USE_BOOST_FILESYSTEM)
     find_package(Boost COMPONENTS filesystem REQUIRED)
     target_compile_definitions(parsergen PRIVATE -DUSE_BOOST_FILESYSTEM)
-    target_link_libraries(parsergen PRIVATE ${Boost_LIBRARIES})
-    target_include_directories(parsergen PRIVATE ${Boost_INCLUDE_DIRS})
+    target_link_libraries(parsergen PRIVATE Boost::filesystem)
   else()
     target_link_libraries(parsergen PRIVATE stdc++fs)
   endif()
@@ -27,79 +25,77 @@ else()
   export(TARGETS parsergen FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
 endif()
 
-set(xsd_sources
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/authority.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/author.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/font.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/forest.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/fpn.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/ftd.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/gpa.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/input.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/levelcrossing.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/ls3.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/material.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/material.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/platform.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/result.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/retainingwall.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_authority.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_author.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_font.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_forest.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_fpn.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_ftd.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_gpa.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_input.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_levelcrossing.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_ls3.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_material.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_platform.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_result.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_retainingwall.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_rv.fzg.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_script.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_shape.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_signals.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_signal.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_st2.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_st3.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_timetable.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_travellers.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_trn.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_trn.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_turnout.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_zusi2files.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/rv.fzg.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/script.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/shape.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/signals.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/signal.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/st2.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/st3.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/timetable.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/travellers.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/trn.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/typen.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/zusi2files.xml.xsd
-  ${CMAKE_CURRENT_SOURCE_DIR}/xsd/zusi.xsd
-)
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser")
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_types.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_parser.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_parser_fwd.hpp
-  COMMAND parsergen "${CMAKE_CURRENT_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd" "${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser"
-  DEPENDS ${xsd_sources} parsergen)
+set(ZUSI_PARSER_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 
-add_custom_target(zusi_parser_includes SOURCES ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_types.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_parser.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/zusi_parser/zusi_parser_fwd.hpp)
+function(generate_zusi_parser targetName outputDir)
+  set(xsd_sources
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/authority.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/author.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/font.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/forest.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/fpn.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/ftd.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/gpa.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/input.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/levelcrossing.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/ls3.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/material.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/material.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/platform.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/result.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/retainingwall.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_authority.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_author.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_font.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_forest.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_fpn.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_ftd.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_gpa.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_input.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_levelcrossing.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_ls3.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_material.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_platform.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_result.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_retainingwall.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_rv.fzg.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_script.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_shape.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_signals.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_signal.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_st2.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_st3.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_timetable.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_travellers.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_trn.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_trn.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_turnout.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_zusi2files.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/rv.fzg.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/script.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/shape.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/signals.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/signal.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/st2.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/st3.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/timetable.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/travellers.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/trn.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/typen.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/zusi2files.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/zusi.xsd
+  )
 
-add_library(zusi_parser INTERFACE)
-target_include_directories(zusi_parser INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/include include rapidxml-mod)
-add_dependencies(zusi_parser INTERFACE zusi_parser_includes)
+  add_custom_command(OUTPUT "${outputDir}/zusi_parser/zusi_types.hpp" "${outputDir}/zusi_parser/zusi_parser.hpp" "${outputDir}/zusi_parser/zusi_parser_fwd.hpp"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${outputDir}/zusi_parser"
+    COMMAND parsergen "${ZUSI_PARSER_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd" "${outputDir}/zusi_parser"
+    DEPENDS ${xsd_sources} parsergen)
 
-add_executable(benchmark EXCLUDE_FROM_ALL benchmark/benchmark-parse.cpp)
-target_link_libraries(benchmark PRIVATE zusi_parser)
-target_compile_options(benchmark PRIVATE -Wall -Wextra)
-target_compile_definitions(benchmark PRIVATE -DUSE_MMAP)
-set_property(TARGET benchmark PROPERTY CXX_STANDARD 17)
-set_property(TARGET benchmark PROPERTY CXX_STANDARD_REQUIRED TRUE)
-target_link_libraries(benchmark PRIVATE stdc++)
+  add_custom_target(${targetName}_includes SOURCES "${outputDir}/zusi_parser/zusi_types.hpp" "${outputDir}/zusi_parser/zusi_parser.hpp" "${outputDir}/zusi_parser/zusi_parser_fwd.hpp")
+
+  add_library(${targetName} INTERFACE)
+  target_include_directories(${targetName} INTERFACE "${outputDir}" "${ZUSI_PARSER_SOURCE_DIR}/include" "${ZUSI_PARSER_SOURCE_DIR}/rapidxml-mod")
+  add_dependencies(${targetName} INTERFACE ${targetName}_includes)
+endfunction()
+
