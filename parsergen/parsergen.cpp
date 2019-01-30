@@ -1090,7 +1090,11 @@ class ParserGeneratorBuilder {
     // Load <xs:include>d files and save them for later
     std::vector<fs::path> includes;
     for (const auto& include : document->select_nodes("//xs:include")) {
-      includes.push_back(fs::canonical(include.node().attribute("schemaLocation").as_string(), fileNameCanonical.parent_path()));
+      fs::path include_path(include.node().attribute("schemaLocation").as_string());
+      if (!include_path.is_absolute()) {
+        include_path = fileNameCanonical.parent_path() / include_path;
+      }
+      includes.push_back(include_path);
     }
 
     // Parse complex types
