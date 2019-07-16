@@ -198,26 +198,58 @@ static std::unique_ptr<Zusi> tryParseFile(std::string_view dateiname) {
 }
 
 static std::string bestimmeZusiDatenpfad() {
+  std::string result;
 #ifdef _WIN32
   HKEY key;
   char buffer[MAX_PATH];
   DWORD len = MAX_PATH;
-  std::string result;
   if (SUCCEEDED(RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key)) &&
-      SUCCEEDED(RegGetValueA(key, nullptr, "DatenVerzeichnis", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len))) {
+       (SUCCEEDED(RegGetValueA(key, nullptr, "DatenVerzeichnis", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len)) ||
+        SUCCEEDED(RegGetValueA(key, nullptr, "DatenVerzeichnisSteam", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len)))) {
     result = std::string(buffer, len - 1);  // buffer ist nullterminiert
     RegCloseKey(key);
   }
-  return result;
 #else
-  return std::string(getenv("ZUSI3_DATAPATH"));
+  const char* const datapath = getenv("ZUSI3_DATAPATH");
+  if (datapath != nullptr) {
+    result = std::string(datapath);
+  }
 #endif
+  return result;
 }
 
-static const std::string zusiDatenpfad = bestimmeZusiDatenpfad();
+static std::string bestimmeZusiDatenpfadOffiziell() {
+  std::string result;
+#ifdef _WIN32
+  HKEY key;
+  char buffer[MAX_PATH];
+  DWORD len = MAX_PATH;
+  if (SUCCEEDED(RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key)) &&
+       (SUCCEEDED(RegGetValueA(key, nullptr, "DatenVerzeichnisOffiziell", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len)) ||
+        SUCCEEDED(RegGetValueA(key, nullptr, "DatenVerzeichnisOffiziellSteam", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len)))) {
+    result = std::string(buffer, len - 1);  // buffer ist nullterminiert
+    RegCloseKey(key);
+  }
+#else
+  const char* datapath = getenv("ZUSI3_DATAPATH_OFFICIAL");
+  if (datapath == nullptr) {
+    datapath = getenv("ZUSI3_DATAPATH");
+  }
+  if (datapath != nullptr) {
+    result = std::string(datapath);
+  }
+#endif
+  return result;
+}
 
 const std::string& getZusiDatenpfad() {
+  static const std::string zusiDatenpfad = bestimmeZusiDatenpfad();
   return zusiDatenpfad;
+}
+
+const std::string& getZusiDatenpfadOffiziell() {
+  static const std::string zusiDatenpfadOffiziell = bestimmeZusiDatenpfadOffiziell();
+  return zusiDatenpfadOffiziell;
 }
 
 constexpr char zusiSep = '\\';
@@ -227,35 +259,79 @@ constexpr char osSep = '\\';
 constexpr char osSep = '/';
 #endif
 
-/**
- * Konvertiert den angegebenen Zusi-Pfad in einen Betriebssystempfad.
- * Wenn @p zusiPfad nur aus einem Dateinamen besteht, wird er als relativ zu
- * @p zusiPfadUebergeordnet betrachtet. Falls @p osPfadUebergeordnet der Name eines
- * eines Verzeichnisses ist, muss es mit einem Backslash (Windows) bzw. Slash (Unix) enden.
- */
-std::string zusiPfadZuOsPfad(std::string_view zusiPfad, std::string_view osPfadUebergeordnet) {
-  std::string result;
-  if (zusiPfad.find(zusiSep) == std::string::npos) {
-    // Relativ zu uebergeordnetem Pfad
-    result = osPfadUebergeordnet.substr(0, osPfadUebergeordnet.rfind(osSep));
-  } else {
-    // Relativ zum Zusi-Datenverzeichnis
-    result = getZusiDatenpfad();
+class ZusiPfad {
+public:
+  static ZusiPfad vonZusiPfad(std::string_view zusiPfad, const ZusiPfad& uebergeordnet) {
+    if (zusiPfad.find('\\') != std::string_view::npos) {
+      return vonZusiPfad(zusiPfad);
+    }
+
+    const auto lastBackslashPos = uebergeordnet.m_pfad.find_last_of('\\');
+    if (lastBackslashPos == std::string::npos) {
+      return ZusiPfad(std::string(zusiPfad));
+    } else {
+      std::string pfad = uebergeordnet.m_pfad.substr(0, lastBackslashPos + 1);
+      pfad += zusiPfad;
+      return ZusiPfad(std::move(pfad));
+    }
   }
 
-  if (result.back() == osSep && zusiPfad.front() == zusiSep) {
-    result.pop_back();
-  } else if (result.back() != osSep && zusiPfad.front() != zusiSep) {
-    result.push_back(osSep);
+  static ZusiPfad vonZusiPfad(std::string_view zusiPfad) {
+    if (zusiPfad.size() >= 1 && zusiPfad.front() == '\\') {
+      return ZusiPfad(std::string(zusiPfad.substr(1)));
+    } else {
+      return ZusiPfad(std::string(zusiPfad));
+    }
   }
 
-  if constexpr (osSep != zusiSep) {
-    std::replace_copy(zusiPfad.begin(), zusiPfad.end(), std::back_inserter(result), zusiSep, osSep);
-    return result;
-  } else {
-    return result += zusiPfad;
+  static ZusiPfad vonOsPfad(std::string_view osPfad) {
+    // TODO
+    return ZusiPfad(std::string(osPfad));
   }
-}
+
+  std::string_view alsZusiPfad() const {
+    return m_pfad;
+  }
+
+  std::string alsOsPfad() const {
+    // Pruefe, ob in eigenem Datenverzeichnis existiert.
+    // Wenn nein -> gib Pfad in offiziellem Datenverzeichnis zurueck (unabhaengig davon, ob er existiert)
+    std::string resultEigenes = getZusiDatenpfad();
+    if constexpr (osSep != zusiSep) {
+      std::replace_copy(m_pfad.begin(), m_pfad.end(), std::back_inserter(resultEigenes), zusiSep, osSep);
+    } else {
+      resultEigenes += m_pfad;
+    }
+
+#ifdef _WIN32
+    WIN32_FIND_DATA findData;
+#endif
+
+    if (
+#ifdef _WIN32
+      FindFirstFile(resultEigenes.c_str(), &findData) != INVALID_HANDLE_VALUE
+#else
+      euidaccess(resultEigenes.c_str(), F_OK) == 0
+#endif
+      ) {
+      return resultEigenes;
+    }
+
+    std::string resultOffiziell = getZusiDatenpfadOffiziell();
+    if constexpr (osSep != zusiSep) {
+      std::replace_copy(m_pfad.begin(), m_pfad.end(), std::back_inserter(resultOffiziell), zusiSep, osSep);
+    } else {
+      resultOffiziell += m_pfad;
+    }
+
+    return resultOffiziell;
+  }
+private:
+  // Pfad relativ zum Zusi-Datenverzeichnis; Separator: Backslash; kein fuehrender Backslash
+  std::string m_pfad;
+
+  ZusiPfad(std::string pfad) : m_pfad(std::move(pfad)) {}
+};
 
 }  // namespace zusixml
 

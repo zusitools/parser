@@ -99,3 +99,4 @@ function(generate_zusi_parser targetName outputDir)
   add_dependencies(${targetName} INTERFACE ${targetName}_includes)
 endfunction()
 
+add_subdirectory(test)
