@@ -23,7 +23,9 @@
         <xs:element ref="IndusiI60R_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V15" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="PZB90I60R_V20" type="PZB90I60R_V20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="EBICAB500" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90ER24_V20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="PZB90I60RBus" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90_PZ80R_V20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V20_ZUB122" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60R_V20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
@@ -31,11 +33,16 @@
         <xs:element ref="PZ80" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="LZB80_I80" type="LZB80_I80" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_I80_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_CE_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="LZB80_PZB90_20" type="LZB80_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="LZB80_CE_I80" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_CE_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80E" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_CE_I80" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="EBICAB2000" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_CESBahn_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="ETCS" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="ZBS" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Fahrsperre" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Textmelder" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Sifa_ZeitZeit" minOccurs="0" maxOccurs="unbounded"/>
@@ -221,7 +228,21 @@
       <xs:extension base="FtdFunktionalitaetPZB"/>
     </xs:complexContent>
   </xs:complexType>
+  <xs:element name="EBICAB500">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaetPZB"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="PZB90ER24_V20">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaetPZB"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PZB90I60RBus">
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB"/>
@@ -322,7 +343,22 @@
   <xs:element name="LZB80_I80_ZUB262">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="LZB80_I80"/>
+        <xs:extension base="LZB80_I80">
+          <xs:all minOccurs="0">
+            <xs:element ref="ZUB"/>
+          </xs:all>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LZB80_CE_PZB90_20_ZUB262">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="LZB80_CE_PZB90_20">
+          <xs:all minOccurs="0">
+            <xs:element ref="ZUB"/>
+          </xs:all>
+        </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
@@ -334,7 +370,20 @@
   <xs:element name="LZB80_PZB90_20_ZUB262">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="LZB80_PZB90_20"/>
+        <xs:extension base="LZB80_PZB90_20">
+          <xs:all minOccurs="0">
+            <xs:element ref="ZUB"/>
+          </xs:all>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LZB80E">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaetLZB">
+          <xs:attribute name="Klartextmeldungen" type="xs:int"/>
+        </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
@@ -352,10 +401,52 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+  <xs:element name="EBICAB2000">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="LZB80_I80">
+          <xs:attribute name="Klartextmeldungen" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="LZB80_CESBahn_PZB90_20">
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="LZB80_CE_PZB90_20"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ETCS">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaet">
+          <xs:all minOccurs="0">
+            <xs:element name="ETCSInfoTon" type="Sound"/>
+            <xs:element name="ETCSWarnungTon" type="Sound"/>
+            <xs:element name="ETCSvmaxTon" type="Sound"/>
+          </xs:all>
+          <xs:attribute name="ETCSSchalterQuittieren" type="xs:string"/>
+          <xs:attribute name="ETCSSTMAuswahl" type="xs:long"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ZBS">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaet">
+          <xs:all minOccurs="0">
+            <xs:element name="SoundBefehl" type="Sound"/>
+            <xs:element name="SoundGeschwindigkeit" type="Sound"/>
+            <xs:element name="SoundIndusiZB" type="Sound"/>
+            <xs:element name="SoundTest" type="Sound"/>
+            <xs:element name="SoundStoerung" type="Sound"/>
+          </xs:all>
+          <xs:attribute name="ZBSAltAuswahl" type="xs:long"/>
+          <xs:attribute name="SchalterFrei" type="xs:string"/>
+          <xs:attribute name="SchalterBefehl" type="xs:string"/>
+        </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
@@ -812,6 +903,9 @@
           <xs:attribute name="MaxWert" type="xs:float"/>
           <xs:attribute name="MittelNr" type="xs:int"/>
           <xs:attribute name="ZusiDisplayAuswahl" type="xs:string"/>
+          <xs:attribute name="ZusiDisplayRahmen" type="xs:int"/>
+          <xs:attribute name="ZusiDisplayMaster" type="boolean"/>
+          <xs:attribute name="ZusiDisplayBedienelemente" type="boolean"/>
           <xs:attribute name="Tastaturzuordnung" type="xs:int"/>
           <xs:attribute name="TastaturkommandoRauf" type="xs:int"/>
           <xs:attribute name="TastaturkommandoRunter" type="xs:int"/>
@@ -879,6 +973,10 @@
       <xs:all minOccurs="0">
         <xs:element ref="EinzelTextur" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
+      <xs:attribute name="DESTBLEND" type="xs:int"/>
+      <xs:attribute name="SRCBLEND" type="xs:int"/>
+      <xs:attribute name="ALPHABLENDENABLE" type="boolean"/>
+      <xs:attribute name="ALPHATESTENABLE" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="EinzelTextur">

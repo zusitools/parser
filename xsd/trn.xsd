@@ -112,6 +112,8 @@
     <xs:complexType>
       <xs:all>
         <xs:element name="Datei" type="Dateiverknuepfung"/>
+        <xs:element name="ZugdatenETCS" type="ETCSZugdaten"/>
+        <xs:element name="ZugdatenZBS" type="ZBSZugdaten"/>
         <xs:element name="ZugdatenLZB80" type="LZBZugdaten"/>
         <xs:element name="ZugdatenIndusiAnalog" type="IndusiAnalogZugdaten"/>
         <xs:element name="ZugdatenIndusiRechner" type="IndusiZugdaten"/>
@@ -131,6 +133,11 @@
       <xs:attribute name="DotraModus" type="xs:int"/>
       <xs:attribute name="SASchaltung" type="xs:int"/>
       <xs:attribute name="Gedreht" type="boolean"/>
+      <xs:attribute name="Zugart" type="xs:string">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="FahrzeugZusatzinfo" type="xs:string"/>
       <xs:attribute name="VariantenIndex" type="xs:int">
         <xs:annotation>
@@ -139,4 +146,31 @@
       </xs:attribute>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="ETCSZugdaten">
+    <xs:attribute name="BRH" type="xs:int"/>
+    <xs:attribute name="Zugkategorie" type="xs:int"/>
+    <xs:attribute name="ZL" type="xs:int"/>
+    <xs:attribute name="VMZ" type="xs:int"/>
+    <xs:attribute name="Achslast" type="xs:int"/>
+    <xs:attribute name="TfNummer" type="xs:string"/>
+    <xs:attribute name="Zugnummer" type="xs:string"/>
+    <xs:attribute name="ETCSLevel" type="xs:int"/>
+    <xs:attribute name="ETCSModus" type="xs:int"/>
+    <xs:attribute name="Startsystem" type="xs:string"/>
+    <xs:attribute name="ZugsicherungHS" type="xs:int"/>
+    <xs:attribute name="Lufthahn" type="xs:int"/>
+    <xs:attribute name="ETCSStoerschalter" type="xs:int"/>
+  </xs:complexType>
+  <xs:complexType name="ZBSZugdaten">
+    <xs:attribute name="BRH" type="xs:int"/>
+    <xs:attribute name="ZL" type="xs:int"/>
+    <xs:attribute name="VMZ" type="xs:int"/>
+    <xs:attribute name="TfNummer" type="xs:string"/>
+    <xs:attribute name="Zugnummer" type="xs:string"/>
+    <xs:attribute name="ZBSBetriebszustand" type="xs:int"/>
+    <xs:attribute name="Startsystem" type="xs:string"/>
+    <xs:attribute name="ZugsicherungHS" type="xs:int"/>
+    <xs:attribute name="Lufthahn" type="xs:int"/>
+    <xs:attribute name="ZBSStoerschalter" type="xs:int"/>
+  </xs:complexType>
 </xs:schema>

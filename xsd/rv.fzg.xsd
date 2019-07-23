@@ -36,6 +36,7 @@
         <xs:element ref="FzgTuersystemTB0" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="FzgTuersystemTB5" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="FzgTuersystemUICWTB" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FzgTuersystemSBahn" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="MaxIDHaupt" type="xs:int"/>
     </xs:complexType>
@@ -578,6 +579,9 @@
     <xs:complexType/>
   </xs:element>
   <xs:element name="FzgTuersystemUICWTB">
+    <xs:complexType/>
+  </xs:element>
+  <xs:element name="FzgTuersystemSBahn">
     <xs:complexType/>
   </xs:element>
 </xs:schema>

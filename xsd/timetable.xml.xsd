@@ -62,6 +62,7 @@
       <xs:complexContent>
         <xs:extension base="FplZeileEintrag">
           <xs:attribute name="vMax" type="xs:float"/>
+          <xs:attribute name="vMaxTyp" type="xs:int"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
