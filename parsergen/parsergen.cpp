@@ -931,6 +931,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "            }" << std::endl;
             parse_attributes << "            parseResult->" << attr.name << "[i] = result;" << std::endl;
             parse_attributes << "          }" << std::endl;
+            parse_attributes << "          if (*text == ';') ++text;" << std::endl;
 #endif
             break;
         }
