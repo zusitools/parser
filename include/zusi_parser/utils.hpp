@@ -261,6 +261,11 @@ constexpr char osSep = '/';
 
 class ZusiPfad {
 public:
+  ZusiPfad(const ZusiPfad&) = default;
+  ZusiPfad& operator=(const ZusiPfad&) = default;
+  ZusiPfad(ZusiPfad&&) = default;
+  ZusiPfad& operator=(ZusiPfad&&) = default;
+
   static ZusiPfad vonZusiPfad(std::string_view zusiPfad, const ZusiPfad& uebergeordnet) {
     if (zusiPfad.empty() || (zusiPfad.find('\\') != std::string_view::npos)) {
       return vonZusiPfad(zusiPfad);

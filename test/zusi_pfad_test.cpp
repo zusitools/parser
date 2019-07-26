@@ -9,6 +9,15 @@ using namespace zusixml;
 
 BOOST_AUTO_TEST_SUITE(ZusiPfadTest)
 
+BOOST_AUTO_TEST_CASE(ZusiPfad_Konstruktoren) {
+  const auto zusiPfad1 = ZusiPfad::vonZusiPfad("RollingStock\\Test");
+  BOOST_TEST(zusiPfad1.alsZusiPfad() == "RollingStock\\Test");
+  const auto zusiPfad2 = zusiPfad1;
+  BOOST_TEST(zusiPfad2.alsZusiPfad() == "RollingStock\\Test");
+  const auto zusiPfad3 = std::move(zusiPfad2);
+  BOOST_TEST(zusiPfad3.alsZusiPfad() == "RollingStock\\Test");
+}
+
 BOOST_AUTO_TEST_CASE(ZusiPfad_vonZusiPfad_ohneUebergeordnet) {
   const auto zusiPfad1 = ZusiPfad::vonZusiPfad("RollingStock\\Test");
   BOOST_TEST(zusiPfad1.alsZusiPfad() == "RollingStock\\Test");
