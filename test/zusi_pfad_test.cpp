@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(ZusiPfad_vonZusiPfad_mitUebergeordnet) {
   BOOST_TEST(zusiPfad9.alsZusiPfad() == "");
 
   const auto zusiPfad10 = ZusiPfad::vonZusiPfad(""sv, ZusiPfad::vonZusiPfad("RollingStock\\Test\\test.ls3"));
-  BOOST_TEST(zusiPfad10.alsZusiPfad() == "RollingStock\\Test\\");
+  BOOST_TEST(zusiPfad10.alsZusiPfad() == "");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

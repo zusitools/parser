@@ -262,7 +262,7 @@ constexpr char osSep = '/';
 class ZusiPfad {
 public:
   static ZusiPfad vonZusiPfad(std::string_view zusiPfad, const ZusiPfad& uebergeordnet) {
-    if (zusiPfad.find('\\') != std::string_view::npos) {
+    if (zusiPfad.empty() || (zusiPfad.find('\\') != std::string_view::npos)) {
       return vonZusiPfad(zusiPfad);
     }
 
