@@ -16,7 +16,7 @@ else()
 
   if(ZUSI_PARSER_USE_BOOST_FILESYSTEM)
     find_package(Boost COMPONENTS filesystem REQUIRED)
-    target_compile_definitions(parsergen PRIVATE -DUSE_BOOST_FILESYSTEM)
+    target_compile_definitions(parsergen PRIVATE -DZUSI_PARSER_USE_BOOST_FILESYSTEM)
     target_link_libraries(parsergen PRIVATE Boost::filesystem)
   else()
     target_link_libraries(parsergen PRIVATE stdc++fs)

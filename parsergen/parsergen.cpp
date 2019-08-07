@@ -6,7 +6,7 @@
 #include <array>
 #include <cassert>
 #include <cstring>
-#ifdef USE_BOOST_FILESYSTEM
+#ifdef ZUSI_PARSER_USE_BOOST_FILESYSTEM
   #include <boost/filesystem.hpp>
   namespace fs = boost::filesystem;
   using ofstream = fs::ofstream;
