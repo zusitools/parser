@@ -42,6 +42,14 @@ namespace io = boost::nowide;
 namespace io = std;
 #endif
 
+#ifdef ZUSI_PARSER_USE_BOOST_FILESYSTEM
+  #include <boost/filesystem.hpp>
+  namespace fs = boost::filesystem;
+#else
+  #include <filesystem>
+  namespace fs = std::filesystem;
+#endif
+
 namespace zusixml {
 
 class FileReader {
@@ -290,8 +298,81 @@ public:
   }
 
   static ZusiPfad vonOsPfad(std::string_view osPfad) {
-    // TODO
-    return ZusiPfad(std::string(osPfad));
+    std::string relPfad = [&osPfad] {
+      // Optimierung fuer (haeufige) einfache Faelle, bei denen ein Stringvergleich genuegt
+      const std::string& datenpfadOffiziell = getZusiDatenpfadOffiziell();
+      if (std::mismatch(datenpfadOffiziell.begin(), datenpfadOffiziell.end(), osPfad.begin(), osPfad.end()).first == datenpfadOffiziell.end()) {
+        return std::string(osPfad.substr(datenpfadOffiziell.size()));
+      }
+
+      const std::string& datenpfad = getZusiDatenpfad();
+      if (std::mismatch(datenpfad.begin(), datenpfad.end(), osPfad.begin(), osPfad.end()).first == datenpfad.end()) {
+        return std::string(osPfad.substr(datenpfad.size()));
+      }
+
+      // Allgemeiner Fall
+      const auto& lexically_proximate = [](const fs::path& p, const fs::path& base) -> fs::path {
+        // Taken and adapted from boost::filesystem, src/path.cpp
+        // Licensed under the Boost Software License.
+        auto mm = std::mismatch(p.begin(), p.end(), base.begin(), base.end()
+#ifdef _WIN32
+            , [](const fs::path& lhs, const fs::path& rhs) {
+              return lstrcmpi(lhs.string().c_str(), rhs.string().c_str()) == 0;
+            }
+#endif
+        );
+        if ((mm.first == p.begin()) && (mm.second == base.begin())) {
+          return p;
+        }
+        if ((mm.first == p.end()) && (mm.second == base.end())) {
+          return ".";
+        }
+        fs::path tmp;
+        while (mm.second != base.end()) {
+          tmp /= "..";
+          ++mm.second;
+        }
+        while (mm.first != p.end()) {
+          tmp /= *mm.first;
+          ++mm.first;
+        }
+        return tmp;
+      };
+
+      const auto& proximate = [&lexically_proximate](const fs::path& p, const fs::path& base) -> fs::path {
+#ifdef ZUSI_PARSER_USE_BOOST_FILESYSTEM
+        boost::system::error_code ec;
+#else
+        std::error_code ec;
+#endif
+        const auto& pCanonical = fs::weakly_canonical(p, ec);
+        if (ec) {
+          return p;
+        }
+        const auto& baseCanonical = fs::weakly_canonical(base, ec);
+        if (ec) {
+          return p;
+        }
+        return lexically_proximate(pCanonical, baseCanonical);
+      };
+
+      const auto relToOffiziell = proximate(
+          fs::path(osPfad.begin(), osPfad.end()),
+          fs::path(datenpfadOffiziell.begin(), (!datenpfadOffiziell.empty() && datenpfadOffiziell.back() == osSep) ? std::prev(datenpfadOffiziell.end()) : datenpfadOffiziell.end()));
+      if (relToOffiziell.is_relative() && (relToOffiziell.empty() || *relToOffiziell.begin() != "..")) {
+        return relToOffiziell.string();
+      }
+
+      return proximate(
+          fs::path(osPfad.begin(), osPfad.end()),
+          fs::path(datenpfad.begin(), (!datenpfad.empty() && datenpfad.back() == osSep) ? std::prev(datenpfad.end()) : datenpfad.end())).string();
+    }();
+
+    std::replace(relPfad.begin(), relPfad.end(), '/', '\\');
+    if (relPfad.back() == '.') {
+      relPfad.erase(relPfad.size() - 1);
+    }
+    return ZusiPfad(std::move(relPfad));
   }
 
   std::string_view alsZusiPfad() const {

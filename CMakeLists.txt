@@ -98,5 +98,3 @@ function(generate_zusi_parser targetName outputDir)
   target_include_directories(${targetName} INTERFACE "${outputDir}" "${ZUSI_PARSER_SOURCE_DIR}/include" "${ZUSI_PARSER_SOURCE_DIR}/rapidxml-mod")
   add_dependencies(${targetName} INTERFACE ${targetName}_includes)
 endfunction()
-
-add_subdirectory(test)
