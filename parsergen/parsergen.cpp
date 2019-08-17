@@ -1054,7 +1054,9 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
     std::vector<Child> result(curElementType->children);
     while (curElementType->base) {
       curElementType = curElementType->base;
-      std::copy(std::begin(curElementType->children), std::end(curElementType->children), std::back_inserter(result));
+      for (auto it = std::crbegin(curElementType->children); it != std::crend(curElementType->children); ++it) {
+        result.insert(result.begin(), *it);
+      }
     }
     return result;
   }
