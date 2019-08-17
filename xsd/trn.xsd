@@ -55,12 +55,12 @@
       <xs:all minOccurs="0">
         <xs:element ref="FahrplanSignalEintrag" maxOccurs="unbounded"/>
         <xs:element ref="FahrplanFahrstrasseEintrag" maxOccurs="unbounded"/>
-        <xs:element name="FahrplanVorgangEreignisse" type="FahrplanVorgang" maxOccurs="unbounded"/>
+        <xs:element ref="FahrplanVorgangEreignisse" maxOccurs="unbounded"/>
         <xs:element name="FahrplanVorgangFahrstrasse" type="FahrplanVorgang" maxOccurs="unbounded"/>
         <xs:element ref="Ereignis" maxOccurs="unbounded"/>
       </xs:all>
-      <xs:attribute name="Abf" type="dateTime"/>
       <xs:attribute name="Ank" type="dateTime"/>
+      <xs:attribute name="Abf" type="dateTime"/>
       <xs:attribute name="Betrst" type="xs:string"/>
       <xs:attribute name="FplEintrag" type="xs:int"/>
       <xs:attribute name="ErsatzsignalzeilePlus1" type="xs:int"/>
@@ -82,10 +82,18 @@
   <xs:complexType name="FahrplanVorgang">
     <xs:all>
       <xs:element name="AbhAbhaengigkeit" type="FahrplanVorgangAbhaengigkeit" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
     </xs:all>
     <xs:attribute name="Beschreibung" type="xs:string"/>
   </xs:complexType>
+  <xs:element name="FahrplanVorgangEreignisse">
+    <xs:complexType>
+      <xs:extension base="FahrplanVorgang">
+        <xs:all minOccurs="0">
+          <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:all>
+      </xs:extension>
+    </xs:complexType>
+  </xs:element>
   <xs:complexType name="FahrplanVorgangAbhaengigkeit">
     <xs:all>
       <xs:element name="AbhAbhaengigkeit" type="FahrplanVorgangAbhaengigkeit" minOccurs="0" maxOccurs="unbounded"/>

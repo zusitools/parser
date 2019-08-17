@@ -35,7 +35,7 @@
         <xs:element ref="LZB80_I80_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_CE_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="LZB80_PZB90_20" type="LZB80_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="LZB80_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="LZB80_PZB90_20_ZUB262" type="LZB80_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_CE_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80E" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_CE_I80" minOccurs="0" maxOccurs="unbounded"/>
@@ -292,7 +292,7 @@
   <xs:element name="PZ80">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetIndusiOderPZB">
+        <xs:extension base="FtdFunktionalitaetIndusiBasiert">
           <xs:attribute name="LM60Gelb" type="xs:string"/>
           <xs:attribute name="LM40Gelb" type="xs:string"/>
           <xs:attribute name="LMLoeschen" type="xs:string"/>
@@ -343,22 +343,14 @@
   <xs:element name="LZB80_I80_ZUB262">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="LZB80_I80">
-          <xs:all minOccurs="0">
-            <xs:element ref="ZUB"/>
-          </xs:all>
-        </xs:extension>
+        <xs:extension base="LZB80_I80"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="LZB80_CE_PZB90_20_ZUB262">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="LZB80_CE_PZB90_20">
-          <xs:all minOccurs="0">
-            <xs:element ref="ZUB"/>
-          </xs:all>
-        </xs:extension>
+        <xs:extension base="LZB80_CE_PZB90_20"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
@@ -370,11 +362,7 @@
   <xs:element name="LZB80_PZB90_20_ZUB262">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="LZB80_PZB90_20">
-          <xs:all minOccurs="0">
-            <xs:element ref="ZUB"/>
-          </xs:all>
-        </xs:extension>
+        <xs:extension base="LZB80_PZB90_20"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
@@ -621,7 +609,6 @@
         <xs:all minOccurs="0">
           <xs:element name="Sound" type="Sound"/>
         </xs:all>
-        <xs:attribute name="Invers" type="boolean"/>
         <xs:attribute name="Taster" type="boolean"/>
         <xs:attribute name="NameLMBereit" type="xs:string"/>
         <xs:attribute name="NameLMNotbremsung" type="xs:string"/>
@@ -629,17 +616,24 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  <xs:complexType name="FtdFunktionalitaetNotbremssystemAutomatischeBremsung">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaetNotbremssystem">
+        <xs:attribute name="Invers" type="boolean"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="NotbremssystemUICNBUe">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetNotbremssystem"/>
+        <xs:extension base="FtdFunktionalitaetNotbremssystemAutomatischeBremsung"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="NotbremsSystemNBUe2004">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaetNotbremssystem"/>
+        <xs:extension base="FtdFunktionalitaetNotbremssystemAutomatischeBremsung"/>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>

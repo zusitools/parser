@@ -158,7 +158,6 @@
       <xs:complexContent>
         <xs:extension base="FplZeileEintrag">
           <xs:attribute name="Abf" type="dateTime"/>
-          <xs:attribute name="FplEintrag" type="xs:int"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>

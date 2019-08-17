@@ -274,20 +274,12 @@
   <xs:element name="DynbremseHydrodynamisch">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="Bremse">
+        <xs:extension base="Antriebsmodell">
           <xs:all minOccurs="0">
-            <xs:element name="Kennfeld" type="Kennfeld"/>
-            <xs:element ref="Nachlaufsteuerung"/>
             <xs:element ref="ErgBremse"/>
             <xs:element name="BremseH" type="Bremsgewicht"/>
           </xs:all>
           <xs:attribute name="MaxLeistung" type="xs:float"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -412,17 +404,22 @@
       <xs:attribute name="Motorkonstante" type="xs:float"/>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="DynbremseElektrisch">
+    <xs:complexContent>
+      <xs:extension base="Antriebsmodell">
+        <xs:all minOccurs="0">
+          <xs:element ref="ErgBremse"/>
+          <xs:element name="BremseE" type="Bremsgewicht"/>
+          <xs:element name="BremseE160" type="Bremsgewicht"/>
+        </xs:all>
+        <xs:attribute name="Volt" type="xs:int"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="DynbremseElektrDrehstrom">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="Bremse">
-          <xs:all minOccurs="0">
-            <xs:element name="Kennfeld" type="Kennfeld"/>
-            <xs:element ref="Nachlaufsteuerung"/>
-            <xs:element ref="ErgBremse"/>
-            <xs:element name="BremseE" type="Bremsgewicht"/>
-            <xs:element name="BremseE160" type="Bremsgewicht"/>
-          </xs:all>
+        <xs:extension base="DynbremseElektrisch">
           <xs:attribute name="etaTrafo" type="xs:float"/>
           <xs:attribute name="etaMotor" type="xs:float"/>
           <xs:attribute name="Motorkonstante" type="xs:float"/>
@@ -430,13 +427,6 @@
           <xs:attribute name="MotorMaxFrequenz" type="xs:float"/>
           <xs:attribute name="MotorMaxSpannung" type="xs:float"/>
           <xs:attribute name="spUmschalt" type="xs:float"/>
-          <xs:attribute name="Volt" type="xs:int"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -444,23 +434,9 @@
   <xs:element name="DynbremseElektrReihenschluss">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="Bremse">
-          <xs:all minOccurs="0">
-            <xs:element name="Kennfeld" type="Kennfeld"/>
-            <xs:element ref="Nachlaufsteuerung"/>
-            <xs:element ref="ErgBremse"/>
-            <xs:element name="BremseE" type="Bremsgewicht"/>
-            <xs:element name="BremseE160" type="Bremsgewicht"/>
-          </xs:all>
+        <xs:extension base="DynbremseElektrisch">
           <xs:attribute name="Bremswiderstand" type="xs:float"/>
           <xs:attribute name="Fremderregt" type="boolean"/>
-          <xs:attribute name="Volt" type="xs:int"/>
-          <xs:attribute name="Leistung" type="xs:float"/>
-          <xs:attribute name="Antriebsachsen" type="xs:int"/>
-          <xs:attribute name="Reibmasse" type="xs:float"/>
-          <xs:attribute name="GueteKraftverteilung" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHL" type="xs:float"/>
-          <xs:attribute name="GrenzdruckHBL" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -468,14 +444,6 @@
   <xs:element name="FktIndividuell">
     <xs:complexType>
       <xs:attribute name="PhysikGroesse" type="xs:int"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="FahrzeugSound">
-    <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Sound" type="Sound"/>
-        <xs:element ref="Abhaengigkeit"/>
-      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="ExterneDatei">

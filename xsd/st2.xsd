@@ -113,7 +113,7 @@
     <xs:complexType>
       <xs:attribute name="X" type="xs:float"/>
       <xs:attribute name="Y" type="xs:float"/>
-      <xs:attribute name="Kategorie" type="xs:string"/>
+      <xs:attribute name="Kategorie" type="xs:int"/>
       <xs:attribute name="Radius" type="xs:float"/>
     </xs:complexType>
   </xs:element>
