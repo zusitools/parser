@@ -33,14 +33,14 @@
         <xs:element ref="PZ80" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="LZB80_I80" type="LZB80_I80" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_I80_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="LZB80_CE_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="LZB80_PZB90_20" type="LZB80_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="LZB80_PZB90_20_ZUB262" type="LZB80_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="LZB80_CE_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="LZB80E" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_CE_I80" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="EBICAB2000" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_CE_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80_CESBahn_PZB90_20" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80_CE_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="LZB80E" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="EBICAB2000" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="ETCS" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="ZBS" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Fahrsperre" minOccurs="0" maxOccurs="unbounded"/>

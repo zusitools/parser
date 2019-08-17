@@ -19,12 +19,12 @@
         <xs:element ref="MgBremse" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="FederspeicherBremse" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="DynbremseHydrodynamisch" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="AntriebsmodellDieselElektrischDrehstrom" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="AntriebsmodellDieselHydraulisch" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="AntriebsmodellDieselMechanisch" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="AntriebsmodellEinfach" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AntriebsmodellDieselHydraulisch" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AntriebsmodellDieselElektrischDrehstrom" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="AntriebsmodellElektrischDrehstrom" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="AntriebsmodellElektrischReihenschluss" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="AntriebsmodellEinfach" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="DynbremseElektrDrehstrom" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="DynbremseElektrReihenschluss" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="ExterneDatei" minOccurs="0" maxOccurs="unbounded"/>
