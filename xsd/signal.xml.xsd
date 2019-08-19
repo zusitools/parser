@@ -18,7 +18,7 @@
         </xs:attribute>
         <xs:attribute name="SigAssiGrundZeile" type="xs:int">
           <xs:annotation>
-            <xs:documentation xml:lang="de"/>
+            <xs:documentation xml:lang="de">Wird eingesetzt zusammen mit SigAssiErgaenzen. Die Konfiguration aus der angegebenen Grundzeile wird im Zielsignal in alle Zeilen eingetragen, für die unsere signal.xml keine anderweitige Konfiguration enthält. Damit erspart man sich, jede im Zielsignal denkbare Kombination aus Zeile und Spalte explizit konfigurieren zu müssen. Da Signalzeilen von 0 gezählt werden und Attribute mit Wert "0" beim Schreiben weggelassen werden können, bedeutet das Nichtvorhandensein dieses Attributs, dass die erste Zeile Grundzeile ist.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="SigAssiKeineGrunddaten" type="boolean">
@@ -28,7 +28,7 @@
         </xs:attribute>
         <xs:attribute name="SigAssiErgaenzen" type="boolean">
           <xs:annotation>
-            <xs:documentation xml:lang="de"/>
+            <xs:documentation xml:lang="de">Ist dieses Attribut auf "1" gesetzt, wird der Signalassistent nur bereits bestehende Matrixzeilen und -spalten mit den Daten dieses Signals vervollständigen, aber nicht (wie bei Attributwert "0") neue Zeilen und Spalten in der Kombinationsmatrix anlegen. Auf Ersatzsignale hat das Attribut keine Auswirkung; stattdessen hat jedes Ersatzsignal ein eigenes Attribut "SigAssiErgaenzen"</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="BeideRichtungen" type="boolean">
@@ -50,7 +50,7 @@
   </xs:element>
   <xs:element name="SigAssiCheck">
     <xs:annotation>
-      <xs:documentation xml:lang="de">Generiert im Formular des Signalassistenten ein Ankreuzfeld. Eine Signaloption kann damit an- und abgewählt werden.</xs:documentation>
+      <xs:documentation xml:lang="de">Generiert im Formular des Signalassistenten eine Liste von Ankreuzfeldern. Für jeden Untereintrag wird ein Ankreuzfeld dargestellt. Eine Signaloption kann damit an- und abgewählt werden.</xs:documentation>
     </xs:annotation>
     <xs:complexType>
       <xs:all>
@@ -63,12 +63,12 @@
       </xs:attribute>
       <xs:attribute name="SigAssiPassiv" type="boolean">
         <xs:annotation>
-          <xs:documentation xml:lang="de">Wenn aktiv: Die Checkbox wird ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
+          <xs:documentation xml:lang="de">Eine Bitmaske, die für jede Checkbox angibt, ob sie deaktiviert ist. Eine deaktivierte Checkbox wird ausgegraut dargestellt. Ihr durch "SigAssiVorbelegung" vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="SigAssiVorbelegung" type="boolean">
         <xs:annotation>
-          <xs:documentation xml:lang="de">Gibt an, ob die Checkbox standardmäßig angekreuzt ist.</xs:documentation>
+          <xs:documentation xml:lang="de">Eine Bitmaske, die für jede Checkbox angibt, ob sie standardmäßig angekreuzt ist.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
     </xs:complexType>
@@ -88,12 +88,12 @@
       </xs:attribute>
       <xs:attribute name="SigAssiPassiv" type="xs:int">
         <xs:annotation>
-          <xs:documentation xml:lang="de">Wenn aktiv: Die Radiobuttons werden ausgegraut dargestellt. Ihr durch das Formular vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
+          <xs:documentation xml:lang="de">Wenn "1": Die Radiobuttons werden ausgegraut dargestellt. Ihr durch "SigAssiVorbelegung" vorgegebener Zustand kann dadurch vom Streckenbauer nicht geändert werden.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="SigAssiVorbelegung" type="xs:int">
         <xs:annotation>
-          <xs:documentation xml:lang="de">Definiert, welcher Radiobutton vorausgewählt ist.</xs:documentation>
+          <xs:documentation xml:lang="de">Definiert, welcher Radiobutton vorausgewählt ist. Die Zählung beginnt bei 0.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
     </xs:complexType>

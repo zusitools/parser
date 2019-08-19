@@ -304,7 +304,11 @@
       </xs:all>
       <xs:attribute name="ErsatzsigBezeichnung" type="xs:string"/>
       <xs:attribute name="ErsatzsigID" type="xs:hexBinary"/>
-      <xs:attribute name="SigAssiErgaenzen" type="boolean"/>
+      <xs:attribute name="SigAssiErgaenzen" type="boolean">
+        <xs:annotation>
+          <xs:documentation xml:lang="de">Ist dieses Attribut auf "1" gesetzt, wird der Signalassistent nur ein bereits bestehendes Ersatzsignal mit gleicher ErsatzsigID mit den Daten dieses Eintrags vervollständigen, aber nicht (wie bei Attributwert "0") ein neues Ersatzsignal anlegen, wenn noch keines mit gleicher ErsatzsigID existiert.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
   <xs:element name="MatrixEintrag">
