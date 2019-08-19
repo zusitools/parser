@@ -87,7 +87,7 @@ function(generate_zusi_parser targetName outputDir)
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/zusi.xsd
   )
 
-  add_custom_command(OUTPUT "${outputDir}/zusi_parser/zusi_types.hpp" "${outputDir}/zusi_parser/zusi_parser.hpp" "${outputDir}/zusi_parser/zusi_parser_fwd.hpp"
+  add_custom_command(OUTPUT "${outputDir}/zusi_parser/zusi_types.hpp" "${outputDir}/zusi_parser/zusi_types_fwd.hpp" "${outputDir}/zusi_parser/zusi_parser.hpp" "${outputDir}/zusi_parser/zusi_parser_fwd.hpp"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${outputDir}/zusi_parser"
     COMMAND parsergen "${ZUSI_PARSER_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd" "${outputDir}/zusi_parser"
     DEPENDS ${xsd_sources} parsergen)

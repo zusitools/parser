@@ -259,6 +259,7 @@ class ParserGenerator {
 
   void GenerateTypeIncludes(std::ostream& out) {
     out << "#pragma once" << std::endl;
+    out << "#include \"zusi_parser/zusi_types_fwd.hpp\"" << std::endl;
     out << "#include \"boost/container/small_vector.hpp\"" << std::endl;
     out << "#include <vector>  // for std::vector" << std::endl;
     out << "#include <memory>  // for std::unique_ptr" << std::endl;
@@ -276,6 +277,7 @@ class ParserGenerator {
   }
 
   void GenerateTypeDeclarations(std::ostream& out) {
+    out << "#pragma once\n";
     for (const auto& elementType : m_element_types) {
       out << "struct " << elementType->name << ";" << std::endl;
     }
@@ -442,6 +444,8 @@ class ParserGenerator {
   }
 
   void GenerateParseFunctionDeclarations(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
+    out << "#pragma once\n";
+    out << "#include \"zusi_parser/zusi_types_fwd.hpp\"\n";
     out << "namespace zusixml {" << std::endl;
     for (const auto& elementType : m_element_types) {
       if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
@@ -455,6 +459,7 @@ class ParserGenerator {
   void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
     out << "#pragma once" << std::endl;
     out << "#include \"zusixml.hpp\"" << std::endl;
+    out << "#include \"zusi_parser/zusi_types.hpp\"" << std::endl;
 
     out << "#include <array>" << std::endl;
     out << "#include <cstring>  // for memcmp" << std::endl;
@@ -1229,9 +1234,11 @@ int main(int argc, char** argv) {
 
   ParserGenerator generator = builder.Build();
 
+  ofstream out_types_fwd(fs::path(argv[2]) / "zusi_types_fwd.hpp");
+  generator.GenerateTypeDeclarations(out_types_fwd);
+
   ofstream out_types(fs::path(argv[2]) / "zusi_types.hpp");
   generator.GenerateTypeIncludes(out_types);
-  generator.GenerateTypeDeclarations(out_types);
   generator.GenerateTypeDefinitions(out_types);
 
   const auto& concreteTypes = generator.GetConcreteTypes();
