@@ -9,6 +9,7 @@ generate_zusi_parser(zusi_parser ${CMAKE_CURRENT_BINARY_DIR}/zusi_parser)
 find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 add_executable(parser_test
   main.cpp
+  parser_test.cpp
   zusi_pfad_test.cpp)
 set_property(TARGET parser_test PROPERTY CXX_STANDARD 17)
 set_property(TARGET parser_test PROPERTY CXX_STANDARD_REQUIRED TRUE)
