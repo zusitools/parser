@@ -26,4 +26,5 @@ else()
   target_link_libraries(parser_test PRIVATE stdc++fs)
 endif()
 
-add_test(parser_test COMMAND parser_test --show_progress)
+enable_testing()
+add_test(NAME parser_test COMMAND "${CMAKE_COMMAND}" -E env ZUSI3_DATAPATH=/mnt/zusi/Daten/ ZUSI3_DATAPATH_OFFICIAL=/mnt/zusi/Offiziell/Daten/ $<TARGET_FILE:parser_test>)
