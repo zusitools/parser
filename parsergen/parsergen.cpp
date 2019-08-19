@@ -486,20 +486,19 @@ struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
 
 namespace zusixml {
 
-template<Ch Quote>
-static void parse_string(const Ch*& text, std::string& result) {
+static void parse_string(const Ch*& text, std::string& result, Ch quote) {
   const Ch* const value = text;
-  skip<attribute_value_pure_pred<Quote>>(text);
-  if (*text == Quote) {
+  skip_attribute_value_pure(text, quote);
+  if (*text == quote) {
     // No character refs in attribute value, copy the string verbatim
     result = std::string(value, text - value);
   } else if (*text == Ch('&')) {
     const Ch* first_ampersand = text;
-    skip<attribute_value_pred<Quote>>(text);
+    skip_attribute_value(text, quote);
     result.resize(text - value);
     // Copy characters until the first ampersand verbatim, use copy_and_expand_character_refs for the rest.
     memcpy(&result[0], value, first_ampersand - value);
-    result.resize(first_ampersand - value + copy_and_expand_character_refs<attribute_value_pred<Quote>>(first_ampersand, &result[first_ampersand - value]));
+    result.resize(first_ampersand - value + copy_and_expand_character_refs(first_ampersand, &result[first_ampersand - value], quote));
   }
   // else: *text == '\0'
 }
@@ -789,10 +788,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
           } else {
             parse_attributes << "          // deprecated" << std::endl;
-            parse_attributes << "          if (unlikely(quote == Ch('\\'')))" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-            parse_attributes << "          else" << std::endl;
-            parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+            parse_attributes << "          skip_attribute_value(text, quote);\n";
           }
           parse_attributes << "        }" << std::endl;
           continue;
@@ -840,10 +836,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
 #ifdef ZUSIXML_SCHEMA_XML_MODE
             parse_attributes << "          expect(\"string\", text);\n";
 #else
-            parse_attributes << "          if (unlikely(quote == Ch('\\\'')))" << std::endl;
-            parse_attributes << "            parse_string<Ch('\\\'')>(text, parseResult->" << attr.name << ");" << std::endl;
-            parse_attributes << "          else" << std::endl;
-            parse_attributes << "            parse_string<Ch('\"')>(text, parseResult->" << attr.name << ");" << std::endl;
+            parse_attributes << "          parse_string(text, parseResult->" << attr.name << ", quote);" << std::endl;
 #endif
             break;
           case AttributeType::Float:
@@ -940,10 +933,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
 
       parse_attributes << "        else {" << std::endl;
       parse_attributes << "          std::cerr << \"Unexpected attribute of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";" << std::endl;
-      parse_attributes << "          if (unlikely(quote == Ch('\\'')))" << std::endl;
-      parse_attributes << "            skip<attribute_value_pred<Ch('\\\'')>>(text);" << std::endl;
-      parse_attributes << "          else" << std::endl;
-      parse_attributes << "            skip<attribute_value_pred<Ch('\\\"')>>(text);" << std::endl;
+      parse_attributes << "          skip_attribute_value(text, quote);\n";
       parse_attributes << "        }" << std::endl;
 
       // Generate code for parsing method

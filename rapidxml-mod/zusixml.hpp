@@ -190,34 +190,6 @@ namespace zusixml
         }
     };
 
-    // Detect attribute value character
-    template<Ch Quote>
-    struct attribute_value_pred
-    {
-        static unsigned char test(Ch ch)
-        {
-            if (Quote == Ch('\''))
-                return internal::lookup_tables<0>::lookup_attribute_data_1[static_cast<unsigned char>(ch)];
-            if (Quote == Ch('\"'))
-                return internal::lookup_tables<0>::lookup_attribute_data_2[static_cast<unsigned char>(ch)];
-            return 0;       // Should never be executed, to avoid warnings on Comeau
-        }
-    };
-
-    // Detect attribute value character
-    template<Ch Quote>
-    struct attribute_value_pure_pred
-    {
-        static unsigned char test(Ch ch)
-        {
-            if (Quote == Ch('\''))
-                return internal::lookup_tables<0>::lookup_attribute_data_1_pure[static_cast<unsigned char>(ch)];
-            if (Quote == Ch('\"'))
-                return internal::lookup_tables<0>::lookup_attribute_data_2_pure[static_cast<unsigned char>(ch)];
-            return 0;       // Should never be executed, to avoid warnings on Comeau
-        }
-    };
-
     // Detect digits
     struct digit_pred
     {
@@ -273,6 +245,24 @@ namespace zusixml
         text = tmp;
     }
 
+    static void skip_attribute_value(const Ch *&text, Ch quote)
+    {
+        const Ch *tmp = text;
+        const auto& lut = (unlikely(quote == Ch('\''))) ? internal::lookup_tables<0>::lookup_attribute_data_1 : internal::lookup_tables<0>::lookup_attribute_data_2;
+        while (lut[static_cast<unsigned char>(*tmp)])
+            ++tmp;
+        text = tmp;
+    }
+
+    static void skip_attribute_value_pure(const Ch *&text, Ch quote)
+    {
+        const Ch *tmp = text;
+        const auto& lut = (unlikely(quote == Ch('\''))) ? internal::lookup_tables<0>::lookup_attribute_data_1_pure : internal::lookup_tables<0>::lookup_attribute_data_2_pure;
+        while (lut[static_cast<unsigned char>(*tmp)])
+            ++tmp;
+        text = tmp;
+    }
+
     // Skip characters until predicate evaluates to false
     // or the given number of characters has been skipped
     template<class StopPred, size_t MaxSkip>
@@ -298,12 +288,12 @@ namespace zusixml
 
     // Skip characters until predicate evaluates to true while
     // replacing XML character entity references with proper characters (&apos; &amp; &quot; &lt; &gt; &#...;)
-    template<class StopPred>
-    static size_t copy_and_expand_character_refs(const Ch *&src, Ch *dest)
+    static size_t copy_and_expand_character_refs(const Ch *&src, Ch *dest, Ch quote)
     {
         const Ch *dest_start = dest;
 
-        while (StopPred::test(*src))
+        const auto& lut = (unlikely(quote == Ch('\''))) ? internal::lookup_tables<0>::lookup_attribute_data_1 : internal::lookup_tables<0>::lookup_attribute_data_2;
+        while (lut[static_cast<unsigned char>(*src)])
         {
             // Test if replacement is needed
             if (src[0] == Ch('&'))
@@ -811,10 +801,7 @@ namespace zusixml {
             ++text;
 
             // Extract attribute value
-            if (quote == Ch('\''))
-                skip<attribute_value_pred<Ch('\'')>>(text);
-            else
-                skip<attribute_value_pred<Ch('"')>>(text);
+            skip_attribute_value(text, quote);
             
             // Make sure that end quote is present
             if (*text != quote)
