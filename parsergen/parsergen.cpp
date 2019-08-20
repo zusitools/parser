@@ -694,6 +694,26 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
 }
 
 #define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)
+
+[[noreturn]] void parse_error_expected_semicolon(const Ch*& text) {
+  RAPIDXML_PARSE_ERROR("expected ';'", text);
+}
+[[noreturn]] void parse_error_expected_equals(const Ch*& text) {
+  RAPIDXML_PARSE_ERROR("expected '='", text);
+}
+[[noreturn]] void parse_error_expected_quote(const Ch*& text) {
+  RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+}
+[[noreturn]] void parse_error_expected_tag_end(const Ch*& text) {
+  RAPIDXML_PARSE_ERROR("expected > or />", text);
+}
+[[noreturn]] void parse_error_expected_element_name(const Ch*& text) {
+  RAPIDXML_PARSE_ERROR("expected element name", text);
+}
+[[noreturn]] void parse_error_value_too_long(const Ch*& text) {
+  RAPIDXML_PARSE_ERROR("value too long", text);
+}
+
 )"" << std::endl;
 
 #ifdef ZUSIXML_SCHEMA_XML_MODE
@@ -903,11 +923,11 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          const Ch* values[4];" << std::endl;
             parse_attributes << "          values[0] = text;" << std::endl;
             parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
-            parse_attributes << "          if (*text != ';') RAPIDXML_PARSE_ERROR(\"expected ';'\", text);" << std::endl;
+            parse_attributes << "          if (*text != ';') parse_error_expected_semicolon(text);" << std::endl;
             parse_attributes << "          ++text;" << std::endl;
             parse_attributes << "          values[1] = text;" << std::endl;
             parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
-            parse_attributes << "          if (*text != ';') RAPIDXML_PARSE_ERROR(\"expected ';'\", text);" << std::endl;
+            parse_attributes << "          if (*text != ';') parse_error_expected_semicolon(text);" << std::endl;
             parse_attributes << "          ++text;" << std::endl;
             parse_attributes << "          values[2] = text;" << std::endl;
             parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
@@ -924,7 +944,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "                case 2: result += (*(values[i] + (len-2)) - '0') * 10; [[fallthrough]];" << std::endl;
             parse_attributes << "                case 1: result += (*(values[i] + (len-1)) - '0') * 1; [[fallthrough]];" << std::endl;
             parse_attributes << "                case 0: break;" << std::endl;
-            parse_attributes << "                default: RAPIDXML_PARSE_ERROR(\"value too long\", text);" << std::endl;
+            parse_attributes << "                default: parse_error_value_too_long(text);" << std::endl;
             parse_attributes << "              }" << std::endl;
             parse_attributes << "            }" << std::endl;
             parse_attributes << "            parseResult->" << attr.name << "[i] = result;" << std::endl;
@@ -958,7 +978,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
 
           // Skip =
           if (*text != Ch('='))
-              RAPIDXML_PARSE_ERROR("expected =", text);
+              parse_error_expected_equals(text);
           ++text;
 
           // Skip whitespace after =
@@ -967,7 +987,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
           // Skip quote and remember if it was ' or "
           Ch quote = *text;
           if (quote != Ch('\'') && quote != Ch('"'))
-              RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+              parse_error_expected_quote(text);
           ++text;
 
           // Extract attribute value
@@ -975,7 +995,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
 
           // Make sure that end quote is present
           if (*text != quote)
-              RAPIDXML_PARSE_ERROR("expected ' or \"", text);
+              parse_error_expected_quote(text);
           ++text;     // Skip quote
 
           // Skip whitespace after attribute value
@@ -992,7 +1012,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
               const Ch *name = text;
               skip<node_name_pred>(text);
               if (text == name)
-                  RAPIDXML_PARSE_ERROR("expected element name", text);
+                  parse_error_expected_element_name(text);
               size_t name_size = text - name;
 
               // Skip whitespace between element name and attributes or >
@@ -1006,7 +1026,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
           text += 2;
       }
       else
-          RAPIDXML_PARSE_ERROR("expected > or />", text);
+          parse_error_expected_tag_end(text);
     })"" << std::endl;
 
     }
