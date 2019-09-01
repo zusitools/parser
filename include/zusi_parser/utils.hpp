@@ -416,7 +416,7 @@ private:
   // Pfad relativ zum Zusi-Datenverzeichnis; Separator: Backslash; kein fuehrender Backslash
   std::string m_pfad;
 
-  ZusiPfad(std::string pfad) : m_pfad(std::move(pfad)) {}
+  explicit ZusiPfad(std::string pfad) : m_pfad(std::move(pfad)) {}
 };
 
 }  // namespace zusixml
