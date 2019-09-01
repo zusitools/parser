@@ -695,22 +695,22 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
 
 #define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)
 
-[[noreturn]] void parse_error_expected_semicolon(const Ch*& text) {
+[[noreturn]] static void parse_error_expected_semicolon(const Ch*& text) {
   RAPIDXML_PARSE_ERROR("expected ';'", text);
 }
-[[noreturn]] void parse_error_expected_equals(const Ch*& text) {
+[[noreturn]] static void parse_error_expected_equals(const Ch*& text) {
   RAPIDXML_PARSE_ERROR("expected '='", text);
 }
-[[noreturn]] void parse_error_expected_quote(const Ch*& text) {
+[[noreturn]] static void parse_error_expected_quote(const Ch*& text) {
   RAPIDXML_PARSE_ERROR("expected ' or \"", text);
 }
-[[noreturn]] void parse_error_expected_tag_end(const Ch*& text) {
+[[noreturn]] static void parse_error_expected_tag_end(const Ch*& text) {
   RAPIDXML_PARSE_ERROR("expected > or />", text);
 }
-[[noreturn]] void parse_error_expected_element_name(const Ch*& text) {
+[[noreturn]] static void parse_error_expected_element_name(const Ch*& text) {
   RAPIDXML_PARSE_ERROR("expected element name", text);
 }
-[[noreturn]] void parse_error_value_too_long(const Ch*& text) {
+[[noreturn]] static void parse_error_value_too_long(const Ch*& text) {
   RAPIDXML_PARSE_ERROR("value too long", text);
 }
 
