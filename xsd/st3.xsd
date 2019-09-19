@@ -21,6 +21,7 @@
         <xs:element ref="Beschreibung" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="UTM" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="Huellkurve" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="ETCSFunkmast" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Skybox" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="SkyDome" minOccurs="0" maxOccurs="1"/>
         <xs:element ref="StreckenStandort" minOccurs="0" maxOccurs="unbounded"/>
@@ -41,6 +42,16 @@
   <xs:element name="Beschreibung">
     <xs:complexType>
       <xs:attribute name="Beschreibung" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ETCSFunkmast">
+    <xs:complexType>
+      <xs:attribute name="ETCSSenderadius" type="xs:int"/>
+      <xs:attribute name="ETCSRBCNummer" type="xs:string"/>
+      <xs:attribute name="ETCSRBCTelNummer" type="xs:string"/>
+      <xs:all minOccurs="0">
+        <xs:element name="p" type="Vec3"/>
+      </xs:all>
     </xs:complexType>
   </xs:element>
   <xs:element name="Skybox">
