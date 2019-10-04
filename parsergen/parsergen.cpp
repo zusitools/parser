@@ -1098,13 +1098,18 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       if (!child.multiple && child.type->name == "StreckenelementRichtungsInfo") {
         return std::make_unique<OptionalChildStrategy>();
       }
-      if (child.type->name == "Vertex" || child.type->name == "Face") {
+      if (child.type->name == "Vertex"
+          || child.type->name == "Face"
+          || child.type->name == "Vec2"
+          || child.type->name == "Vec3"
+          || child.type->name == "Quaternion"
+          || child.type->name == "Dateiverknuepfung"
+          || child.type->name == "Tastaturzuordnung"
+          || child.type->name == "Bremsgewicht"
+          || child.type->name == "MatrixEintrag") {
         return std::make_unique<InlineChildStrategy>();
       }
       if (child.multiple && SmallVectorSize(parentType, child) > 0) {
-        return std::make_unique<InlineChildStrategy>();
-      }
-      if (!child.multiple && m_element_type_sizes.at(child.type) <= 40) {
         return std::make_unique<InlineChildStrategy>();
       }
     }
