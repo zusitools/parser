@@ -314,7 +314,7 @@ class ParserGenerator {
       }
     }
 
-    // Topologically sort types.
+    // Topologically sort types so that the definition of a child element's type comes before the definition of the parent element's type.
     std::vector<const ElementType*> elementTypesTopologicallySorted;
 
     std::vector<const ElementType*> workList;
