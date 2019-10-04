@@ -370,7 +370,7 @@ class ParserGenerator {
 
       std::ostringstream attrs;
       for (const auto& attribute : elementType->attributes) {
-        if (!IsOnWhitelist(*elementType, attribute)) {
+        if (!IsOnWhitelist(*elementType, attribute) || attribute.deprecated()) {
           continue;
         }
         if (!attribute.documentation.empty()) {
@@ -814,8 +814,8 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
         }
 
         parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
-        if (!IsOnWhitelist(*curParent, attr)) {
-          if (attr.name == "C" || attr.name == "CA" || attr.name == "E") {
+        if (!IsOnWhitelist(*curParent, attr) || attr.deprecated()) {
+          if (IsOnWhitelist(*curParent, attr) && (attr.name == "C" || attr.name == "CA" || attr.name == "E")) {
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
             }
@@ -832,12 +832,15 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>(tmp & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF) };" << std::endl;
             parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
           } else {
-            parse_attributes << "          // deprecated" << std::endl;
+            if (attr.deprecated()) {
+              parse_attributes << "          // deprecated" << std::endl;
+            }
             parse_attributes << "          skip_attribute_value(text, quote);\n";
           }
           parse_attributes << "        }" << std::endl;
           continue;
         }
+
         switch (attr.type) {
           case AttributeType::Int32:
 #ifdef ZUSIXML_SCHEMA_XML_MODE
@@ -1174,11 +1177,8 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
   }
 
   bool IsOnWhitelist(const ElementType& parentType, const Thing& thing) const {
-    if (thing.deprecated()) {
-      return false;
-    }
     if (m_config.whitelist.empty()) {
-      return true;
+      return !thing.deprecated() || thing.name == "C" || thing.name == "CA" || thing.name == "E";
     }
     if (parentType.name == "StrElement" && thing.name == "Nr") {  // needed for indexing
       return true;
