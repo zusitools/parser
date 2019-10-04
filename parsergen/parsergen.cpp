@@ -987,7 +987,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       parse_attributes << "        }" << std::endl;
 
       // Generate code for parsing method
-      out << R""(  static void parse_element_)"" << elementType->name << "(const Ch *& text, " << elementType->name << R""(* parseResult) {
+      out << R""(  static void parse_element_)"" << elementType->name << "(const Ch *& text, struct " << elementType->name << R""(* parseResult) {
 
       // For all attributes
       while (attribute_name_pred::test(*text))
@@ -1032,7 +1032,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       {
           ++text;
           parse_node_contents(text, [](const Ch *&text, void* parseResultUntyped) {
-              )"" << elementType->name << R""(* parseResult = static_cast<)"" << elementType->name << R""(*>(parseResultUntyped);
+              struct )"" << elementType->name << R""(* parseResult = static_cast<struct )"" << elementType->name << R""(*>(parseResultUntyped);
               // Extract element name
               const Ch *name = text;
               skip<node_name_pred>(text);
