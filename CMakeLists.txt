@@ -22,7 +22,7 @@ else()
     target_compile_definitions(parsergen PRIVATE -DZUSI_PARSER_USE_BOOST_FILESYSTEM)
     target_link_libraries(parsergen PRIVATE Boost::filesystem)
   else()
-    target_link_libraries(parsergen PRIVATE stdc++fs)
+    target_link_libraries(parsergen PRIVATE $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
   endif()
 
   export(TARGETS parsergen FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
