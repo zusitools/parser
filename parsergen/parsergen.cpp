@@ -264,7 +264,8 @@ class InlineChildStrategy : public ChildStrategy {
 class ParserGenerator {
  public:
   ParserGenerator(std::vector<std::unique_ptr<ElementType>>* elementTypes, Config config)
-    : m_element_types(std::move(*elementTypes)), m_config(std::move(config)) { }
+    : m_element_types(std::move(*elementTypes)), m_config(std::move(config)),
+      m_used_element_types(GetUsedElementTypes()), m_concrete_element_types(GetConcreteElementTypes()) { }
 
   void GenerateTypeIncludes(std::ostream& out) {
     out << "#pragma once" << std::endl;
@@ -288,6 +289,9 @@ class ParserGenerator {
   void GenerateTypeDeclarations(std::ostream& out) {
     out << "#pragma once\n";
     for (const auto& elementType : m_element_types) {
+      if (m_used_element_types.find(elementType.get()) == std::end(m_used_element_types)) {
+        continue;
+      }
       out << "struct " << elementType->name << ";" << std::endl;
     }
   }
@@ -299,13 +303,13 @@ class ParserGenerator {
     std::multimap<const ElementType*, const ElementType*> dependencies;
 
     // Compute dependencies
-    for (const auto& elementType : m_element_types) {
+    for (const auto& elementType : m_used_element_types) {
       if (elementType->base != nullptr) {
-        dependencies.emplace(elementType->base, elementType.get());
+        dependencies.emplace(elementType->base, elementType);
       }
       for (const auto& child : elementType->children) {
-        if (child.type != elementType.get()) {  // A type may depend on itself -> this needs a pointer anyway
-          dependencies.emplace(child.type, elementType.get());
+        if (child.type != elementType && IsOnWhitelist(*elementType, child)) {  // A type may depend on itself -> this needs a pointer anyway
+          dependencies.emplace(child.type, elementType);
         }
       }
     }
@@ -316,6 +320,9 @@ class ParserGenerator {
     std::vector<const ElementType*> workList;
     // Insert elements with no incoming edges into the work list
     for (const auto& elementType : m_element_types) {
+      if (m_used_element_types.find(elementType.get()) == std::end(m_used_element_types)) {
+        continue;
+      }
       if (dependencies.find(elementType.get()) == std::end(dependencies)) {
         workList.push_back(elementType.get());
       }
@@ -326,7 +333,7 @@ class ParserGenerator {
       workList.pop_back();
       elementTypesTopologicallySorted.push_back(t);
       // Remove all outgoing edges of t
-      for (auto it = dependencies.begin(); it != dependencies.end(); ) {
+      for (auto it = dependencies.begin(); it != dependencies.end(); ) {  // TODO: not deterministic
         if (it->second == t) {
           const ElementType* k = it->first;
           it = dependencies.erase(it);
@@ -438,26 +445,15 @@ class ParserGenerator {
     }
   }
 
-  std::unordered_set<const ElementType*> GetConcreteTypes() {
-    const auto& zusiElementType = std::find_if(std::begin(m_element_types), std::end(m_element_types), [](const auto& type) { return type->name == "Zusi"; });
-    assert(zusiElementType != std::end(m_element_types));
-    std::unordered_set<const ElementType*> result { zusiElementType->get() };
-    for (const auto& elementType : m_element_types) {
-      for (auto& child : elementType->children) {
-        if (IsOnWhitelist(*elementType, child)) {
-          result.emplace(child.type);
-        }
-      }
-    }
-    return result;
-  }
-
-  void GenerateParseFunctionDeclarations(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
+  void GenerateParseFunctionDeclarations(std::ostream& out) {
     out << "#pragma once\n";
     out << "#include \"zusi_parser/zusi_types_fwd.hpp\"\n";
     out << "namespace zusixml {" << std::endl;
     for (const auto& elementType : m_element_types) {
-      if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
+      if (m_used_element_types.find(elementType.get()) == std::end(m_used_element_types)) {
+        continue;
+      }
+      if (m_concrete_element_types.find(elementType.get()) == std::end(m_concrete_element_types)) {
         continue;
       }
       out << "  static void parse_element_" << elementType->name << "(const Ch *&, " << elementType->name << "*);" << std::endl;
@@ -465,7 +461,7 @@ class ParserGenerator {
     out << "}  // namespace zusixml" << std::endl;
   }
 
-  void GenerateParseFunctionDefinitions(std::ostream& out, const std::unordered_set<const ElementType*>& typesToExport) {
+  void GenerateParseFunctionDefinitions(std::ostream& out) {
     out << "#pragma once" << std::endl;
     out << "#include \"zusixml.hpp\"" << std::endl;
     out << "#include \"zusi_parser/zusi_types.hpp\"" << std::endl;
@@ -736,12 +732,15 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
 #endif
 
     for (const auto& elementType : m_element_types) {
-      if (typesToExport.find(elementType.get()) == std::end(typesToExport)) {
+      if (m_used_element_types.find(elementType.get()) == std::end(m_used_element_types)) {
+        continue;
+      }
+      if (m_concrete_element_types.find(elementType.get()) == std::end(m_concrete_element_types)) {
         continue;
       }
 
-      auto allChildren = GetAllChildren(*elementType.get());
-      auto allAttributes = GetAllAttributes(*elementType.get());
+      auto allChildren = GetAllChildren(*elementType);
+      auto allAttributes = GetAllAttributes(*elementType);
 
       std::ostringstream parse_children;
       parse_children << "if (false) { (void)parseResult; }\n";
@@ -1084,9 +1083,11 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
   }
 
  private:
-  const std::vector<std::unique_ptr<ElementType>> m_element_types = {};
-  std::unordered_map<const ElementType*, size_t> m_element_type_sizes;
+  const std::vector<std::unique_ptr<ElementType>> m_element_types;
   Config m_config;
+  const std::unordered_set<const ElementType*> m_used_element_types;
+  const std::unordered_set<const ElementType*> m_concrete_element_types;
+  std::unordered_map<const ElementType*, size_t> m_element_type_sizes;
 
   /** Returns the strategy to use when embedding the given @p child into the given @parentType as a member. */
   std::unique_ptr<ChildStrategy> GetChildStrategy(const ElementType& parentType, const Child& child) const {
@@ -1108,14 +1109,14 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
   }
 
   /** Returns the base type, i.e. the least derived parent type, of the given element type. */
-  const ElementType* GetBaseType(const ElementType* type) {
+  const ElementType* GetBaseType(const ElementType* type) const {
     while (type->base != nullptr) {
       type = type->base;
     }
     return type;
   }
 
-  std::vector<std::pair<const ElementType*, Child>> GetAllChildren(const ElementType& elementType) {
+  std::vector<std::pair<const ElementType*, Child>> GetAllChildren(const ElementType& elementType) const {
     const ElementType* curElementType = &elementType;
     std::vector<std::pair<const ElementType*, Child>> result;
     do {
@@ -1127,7 +1128,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
     return result;
   }
 
-  std::vector<std::pair<const ElementType*, Attribute>> GetAllAttributes(const ElementType& elementType) {
+  std::vector<std::pair<const ElementType*, Attribute>> GetAllAttributes(const ElementType& elementType) const {
     const ElementType* curElementType = &elementType;
     std::vector<std::pair<const ElementType*, Attribute>> result;
     do {
@@ -1139,7 +1140,40 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
     return result;
   }
 
-  bool IsOnWhitelist(const ElementType& parentType, const Thing& thing) {
+  std::unordered_set<const ElementType*> GetUsedElementTypes() const {
+    std::unordered_set<const ElementType*> result;
+    for (const auto& elementType : m_element_types) {
+      if (elementType->name == "Zusi") {
+        result.insert(elementType.get());
+        assert(elementType->base == nullptr);
+      }
+      for (const auto& child : elementType->children) {
+        if (IsOnWhitelist(*elementType, child)) {
+          auto type = child.type;
+          do {
+            result.insert(type);
+            type = type->base;
+          } while (type != nullptr);
+        }
+      }
+    }
+    return result;
+  }
+
+  std::unordered_set<const ElementType*> GetConcreteElementTypes() const {
+    std::unordered_set<const ElementType*> result;
+    for (const auto& elementType : m_element_types) {
+      if (elementType->name == "Zusi") {
+        result.insert(elementType.get());
+      }
+      for (const auto& child : elementType->children) {
+        result.emplace(child.type);
+      }
+    }
+    return result;
+  }
+
+  bool IsOnWhitelist(const ElementType& parentType, const Thing& thing) const {
     if (thing.deprecated()) {
       return false;
     }
@@ -1375,11 +1409,9 @@ int main(int argc, char** argv) {
   generator.GenerateTypeIncludes(out_types);
   generator.GenerateTypeDefinitions(out_types);
 
-  const auto& concreteTypes = generator.GetConcreteTypes();
-
   ofstream out_parser_fwd(fs::path(out_dir) / "zusi_parser_fwd.hpp");
-  generator.GenerateParseFunctionDeclarations(out_parser_fwd, concreteTypes);
+  generator.GenerateParseFunctionDeclarations(out_parser_fwd);
 
   ofstream out_parser(fs::path(out_dir) / "zusi_parser.hpp");
-  generator.GenerateParseFunctionDefinitions(out_parser, concreteTypes);
+  generator.GenerateParseFunctionDefinitions(out_parser);
 }
