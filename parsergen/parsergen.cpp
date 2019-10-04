@@ -1058,7 +1058,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
   void ValidateWhitelist() {
     for (const auto& [elementName, whitelistEntries] : m_config.whitelist) {
       const auto it = std::find_if(m_element_types.begin(), m_element_types.end(),
-          [&elementName](const auto& elementTypePtr) { return elementTypePtr->name == elementName; });
+          [&elementName = elementName](const auto& elementTypePtr) { return elementTypePtr->name == elementName; });
       if (it == m_element_types.end()) {
         std::cerr << "Warning: Invalid whitelist entry: " << elementName << " is not an element type name.\n";
         continue;
