@@ -15,6 +15,7 @@
   namespace fs = std::filesystem;
   using ofstream = std::ofstream;
 #endif
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -25,6 +26,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+namespace po = boost::program_options;
 
 namespace {
   size_t align(size_t size, size_t alignment) {
@@ -79,6 +82,11 @@ struct ElementTypeRaw : Thing {
   std::string base;
   std::vector<Attribute> attributes;
   std::vector<ChildRaw> children;
+};
+
+struct Config {
+  std::unordered_map<std::string, std::unordered_set<std::string>> whitelist;
+  bool ignore_unknown { false };
 };
 
 /** Returns a size > 0 if a small vector of this size can be used to hold @p child
@@ -255,7 +263,8 @@ class InlineChildStrategy : public ChildStrategy {
 
 class ParserGenerator {
  public:
-  ParserGenerator(std::vector<std::unique_ptr<ElementType>>* elementTypes) : m_element_types(std::move(*elementTypes)) { }
+  ParserGenerator(std::vector<std::unique_ptr<ElementType>>* elementTypes, Config config)
+    : m_element_types(std::move(*elementTypes)), m_config(std::move(config)) { }
 
   void GenerateTypeIncludes(std::ostream& out) {
     out << "#pragma once" << std::endl;
@@ -354,7 +363,7 @@ class ParserGenerator {
 
       std::ostringstream attrs;
       for (const auto& attribute : elementType->attributes) {
-        if (attribute.deprecated()) {
+        if (!IsOnWhitelist(*elementType, attribute)) {
           continue;
         }
         if (!attribute.documentation.empty()) {
@@ -404,7 +413,7 @@ class ParserGenerator {
 
       std::ostringstream children;
       for (const auto& child : elementType->children) {
-        if (child.deprecated()) {
+        if (!IsOnWhitelist(*elementType, child)) {
           continue;
         }
         if (!child.documentation.empty()) {
@@ -435,7 +444,7 @@ class ParserGenerator {
     std::unordered_set<const ElementType*> result { zusiElementType->get() };
     for (const auto& elementType : m_element_types) {
       for (auto& child : elementType->children) {
-        if (!child.deprecated()) {
+        if (IsOnWhitelist(*elementType, child)) {
           result.emplace(child.type);
         }
       }
@@ -737,20 +746,28 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       std::ostringstream parse_children;
       parse_children << "if (false) { (void)parseResult; }\n";
 
-      for (const auto& child : allChildren) {
+      for (const auto& [curParent, child] : allChildren) {
+        if (!IsOnWhitelist(*curParent, child) && m_config.ignore_unknown) {
+          continue;
+        }
+
         parse_children << "            else if (name_size == " << child.name.size() << " && !memcmp(name, \"" << child.name << "\", " << child.name.size() << ")) {\n";
-        if (child.deprecated()) {
-          parse_children << "                // deprecated\n";
+        if (!IsOnWhitelist(*curParent, child)) {
+          if (child.deprecated()) {
+            parse_children << "                // deprecated\n";
+          }
           parse_children << "                skip_element(text);\n";
           parse_children << "            }\n";
           continue;
         }
-        parse_children << "                " << GetChildStrategy(*elementType, child)->GetParseMemberCode(*elementType, child);
+        parse_children << "                " << GetChildStrategy(*curParent, child)->GetParseMemberCode(*curParent, child);
         parse_children << "            }\n";
       }
 
       parse_children << "            else {\n";
-      parse_children << "              std::cerr << \"Unexpected child of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";\n";
+      if (!m_config.ignore_unknown) {
+        parse_children << "              std::cerr << \"Unexpected child of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";\n";
+      }
       parse_children << "              skip_element(text);\n";
       parse_children << "            }\n";
 
@@ -758,7 +775,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       std::ostringstream parse_attributes;
 
       bool startWhitespaceSkip = std::none_of(std::begin(allAttributes), std::end(allAttributes), [](const auto& attr) {
-          return attr.type == AttributeType::String || attr.type == AttributeType::FaceIndexes;
+          return attr.second.type == AttributeType::String || attr.second.type == AttributeType::FaceIndexes;
       });
       if (startWhitespaceSkip) {
         parse_attributes << "        skip_unlikely<whitespace_pred>(text);" << std::endl;
@@ -792,9 +809,13 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       }
 #endif
 
-      for (const auto& attr : allAttributes) {
+      for (const auto& [curParent, attr] : allAttributes) {
+        if (!IsOnWhitelist(*curParent, attr) && m_config.ignore_unknown) {
+          continue;
+        }
+
         parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
-        if (attr.deprecated()) {
+        if (!IsOnWhitelist(*curParent, attr)) {
           if (attr.name == "C" || attr.name == "CA" || attr.name == "E") {
             if (!startWhitespaceSkip) {
               parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
@@ -957,7 +978,9 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       }
 
       parse_attributes << "        else {" << std::endl;
-      parse_attributes << "          std::cerr << \"Unexpected attribute of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";" << std::endl;
+      if (!m_config.ignore_unknown) {
+        parse_attributes << "          std::cerr << \"Unexpected attribute of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";" << std::endl;
+      }
       parse_attributes << "          skip_attribute_value(text, quote);\n";
       parse_attributes << "        }" << std::endl;
 
@@ -971,7 +994,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
           const Ch *name = text;
           ++text;     // Skip first character of attribute name
           skip<attribute_name_pred>(text);
-          size_t name_size = text - name;
+          const size_t name_size [[maybe_unused]] = text - name;
 
           // Skip whitespace after attribute name
           skip_unlikely<whitespace_pred>(text);
@@ -1013,7 +1036,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
               skip<node_name_pred>(text);
               if (text == name)
                   parse_error_expected_element_name(text);
-              size_t name_size = text - name;
+              const size_t name_size [[maybe_unused]] = text - name;
 
               // Skip whitespace between element name and attributes or >
               skip<whitespace_pred>(text);
@@ -1033,9 +1056,37 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
     out << "}  // namespace zusixml" << std::endl;
   }
 
+  void ValidateWhitelist() {
+    for (const auto& [elementName, whitelistEntries] : m_config.whitelist) {
+      const auto it = std::find_if(m_element_types.begin(), m_element_types.end(),
+          [&elementName](const auto& elementTypePtr) { return elementTypePtr->name == elementName; });
+      if (it == m_element_types.end()) {
+        std::cerr << "Warning: Invalid whitelist entry: " << elementName << " is not an element type name.\n";
+        continue;
+      }
+      for (const auto& entry : whitelistEntries) {
+        const auto& children = (*it)->children;
+        const auto itChild = std::find_if(children.begin(), children.end(),
+            [&entry](const auto& child) { return child.name == entry; });
+
+        const auto& attrs = (*it)->attributes;
+        const auto itAttr = std::find_if(attrs.begin(), attrs.end(),
+            [&entry](const auto& attr) { return attr.name == entry; });
+
+        if ((itChild == children.end()) && (itAttr == attrs.end())) {
+          std::cerr << "Warning: Invalid whitelist entry: " << entry << " is not a child or attribute of " << elementName << "\n";
+          continue;
+        }
+
+        std::cout << "Whitelist entry: " << elementName << "::" << entry << "\n";
+      }
+    }
+  }
+
  private:
   const std::vector<std::unique_ptr<ElementType>> m_element_types = {};
   std::unordered_map<const ElementType*, size_t> m_element_type_sizes;
+  Config m_config;
 
   /** Returns the strategy to use when embedding the given @p child into the given @parentType as a member. */
   std::unique_ptr<ChildStrategy> GetChildStrategy(const ElementType& parentType, const Child& child) const {
@@ -1064,26 +1115,47 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
     return type;
   }
 
-  std::vector<Child> GetAllChildren(const ElementType& elementType) {
+  std::vector<std::pair<const ElementType*, Child>> GetAllChildren(const ElementType& elementType) {
     const ElementType* curElementType = &elementType;
-    std::vector<Child> result(curElementType->children);
-    while (curElementType->base) {
-      curElementType = curElementType->base;
+    std::vector<std::pair<const ElementType*, Child>> result;
+    do {
       for (auto it = std::crbegin(curElementType->children); it != std::crend(curElementType->children); ++it) {
-        result.insert(result.begin(), *it);
+        result.emplace(result.begin(), curElementType, *it);
       }
-    }
+      curElementType = curElementType->base;
+    } while (curElementType);
     return result;
   }
 
-  std::vector<Attribute> GetAllAttributes(const ElementType& elementType) {
+  std::vector<std::pair<const ElementType*, Attribute>> GetAllAttributes(const ElementType& elementType) {
     const ElementType* curElementType = &elementType;
-    std::vector<Attribute> result(curElementType->attributes);
-    while (curElementType->base) {
+    std::vector<std::pair<const ElementType*, Attribute>> result;
+    do {
+      for (const auto& child : curElementType->attributes) {
+        result.emplace_back(curElementType, child);
+      }
       curElementType = curElementType->base;
-      std::copy(std::begin(curElementType->attributes), std::end(curElementType->attributes), std::back_inserter(result));
-    }
+    } while (curElementType);
     return result;
+  }
+
+  bool IsOnWhitelist(const ElementType& parentType, const Thing& thing) {
+    if (thing.deprecated()) {
+      return false;
+    }
+    if (m_config.whitelist.empty()) {
+      return true;
+    }
+    if (parentType.name == "StrElement" && thing.name == "Nr") {  // needed for indexing
+      return true;
+    }
+    if (parentType.name == "ReferenzElemente" && thing.name == "Nr") {  // needed for indexing
+      return true;
+    }
+    if (const auto& it = m_config.whitelist.find(parentType.name); it != m_config.whitelist.end()) {
+      return it->second.find(thing.name) != it->second.end();
+    }
+    return false;
   }
 };
 
@@ -1127,7 +1199,7 @@ class ParserGeneratorBuilder {
     }
   }
 
-  ParserGenerator Build() {
+  ParserGenerator Build(Config config) {
     std::vector<std::unique_ptr<ElementType>> elementTypes;
     for (const auto& [ typeName, elementTypeRaw] : m_element_types) {
       elementTypes.push_back(std::unique_ptr<ElementType>(new ElementType {
@@ -1151,7 +1223,7 @@ class ParserGeneratorBuilder {
         elementType->children.emplace_back(Child { { childRaw.name, childRaw.documentation }, childType->get(), childRaw.multiple });
       }
     }
-    return ParserGenerator(&elementTypes);
+    return ParserGenerator(&elementTypes, std::move(config));
   }
 
  private:
@@ -1247,25 +1319,67 @@ class ParserGeneratorBuilder {
 };
 
 int main(int argc, char** argv) {
-  assert(argc >= 2);
+  Config config;
+  std::vector<std::string> whitelist;
+  std::string xsd;
+  std::string out_dir;
+
+  po::options_description desc;
+  desc.add_options()
+    ("help", "show help message")
+    ("out-dir", po::value<std::string>(&out_dir), "Root XSD file to process")
+    ("ignore-unknown", po::bool_switch(&config.ignore_unknown), "Do not produce an error message on encountering unknown element or attribute names. This speeds up parsing.")
+    ("whitelist", po::value<std::vector<std::string>>(&whitelist), "Whitelist an element or attribute name to parse, in the form ParentName::Name. Can be specified multiple times. If no whitelist is specified, all known elements and attributes are parsed.")
+    ("xsd", po::value<std::string>(&xsd), "Root XSD file to process")
+    ;
+
+  po::positional_options_description p;
+  p.add("xsd", 1);
+
+  po::variables_map vars;
+  po::store(po::command_line_parser(argc, argv). options(desc).positional(p).run(), vars);
+  po::notify(vars);
+
+  if (vars.count("help")) {
+    std::cerr << desc << "\n";
+    return 1;
+  }
+
+  for (const auto entry : whitelist) {
+    auto colon_pos = entry.find("::");
+    decltype(colon_pos) start = 0;
+    if (colon_pos == std::string::npos) {
+      std::cerr << "Invalid whitelist entry: \"" << entry << "\"\n";
+      continue;
+    }
+    do {
+      const auto next_start = colon_pos + 2;
+      const auto next_colon_pos = entry.find("::", next_start);
+      config.whitelist[entry.substr(start, colon_pos - start)].insert(entry.substr(next_start, next_colon_pos - next_start));
+      start = next_start;
+      colon_pos = next_colon_pos;
+    } while (colon_pos != std::string::npos);
+  }
 
   ParserGeneratorBuilder builder;
-  builder.AddXsdFile(argv[1]);
+  builder.AddXsdFile(xsd);
 
-  ParserGenerator generator = builder.Build();
+  ParserGenerator generator = builder.Build(config);
 
-  ofstream out_types_fwd(fs::path(argv[2]) / "zusi_types_fwd.hpp");
+  generator.ValidateWhitelist();
+
+  ofstream out_types_fwd(fs::path(out_dir) / "zusi_types_fwd.hpp");
   generator.GenerateTypeDeclarations(out_types_fwd);
 
-  ofstream out_types(fs::path(argv[2]) / "zusi_types.hpp");
+  ofstream out_types(fs::path(out_dir) / "zusi_types.hpp");
   generator.GenerateTypeIncludes(out_types);
   generator.GenerateTypeDefinitions(out_types);
 
   const auto& concreteTypes = generator.GetConcreteTypes();
 
-  ofstream out_parser_fwd(fs::path(argv[2]) / "zusi_parser_fwd.hpp");
+  ofstream out_parser_fwd(fs::path(out_dir) / "zusi_parser_fwd.hpp");
   generator.GenerateParseFunctionDeclarations(out_parser_fwd, concreteTypes);
 
-  ofstream out_parser(fs::path(argv[2]) / "zusi_parser.hpp");
+  ofstream out_parser(fs::path(out_dir) / "zusi_parser.hpp");
   generator.GenerateParseFunctionDefinitions(out_parser, concreteTypes);
 }

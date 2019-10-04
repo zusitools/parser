@@ -14,6 +14,9 @@ else()
   set_property(TARGET parsergen PROPERTY CXX_STANDARD_REQUIRED TRUE)
   target_link_libraries(parsergen PRIVATE pugixml stdc++ m)
 
+  find_package(Boost COMPONENTS program_options REQUIRED)
+  target_link_libraries(parsergen PRIVATE Boost::program_options)
+
   if(ZUSI_PARSER_USE_BOOST_FILESYSTEM)
     find_package(Boost COMPONENTS filesystem REQUIRED)
     target_compile_definitions(parsergen PRIVATE -DZUSI_PARSER_USE_BOOST_FILESYSTEM)
@@ -28,6 +31,7 @@ endif()
 set(ZUSI_PARSER_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 
 function(generate_zusi_parser targetName outputDir)
+  cmake_parse_arguments(PARSE_ARGV 2 GENERATE_ZUSI_PARSER "IGNORE_UNKNOWN" "" "WHITELIST")
   set(xsd_sources
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/authority.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/author.xml.xsd
@@ -87,9 +91,21 @@ function(generate_zusi_parser targetName outputDir)
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/zusi.xsd
   )
 
+  set(generate_args "")
+  if (GENERATE_ZUSI_PARSER_IGNORE_UNKNOWN)
+    set(generate_args "${generate_args};--ignore-unknown")
+  endif()
+  foreach (whitelist_entry IN LISTS GENERATE_ZUSI_PARSER_WHITELIST)
+    set(generate_args "${generate_args};--whitelist;${whitelist_entry}")
+  endforeach()
   add_custom_command(OUTPUT "${outputDir}/zusi_parser/zusi_types.hpp" "${outputDir}/zusi_parser/zusi_types_fwd.hpp" "${outputDir}/zusi_parser/zusi_parser.hpp" "${outputDir}/zusi_parser/zusi_parser_fwd.hpp"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${outputDir}/zusi_parser"
-    COMMAND parsergen "${ZUSI_PARSER_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd" "${outputDir}/zusi_parser"
+    COMMAND parsergen
+        --xsd "${ZUSI_PARSER_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd"
+        --out-dir "${outputDir}/zusi_parser"
+        ${generate_args}
+    COMMAND_EXPAND_LISTS
+    VERBATIM
     DEPENDS ${xsd_sources} parsergen)
 
   add_custom_target(${targetName}_includes SOURCES "${outputDir}/zusi_parser/zusi_types.hpp" "${outputDir}/zusi_parser/zusi_parser.hpp" "${outputDir}/zusi_parser/zusi_parser_fwd.hpp")
