@@ -92,7 +92,7 @@ struct Config {
 /** Returns a size > 0 if a small vector of this size can be used to hold @p child
  * inside @p parentType. This is the case if the collection will rarely contain more than size elements,
  * but also rarely significantly less. */
-size_t SmallVectorSize(const ElementType& parentType, const Child& child) {
+size_t SmallVectorSize(const ElementType& /*parentType*/, const Child& child) {
   assert(child.multiple);
   if (child.type->name == "NachfolgerSelbesModul" || child.type->name == "NachfolgerAnderesModul") {
     return 2;
@@ -130,7 +130,7 @@ class UniquePtrChildStrategy : public ChildStrategy {
     return out.str();
   }
 
-  std::string GetParseMemberCode(const ElementType& elementType, const Child& child) override {
+  std::string GetParseMemberCode(const ElementType& /*elementType*/, const Child& child) override {
     std::ostringstream out;
 
     if (child.multiple) {
@@ -168,7 +168,7 @@ class UniquePtrChildStrategy : public ChildStrategy {
     return out.str();
   }
 
-  std::size_t UpdateElementSize(const ElementType& elementType, const Child& child, std::size_t elementSize, std::size_t childElementSize) override {
+  std::size_t UpdateElementSize(const ElementType& elementType, const Child& child, std::size_t elementSize, std::size_t /*childElementSize*/) override {
     if (child.multiple) {
       size_t smallVectorSize = SmallVectorSize(elementType, child);
       if (smallVectorSize > 0) {
@@ -184,14 +184,14 @@ class UniquePtrChildStrategy : public ChildStrategy {
 
 class OptionalChildStrategy : public ChildStrategy {
  public:
-  std::string GetMemberDeclaration(const ElementType& elementType, const Child& child) override {
+  std::string GetMemberDeclaration(const ElementType& /*elementType*/, const Child& child) override {
     assert(!child.multiple);
     std::ostringstream out;
     out << "  std::optional<struct " << child.type->name << "> " << child.name << ";\n";
     return out.str();
   }
 
-  std::string GetParseMemberCode(const ElementType& elementType, const Child& child) override {
+  std::string GetParseMemberCode(const ElementType& /*elementType*/, const Child& child) override {
     assert(!child.multiple);
     std::ostringstream out;
     out << "  parseResult->" << child.name << ".emplace();\n";
@@ -199,7 +199,7 @@ class OptionalChildStrategy : public ChildStrategy {
     return out.str();
   }
 
-  std::size_t UpdateElementSize(const ElementType& elementType, const Child& child, std::size_t elementSize, std::size_t childElementSize) override {
+  std::size_t UpdateElementSize(const ElementType& /*elementType*/, const Child& /*child*/, std::size_t elementSize, std::size_t childElementSize) override {
     return align(elementSize + 1, alignof(void*)) + childElementSize;
   }
 };
@@ -328,7 +328,7 @@ class ParserGenerator {
       }
     }
 
-    while (workList.size() > 0) {
+    while (!workList.empty()) {
       const ElementType* t = workList.back();
       workList.pop_back();
       elementTypesTopologicallySorted.push_back(t);
@@ -347,7 +347,7 @@ class ParserGenerator {
       }
     }
 
-    if (dependencies.size() > 0) {
+    if (!dependencies.empty()) {
       std::cerr << "Cyclic dependencies\n";
       for (const auto& it : dependencies) {
         std::cerr << " - " << it.first->name << " <- " << it.second->name << "\n";
