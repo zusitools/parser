@@ -122,7 +122,7 @@ class UniquePtrChildStrategy : public ChildStrategy {
       } else {
         out << "  std::vector<" << unique_ptr_type << ", zusixml::allocator<" << unique_ptr_type << ">>";
       }
-      out << " children_" << child.name << ";" << std::endl;
+      out << " children_" << child.name << ";\n";
     } else {
       out << "  " << unique_ptr_type << " " << child.name << ";\n";
     }
@@ -268,13 +268,13 @@ class ParserGenerator {
       m_used_element_types(GetUsedElementTypes()), m_concrete_element_types(GetConcreteElementTypes()) { }
 
   void GenerateTypeIncludes(std::ostream& out) {
-    out << "#pragma once" << std::endl;
-    out << "#include \"zusi_parser/zusi_types_fwd.hpp\"" << std::endl;
-    out << "#include \"boost/container/small_vector.hpp\"" << std::endl;
-    out << "#include <vector>  // for std::vector" << std::endl;
-    out << "#include <memory>  // for std::unique_ptr" << std::endl;
-    out << "#include <optional>// for std::optional" << std::endl;
-    out << "#include <ctime>   // for struct tm" << std::endl;
+    out << "#pragma once\n";
+    out << "#include \"zusi_parser/zusi_types_fwd.hpp\"\n";
+    out << "#include \"boost/container/small_vector.hpp\"\n";
+    out << "#include <vector>  // for std::vector\n";
+    out << "#include <memory>  // for std::unique_ptr\n";
+    out << "#include <optional>// for std::optional\n";
+    out << "#include <ctime>   // for struct tm\n";
     out << "struct ArgbColor {\n";
     out << "  uint8_t a, r, g, b;\n";
     out << "};\n";
@@ -292,7 +292,7 @@ class ParserGenerator {
       if (m_used_element_types.find(elementType.get()) == std::end(m_used_element_types)) {
         continue;
       }
-      out << "struct " << elementType->name << ";" << std::endl;
+      out << "struct " << elementType->name << ";\n";
     }
   }
 
@@ -358,13 +358,13 @@ class ParserGenerator {
       const ElementType* elementType = *it;
 
       if (!elementType->documentation.empty()) {
-        out << "/** " << elementType->documentation << "*/" << std::endl;
+        out << "/** " << elementType->documentation << "*/\n";
       }
       out << "struct " << elementType->name;
       if (elementType->base) {
         out << " : " << elementType->base->name;
       }
-      out << " {" << std::endl;
+      out << " {\n";
 
       size_t elementSize = 0;
 
@@ -374,7 +374,7 @@ class ParserGenerator {
           continue;
         }
         if (!attribute.documentation.empty()) {
-          attrs << "  /** " << attribute.documentation << "*/" << std::endl;
+          attrs << "  /** " << attribute.documentation << "*/\n";
         }
         attrs << "  ";
         switch (attribute.type) {
@@ -415,7 +415,7 @@ class ParserGenerator {
             elementSize = align(elementSize, alignof(uint32_t)) + sizeof(uint32_t);
             break;
         }
-        attrs << " " << attribute.name << ";" << std::endl;
+        attrs << " " << attribute.name << ";\n";
       }
 
       std::ostringstream children;
@@ -424,7 +424,7 @@ class ParserGenerator {
           continue;
         }
         if (!child.documentation.empty()) {
-          children << "  /** " << child.documentation << "*/" << std::endl;
+          children << "  /** " << child.documentation << "*/\n";
         }
         const auto& childStrategy = GetChildStrategy(*elementType, child);
         children << childStrategy->GetMemberDeclaration(*elementType, child);
@@ -441,14 +441,14 @@ class ParserGenerator {
       } else {
         out << attrs.str() << children.str();
       }
-      out << "};" << std::endl;
+      out << "};\n";
     }
   }
 
   void GenerateParseFunctionDeclarations(std::ostream& out) {
     out << "#pragma once\n";
     out << "#include \"zusi_parser/zusi_types_fwd.hpp\"\n";
-    out << "namespace zusixml {" << std::endl;
+    out << "namespace zusixml {\n";
     for (const auto& elementType : m_element_types) {
       if (m_used_element_types.find(elementType.get()) == std::end(m_used_element_types)) {
         continue;
@@ -456,24 +456,24 @@ class ParserGenerator {
       if (m_concrete_element_types.find(elementType.get()) == std::end(m_concrete_element_types)) {
         continue;
       }
-      out << "  static void parse_element_" << elementType->name << "(const Ch *&, " << elementType->name << "*);" << std::endl;
+      out << "  static void parse_element_" << elementType->name << "(const Ch *&, " << elementType->name << "*);\n";
     }
-    out << "}  // namespace zusixml" << std::endl;
+    out << "}  // namespace zusixml\n";
   }
 
   void GenerateParseFunctionDefinitions(std::ostream& out) {
-    out << "#pragma once" << std::endl;
-    out << "#include \"zusixml.hpp\"" << std::endl;
-    out << "#include \"zusi_parser/zusi_types.hpp\"" << std::endl;
+    out << "#pragma once\n";
+    out << "#include \"zusixml.hpp\"\n";
+    out << "#include \"zusi_parser/zusi_types.hpp\"\n";
 
-    out << "#include <array>" << std::endl;
-    out << "#include <cstring>  // for memcmp" << std::endl;
-    out << "#include <cfloat>   // Workaround for https://svn.boost.org/trac10/ticket/12642" << std::endl;
-    out << "#include <string_view>" << std::endl;
+    out << "#include <array>\n";
+    out << "#include <cstring>  // for memcmp\n";
+    out << "#include <cfloat>   // Workaround for https://svn.boost.org/trac10/ticket/12642\n";
+    out << "#include <string_view>\n";
 
-    out << "#include <boost/spirit/include/qi_real.hpp>" << std::endl;
-    out << "#include <boost/spirit/include/qi_int.hpp>" << std::endl;
-    out << "#include <boost/version.hpp>" << std::endl;
+    out << "#include <boost/spirit/include/qi_real.hpp>\n";
+    out << "#include <boost/spirit/include/qi_int.hpp>\n";
+    out << "#include <boost/version.hpp>\n";
 
     out << R""(template <typename T>
 struct decimal_comma_real_policies : boost::spirit::qi::real_policies<T>
@@ -719,7 +719,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
   RAPIDXML_PARSE_ERROR("value too long", text);
 }
 
-)"" << std::endl;
+)"";
 
 #ifdef ZUSIXML_SCHEMA_XML_MODE
     out << R""(void expect(const char* expected, const char*& text) {
@@ -728,7 +728,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
   }
   text += strlen(expected);
 }
-)"" << std::endl;
+\n)"";
 #endif
 
     for (const auto& elementType : m_element_types) {
@@ -777,10 +777,10 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
           return attr.second.type == AttributeType::String || attr.second.type == AttributeType::FaceIndexes;
       });
       if (startWhitespaceSkip) {
-        parse_attributes << "        skip_unlikely<whitespace_pred>(text);" << std::endl;
+        parse_attributes << "        skip_unlikely<whitespace_pred>(text);\n";
       }
 
-      parse_attributes << "        if (false) { (void)parseResult; }" << std::endl;
+      parse_attributes << "        if (false) { (void)parseResult; }\n";
 
 #ifndef ZUSIXML_SCHEMA_XML_MODE
       // Special treatment for types with WXYZ as attributes
@@ -789,21 +789,21 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
           std::array<float Vec2::*, 2> members = {{ &Vec2::X, &Vec2::Y }};
           parse_float(text, parseResult->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
-        })"" << std::endl;
+        })"" << "\n";
         allAttributes.clear();
       } else if (elementType->name == "Vec3") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Z') {
           std::array<float Vec3::*, 3> members = {{ &Vec3::X, &Vec3::Y, &Vec3::Z }};
           parse_float(text, parseResult->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
-        })"" << std::endl;
+        })"" << "\n";
         allAttributes.clear();
       } else if (elementType->name == "Quaternion") {
         parse_attributes << R""(        if (name_size == 1 && *name >= 'W' && *name <= 'Z') {
           std::array<float Quaternion::*, 4> members = {{ &Quaternion::W, &Quaternion::X, &Quaternion::Y, &Quaternion::Z }};
           parse_float(text, parseResult->*members[*name - 'W']);
           skip_unlikely<whitespace_pred>(text);
-        })"" << std::endl;
+        })"" << "\n";
         allAttributes.clear();
       }
 #endif
@@ -813,14 +813,14 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
           continue;
         }
 
-        parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {" << std::endl;
+        parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {\n";
         if (!IsOnWhitelist(*curParent, attr) || attr.deprecated()) {
           if (IsOnWhitelist(*curParent, attr) && (attr.name == "C" || attr.name == "CA" || attr.name == "E")) {
             if (!startWhitespaceSkip) {
-              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
             }
-            parse_attributes << "          uint32_t tmp;" << std::endl;
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);" << std::endl;
+            parse_attributes << "          uint32_t tmp;\n";
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);\n";
             parse_attributes << "          parseResult->";
             if (attr.name == "C") {
               parse_attributes << "Cd";
@@ -829,15 +829,15 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             } else if (attr.name == "E") {
               parse_attributes << "Ce";
             }
-            parse_attributes << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>(tmp & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF) };" << std::endl;
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            parse_attributes << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>(tmp & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF) };\n";
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
           } else {
             if (attr.deprecated()) {
-              parse_attributes << "          // deprecated" << std::endl;
+              parse_attributes << "          // deprecated\n";
             }
             parse_attributes << "          skip_attribute_value(text, quote);\n";
           }
-          parse_attributes << "        }" << std::endl;
+          parse_attributes << "        }\n";
           continue;
         }
 
@@ -851,10 +851,10 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          }\n";
 #else
             if (!startWhitespaceSkip) {
-              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
             }
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_, parseResult->" << attr.name << ");" << std::endl;
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_, parseResult->" << attr.name << ");\n";
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
 #endif
             break;
           case AttributeType::Int64:
@@ -862,10 +862,10 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          expect(\"integer 64bit\", text);\n";
 #else
             if (!startWhitespaceSkip) {
-              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
             }
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::long_long, parseResult->" << attr.name << ");" << std::endl;
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::long_long, parseResult->" << attr.name << ");\n";
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
 #endif
             break;
           case AttributeType::Boolean:
@@ -873,18 +873,18 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          expect(\"bool\", text);\n";
 #else
             if (!startWhitespaceSkip) {
-              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
             }
-            parse_attributes << "          parseResult->" << attr.name << " = (text[0] == '1');" << std::endl;
-            parse_attributes << "          ++text;" << std::endl;
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          parseResult->" << attr.name << " = (text[0] == '1');\n";
+            parse_attributes << "          ++text;\n";
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
 #endif
             break;
           case AttributeType::String:
 #ifdef ZUSIXML_SCHEMA_XML_MODE
             parse_attributes << "          expect(\"string\", text);\n";
 #else
-            parse_attributes << "          parse_string(text, parseResult->" << attr.name << ", quote);" << std::endl;
+            parse_attributes << "          parse_string(text, parseResult->" << attr.name << ", quote);\n";
 #endif
             break;
           case AttributeType::Float:
@@ -896,10 +896,10 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          }\n";
 #else
             if (!startWhitespaceSkip) {
-              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
             }
-            parse_attributes << "          parse_float(text, parseResult->" << attr.name << ");" << std::endl;
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          parse_float(text, parseResult->" << attr.name << ");\n";
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
 #endif
             break;
           case AttributeType::DateTime:
@@ -907,11 +907,11 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          expect(\"date,time\", text);\n";
 #else
             if (!startWhitespaceSkip) {
-              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
             }
-            parse_attributes << "          [[maybe_unused]] bool result = (unlikely(quote == Ch('\\\''))) ?" << std::endl;
-            parse_attributes << "            parse_datetime<Ch('\\\'')>(text, parseResult->" << attr.name << ") :" << std::endl;
-            parse_attributes << "            parse_datetime<Ch('\"')>(text, parseResult->" << attr.name << ");" << std::endl;
+            parse_attributes << "          [[maybe_unused]] bool result = (unlikely(quote == Ch('\\\''))) ?\n";
+            parse_attributes << "            parse_datetime<Ch('\\\'')>(text, parseResult->" << attr.name << ") :\n";
+            parse_attributes << "            parse_datetime<Ch('\"')>(text, parseResult->" << attr.name << ");\n";
 #endif
             break;
           case AttributeType::HexInt32:
@@ -919,10 +919,10 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          expect(\"D3DColor\", text);\n";
 #else
             if (!startWhitespaceSkip) {
-              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
             }
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), parseResult->" << attr.name << ");" << std::endl;
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), parseResult->" << attr.name << ");\n";
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
 #endif
             break;
           case AttributeType::ArgbColor:
@@ -930,12 +930,12 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          expect(\"D3DColor\", text);\n";
 #else
             if (!startWhitespaceSkip) {
-              parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+              parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
             }
-            parse_attributes << "          uint32_t tmp;" << std::endl;
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);" << std::endl;
-            parse_attributes << "          parseResult->" << attr.name << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>(tmp & 0xFF) };" << std::endl;
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);" << std::endl;
+            parse_attributes << "          uint32_t tmp;\n";
+            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);\n";
+            parse_attributes << "          parseResult->" << attr.name << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>(tmp & 0xFF) };\n";
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
 #endif
             break;
           case AttributeType::FaceIndexes:
@@ -943,48 +943,48 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
             parse_attributes << "          expect(\"string\", text);\n";
 #else
             // no whitespace skipping here, Zusi doesn't do that either
-            parse_attributes << "          const Ch* values[4];" << std::endl;
-            parse_attributes << "          values[0] = text;" << std::endl;
-            parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
-            parse_attributes << "          if (*text != ';') parse_error_expected_semicolon(text);" << std::endl;
-            parse_attributes << "          ++text;" << std::endl;
-            parse_attributes << "          values[1] = text;" << std::endl;
-            parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
-            parse_attributes << "          if (*text != ';') parse_error_expected_semicolon(text);" << std::endl;
-            parse_attributes << "          ++text;" << std::endl;
-            parse_attributes << "          values[2] = text;" << std::endl;
-            parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;" << std::endl;
-            parse_attributes << "          values[3] = text + 1;" << std::endl;
-            parse_attributes << "          for (size_t i = 0; i < 3; i++) {" << std::endl;
-            parse_attributes << "            uint16_t result = 0;" << std::endl;
-            parse_attributes << "            if (values[i+1] != values[i]) {" << std::endl;
-            parse_attributes << "              size_t len = values[i+1] - 1 - values[i];" << std::endl;
+            parse_attributes << "          const Ch* values[4];\n";
+            parse_attributes << "          values[0] = text;\n";
+            parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;\n";
+            parse_attributes << "          if (*text != ';') parse_error_expected_semicolon(text);\n";
+            parse_attributes << "          ++text;\n";
+            parse_attributes << "          values[1] = text;\n";
+            parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;\n";
+            parse_attributes << "          if (*text != ';') parse_error_expected_semicolon(text);\n";
+            parse_attributes << "          ++text;\n";
+            parse_attributes << "          values[2] = text;\n";
+            parse_attributes << "          while (*text >= '0' && *text <= '9') ++text;\n";
+            parse_attributes << "          values[3] = text + 1;\n";
+            parse_attributes << "          for (size_t i = 0; i < 3; i++) {\n";
+            parse_attributes << "            uint16_t result = 0;\n";
+            parse_attributes << "            if (values[i+1] != values[i]) {\n";
+            parse_attributes << "              size_t len = values[i+1] - 1 - values[i];\n";
             // Adapted from https://tombarta.wordpress.com/2008/04/23/specializing-atoi/
-            parse_attributes << "              switch(len) {  // 16 bit short - max. 5 characters" << std::endl;
-            parse_attributes << "                case 5: result += (*(values[i] + (len-5)) - '0') * 10000; [[fallthrough]];" << std::endl;
-            parse_attributes << "                case 4: result += (*(values[i] + (len-4)) - '0') * 1000; [[fallthrough]];" << std::endl;
-            parse_attributes << "                case 3: result += (*(values[i] + (len-3)) - '0') * 100; [[fallthrough]];" << std::endl;
-            parse_attributes << "                case 2: result += (*(values[i] + (len-2)) - '0') * 10; [[fallthrough]];" << std::endl;
-            parse_attributes << "                case 1: result += (*(values[i] + (len-1)) - '0') * 1; [[fallthrough]];" << std::endl;
-            parse_attributes << "                case 0: break;" << std::endl;
-            parse_attributes << "                default: parse_error_value_too_long(text);" << std::endl;
-            parse_attributes << "              }" << std::endl;
-            parse_attributes << "            }" << std::endl;
-            parse_attributes << "            parseResult->" << attr.name << "[i] = result;" << std::endl;
-            parse_attributes << "          }" << std::endl;
-            parse_attributes << "          if (*text == ';') ++text;" << std::endl;
+            parse_attributes << "              switch(len) {  // 16 bit short - max. 5 characters\n";
+            parse_attributes << "                case 5: result += (*(values[i] + (len-5)) - '0') * 10000; [[fallthrough]];\n";
+            parse_attributes << "                case 4: result += (*(values[i] + (len-4)) - '0') * 1000; [[fallthrough]];\n";
+            parse_attributes << "                case 3: result += (*(values[i] + (len-3)) - '0') * 100; [[fallthrough]];\n";
+            parse_attributes << "                case 2: result += (*(values[i] + (len-2)) - '0') * 10; [[fallthrough]];\n";
+            parse_attributes << "                case 1: result += (*(values[i] + (len-1)) - '0') * 1; [[fallthrough]];\n";
+            parse_attributes << "                case 0: break;\n";
+            parse_attributes << "                default: parse_error_value_too_long(text);\n";
+            parse_attributes << "              }\n";
+            parse_attributes << "            }\n";
+            parse_attributes << "            parseResult->" << attr.name << "[i] = result;\n";
+            parse_attributes << "          }\n";
+            parse_attributes << "          if (*text == ';') ++text;\n";
 #endif
             break;
         }
-        parse_attributes << "        }" << std::endl;
+        parse_attributes << "        }\n";
       }
 
-      parse_attributes << "        else {" << std::endl;
+      parse_attributes << "        else {\n";
       if (!m_config.ignore_unknown) {
-        parse_attributes << "          std::cerr << \"Unexpected attribute of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";" << std::endl;
+        parse_attributes << "          std::cerr << \"Unexpected attribute of node " << elementType->name << ": '\" << std::string_view(name, name_size) << \"'\\n\";\n";
       }
       parse_attributes << "          skip_attribute_value(text, quote);\n";
-      parse_attributes << "        }" << std::endl;
+      parse_attributes << "        }\n";
 
       // Generate code for parsing method
       out << R""(  static void parse_element_)"" << elementType->name << "(const Ch *& text, struct " << elementType->name << R""(* parseResult) {
@@ -1052,10 +1052,10 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       }
       else
           parse_error_expected_tag_end(text);
-    })"" << std::endl;
+    })"" << "\n";
 
     }
-    out << "}  // namespace zusixml" << std::endl;
+    out << "}  // namespace zusixml\n";
   }
 
   void ValidateWhitelist() {
@@ -1303,7 +1303,7 @@ class ParserGeneratorBuilder {
     auto [ it, inserted ] = m_element_types.emplace(std::make_pair(typeName, ElementTypeRaw()));
     auto& elementType = it->second;
     if (!inserted) {
-      std::cerr << "Type " << typeName << " defined twice" << std::endl;
+      std::cerr << "Type " << typeName << " defined twice\n";
       return;
     }
 
@@ -1348,7 +1348,7 @@ class ParserGeneratorBuilder {
       } else if (attributeTypeString == "argbColor") {
         attributeType = AttributeType::ArgbColor;
       } else {
-        std::cerr << "Unknown attribute type '" << attributeTypeString << "' of attribute '" << child.attribute("name").as_string() << "' of complex type '" << typeName << "'" << std::endl;
+        std::cerr << "Unknown attribute type '" << attributeTypeString << "' of attribute '" << child.attribute("name").as_string() << "' of complex type '" << typeName << "'\n";
         continue;
       }
 
