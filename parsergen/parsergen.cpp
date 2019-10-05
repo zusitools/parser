@@ -297,10 +297,18 @@ class ParserGenerator {
   }
 
   void GenerateTypeDefinitions(std::ostream& out) {
+    struct compareElementTypesByName {
+      bool operator()(const ElementType* lhs, const ElementType* rhs) const {
+        assert(lhs != nullptr);
+        assert(rhs != nullptr);
+        return lhs->name < rhs->name;
+      }
+    };
+
     // This map contains dependencies of type hierarchies.
     // K -> V is contained in the map if a type from tree V depends on a type from tree K,
     // i.e. uses it as a child type.
-    std::multimap<const ElementType*, const ElementType*> dependencies;
+    std::multimap<const ElementType*, const ElementType*, compareElementTypesByName> dependencies;
 
     // Compute dependencies
     for (const auto& elementType : m_used_element_types) {
@@ -333,7 +341,7 @@ class ParserGenerator {
       workList.pop_back();
       elementTypesTopologicallySorted.push_back(t);
       // Remove all outgoing edges of t
-      for (auto it = dependencies.begin(); it != dependencies.end(); ) {  // TODO: not deterministic
+      for (auto it = dependencies.begin(); it != dependencies.end(); ) {
         if (it->second == t) {
           const ElementType* k = it->first;
           it = dependencies.erase(it);
