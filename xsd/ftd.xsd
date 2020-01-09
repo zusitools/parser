@@ -24,6 +24,7 @@
         <xs:element ref="PZB90I60R_V15" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="PZB90I60R_V20" type="PZB90I60R_V20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="EBICAB500" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TrainguardBasicIndusi" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90ER24_V20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60RBus" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90_PZ80R_V20" minOccurs="0" maxOccurs="unbounded"/>
@@ -58,6 +59,7 @@
         <xs:element ref="TuerenSBahn" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="TuerenSBahn423" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="TuerenSBahn474" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="TuerenSBahn481" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="NotbremssystemUICNBUe" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="NotbremsSystemNBUe2004" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="NotbremsSystemSBahn" minOccurs="0" maxOccurs="unbounded"/>
@@ -95,6 +97,8 @@
         </xs:all>
         <xs:attribute name="Taster" type="xs:int"/>
         <xs:attribute name="NameSchalter" type="xs:string"/>
+        <xs:attribute name="GrundstellungVerlegt" type="boolean"/>
+        <xs:attribute name="TexturPosition2" type="boolean"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -229,6 +233,13 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="EBICAB500">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaetPZB"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TrainguardBasicIndusi">
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB"/>
@@ -416,6 +427,7 @@
           </xs:all>
           <xs:attribute name="ETCSSchalterQuittieren" type="xs:string"/>
           <xs:attribute name="ETCSSTMAuswahl" type="xs:long"/>
+          <xs:attribute name="ETCSGSMRNetz" type="xs:long"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -603,6 +615,13 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+  <xs:element name="TuerenSBahn481">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="TuerenSBahnBasis"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
   <xs:complexType name="FtdFunktionalitaetNotbremssystem">
     <xs:complexContent>
       <xs:extension base="FtdFunktionalitaet">
@@ -765,6 +784,7 @@
           </xs:all>
           <xs:attribute name="Sprachausgabe" type="boolean"/>
           <xs:attribute name="BremsenHL" type="boolean"/>
+          <xs:attribute name="AFBBeschl" type="xs:float"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>

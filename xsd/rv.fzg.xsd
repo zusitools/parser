@@ -93,6 +93,8 @@
       </xs:all>
       <xs:attribute name="LeistungPresser" type="xs:float"/>
       <xs:attribute name="VolumenHB" type="xs:float"/>
+      <xs:attribute name="DruckHBMin" type="xs:float"/>
+      <xs:attribute name="DruckHBMax" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="Bremscomputer">

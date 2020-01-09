@@ -18,8 +18,7 @@ RR/GG/BB/AA steht für die zweistellige Hexadezimalrepräsentation des Rot-/Grü
     <xs:attribute name="Ce" type="argbColor"/>
     <xs:attribute name="MeterProTex" type="xs:float"/>
     <xs:attribute name="MeterProTex2" type="xs:float"/>
-    <xs:attribute name="zBias" type="xs:int"/>
-    <!-- TODO ? -->
+    <xs:attribute name="zBias" type="xs:int"/> <!-- xs:float in Dateiformat A.0 -->
     <xs:attribute name="Zwangshelligkeit" type="xs:float"/>
     <!-- TODO ? -->
     <xs:attribute name="TypLs3" type="xs:int"/>

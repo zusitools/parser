@@ -28,7 +28,7 @@
 Insbesondere können Dateien, die auf einem anderen Laufwerk als das Zusi-Datenverzeichnis liegen, nicht referenziert werden.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="inst" type="boolean"/>
+    <xs:attribute name="inst" type="xs:int"/>
     <xs:attribute name="NurInfo" type="boolean"/>
   </xs:complexType>
   <xs:complexType name="Vec2">

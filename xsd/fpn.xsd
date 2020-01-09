@@ -12,6 +12,8 @@
       </xs:all>
       <xs:attribute name="AnfangsZeit" type="dateTime"/>
       <xs:attribute name="Zeitmodus" type="xs:int"/>
+      <xs:attribute name="ChaosVorschlagen" type="boolean"/>
+      <xs:attribute name="ChaosVorschlag" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="FahrplanZugVerknuepfung">

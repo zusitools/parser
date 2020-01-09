@@ -32,6 +32,7 @@
       </xs:all>
       <xs:attribute name="RekTiefe" type="xs:int"/>
       <xs:attribute name="Himmelsmodell" type="xs:int"/>
+      <xs:attribute name="SaegelinienEreignisse" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="LoeschFahrstrasse">
@@ -47,8 +48,13 @@
   <xs:element name="ETCSFunkmast">
     <xs:complexType>
       <xs:attribute name="ETCSSenderadius" type="xs:int"/>
-      <xs:attribute name="ETCSRBCNummer" type="xs:string"/>
+      <xs:attribute name="ETCSRBCNummer" type="xs:long"/>
       <xs:attribute name="ETCSRBCTelNummer" type="xs:string"/>
+      <xs:attribute name="ETCSRBCID" type="xs:long"/>
+      <xs:attribute name="ETCSRBCLand" type="xs:long"/>
+      <xs:attribute name="ETCSGSMRNetz" type="xs:long"/>
+      <xs:attribute name="ETCSFSUebergangTAF" type="boolean"/>
+      <xs:attribute name="ETCSFSUebergangOS" type="boolean"/>
       <xs:all minOccurs="0">
         <xs:element name="p" type="Vec3"/>
       </xs:all>
