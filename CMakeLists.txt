@@ -31,7 +31,7 @@ endif()
 set(ZUSI_PARSER_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 
 function(generate_zusi_parser targetName outputDir)
-  cmake_parse_arguments(PARSE_ARGV 2 GENERATE_ZUSI_PARSER "IGNORE_UNKNOWN" "" "WHITELIST")
+  cmake_parse_arguments(PARSE_ARGV 2 GENERATE_ZUSI_PARSER "IGNORE_UNKNOWN;USE_GLM" "" "WHITELIST")
   set(xsd_sources
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/authority.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/author.xml.xsd
@@ -94,6 +94,9 @@ function(generate_zusi_parser targetName outputDir)
   set(generate_args "")
   if (GENERATE_ZUSI_PARSER_IGNORE_UNKNOWN)
     set(generate_args "${generate_args};--ignore-unknown")
+  endif()
+  if (GENERATE_ZUSI_PARSER_USE_GLM)
+    set(generate_args "${generate_args};--use-glm")
   endif()
   foreach (whitelist_entry IN LISTS GENERATE_ZUSI_PARSER_WHITELIST)
     set(generate_args "${generate_args};--whitelist;${whitelist_entry}")

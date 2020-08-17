@@ -73,6 +73,7 @@ struct ChildRaw : Thing {
 };
 
 struct ElementType : Thing {
+  std::string cppName;  // name including namespace and "struct " prefix
   const ElementType* base;  // may be null
   std::vector<Attribute> attributes;
   std::vector<Child> children;
@@ -87,6 +88,7 @@ struct ElementTypeRaw : Thing {
 struct Config {
   std::unordered_map<std::string, std::unordered_set<std::string>> whitelist;
   bool ignore_unknown { false };
+  bool use_glm { false };
 };
 
 /** Returns a size > 0 if a small vector of this size can be used to hold @p child
@@ -113,7 +115,7 @@ class UniquePtrChildStrategy : public ChildStrategy {
  public:
   std::string GetMemberDeclaration(const ElementType& elementType, const Child& child) override {
     std::ostringstream out;
-    std::string unique_ptr_type = std::string("std::unique_ptr<struct ") + child.type->name + ", zusixml::deleter<struct " + child.type->name + ">>";
+    std::string unique_ptr_type = std::string("std::unique_ptr<") + child.type->cppName + ", zusixml::deleter<" + child.type->cppName + ">>";
 
     if (child.multiple) {
       size_t smallVectorSize = SmallVectorSize(elementType, child);
@@ -155,10 +157,10 @@ class UniquePtrChildStrategy : public ChildStrategy {
         out << "    parseResult->children_" << child.name << "[index] = std::move(childResult);\n";
         out << "  }\n";
       } else {
-        out << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new struct " << child.type->name << "()).get());\n";
+        out << "  parse_element_" << child.type->name << "(text, parseResult->children_" << child.name << ".emplace_back(new " << child.type->cppName << "()).get());\n";
       }
     } else {
-      out << "  std::unique_ptr<struct " << child.type->name << ", zusixml::deleter<struct " << child.type->name << ">> childResult(new struct " << child.type->name << "());\n";
+      out << "  std::unique_ptr<" << child.type->cppName << ", zusixml::deleter<" << child.type->cppName << ">> childResult(new " << child.type->cppName << "());\n";
       out << "  parseResult->" << child.name << ".swap(childResult);\n";
 #if 0
       out << "  if (childResult) { RAPIDXML_PARSE_ERROR(\"Unexpected multiplicity: Child " << child.name << " of node " << typeName << "\", text); }\n";
@@ -187,7 +189,7 @@ class OptionalChildStrategy : public ChildStrategy {
   std::string GetMemberDeclaration(const ElementType& /*elementType*/, const Child& child) override {
     assert(!child.multiple);
     std::ostringstream out;
-    out << "  std::optional<struct " << child.type->name << "> " << child.name << ";\n";
+    out << "  std::optional<" << child.type->cppName << "> " << child.name << ";\n";
     return out.str();
   }
 
@@ -212,13 +214,13 @@ class InlineChildStrategy : public ChildStrategy {
     if (child.multiple) {
       size_t smallVectorSize = SmallVectorSize(elementType, child);
       if (smallVectorSize > 0) {
-        out << "  boost::container::small_vector<struct " << child.type->name << ", " << smallVectorSize << ">";
+        out << "  boost::container::small_vector<" << child.type->cppName << ", " << smallVectorSize << ">";
       } else {
-        out << "  std::vector<struct " << child.type->name << ">";
+        out << "  std::vector<" << child.type->cppName << ">";
       }
       out << " children_" << child.name << ";\n";
     } else {
-      out << "  struct " << child.type->name << " " << child.name << "; // inlined\n";
+      out << " " << child.type->cppName << " " << child.name << "; // inlined\n";
     }
 
     return out.str();
@@ -288,10 +290,27 @@ class ParserGenerator {
 
   void GenerateTypeDeclarations(std::ostream& out) {
     out << "#pragma once\n";
+    if (m_config.use_glm) {
+      out << "#include <glm/glm.hpp>\n";
+      out << "#include <glm/gtx/quaternion.hpp>\n";
+    }
     for (const auto& elementType : m_element_types) {
       if (m_used_element_types.find(elementType.get()) == std::end(m_used_element_types)) {
         continue;
       }
+      if (m_config.use_glm) {
+        if (elementType->name == "Vec2") {
+          out << "using Vec2 = glm::tvec2<float>;\n";
+          continue;
+        } else if (elementType->name == "Vec3") {
+          out << "using Vec3 = glm::tvec3<float>;\n";
+          continue;
+        } else if (elementType->name == "Quaternion") {
+          out << "using Quaternion = glm::tquat<float>;\n";
+          continue;
+        }
+      }
+
       out << "struct " << elementType->name << ";\n";
     }
   }
@@ -364,6 +383,10 @@ class ParserGenerator {
 
     for (auto it = std::rbegin(elementTypesTopologicallySorted); it != std::rend(elementTypesTopologicallySorted); ++it) {
       const ElementType* elementType = *it;
+
+      if (m_config.use_glm && ((elementType->name == "Vec2") || (elementType->name == "Vec3") || (elementType->name == "Quaternion"))) {
+        continue;
+      }
 
       if (!elementType->documentation.empty()) {
         out << "/** " << elementType->documentation << "*/\n";
@@ -793,23 +816,35 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
 #ifndef ZUSIXML_SCHEMA_XML_MODE
       // Special treatment for types with WXYZ as attributes
       if (elementType->name == "Vec2") {
-        parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Y') {
-          std::array<float Vec2::*, 2> members = {{ &Vec2::X, &Vec2::Y }};
-          parse_float(text, parseResult->*members[*name - 'X']);
+        parse_attributes << "        if (name_size == 1 && *name >= 'X' && *name <= 'Y') {\n";
+        if (m_config.use_glm) {
+          parse_attributes << "          std::array<float Vec2::*, 2> members = {{ &Vec2::x, &Vec2::y }};\n";
+        } else {
+          parse_attributes << "          std::array<float Vec2::*, 2> members = {{ &Vec2::X, &Vec2::Y }};\n";
+        }
+        parse_attributes << R""(          parse_float(text, parseResult->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
         })"" << "\n";
         allAttributes.clear();
       } else if (elementType->name == "Vec3") {
-        parse_attributes << R""(        if (name_size == 1 && *name >= 'X' && *name <= 'Z') {
-          std::array<float Vec3::*, 3> members = {{ &Vec3::X, &Vec3::Y, &Vec3::Z }};
-          parse_float(text, parseResult->*members[*name - 'X']);
+        parse_attributes << "        if (name_size == 1 && *name >= 'X' && *name <= 'Z') {\n";
+        if (m_config.use_glm) {
+          parse_attributes << "          std::array<float Vec3::*, 3> members = {{ &Vec3::x, &Vec3::y, &Vec3::z }};\n";
+        } else {
+          parse_attributes << "          std::array<float Vec3::*, 3> members = {{ &Vec3::X, &Vec3::Y, &Vec3::Z }};\n";;
+        }
+        parse_attributes << R""(          parse_float(text, parseResult->*members[*name - 'X']);
           skip_unlikely<whitespace_pred>(text);
         })"" << "\n";
         allAttributes.clear();
       } else if (elementType->name == "Quaternion") {
-        parse_attributes << R""(        if (name_size == 1 && *name >= 'W' && *name <= 'Z') {
-          std::array<float Quaternion::*, 4> members = {{ &Quaternion::W, &Quaternion::X, &Quaternion::Y, &Quaternion::Z }};
-          parse_float(text, parseResult->*members[*name - 'W']);
+        parse_attributes << "        if (name_size == 1 && *name >= 'W' && *name <= 'Z') {\n";
+        if (m_config.use_glm) {
+          parse_attributes << "          std::array<float Quaternion::*, 4> members = {{ &Quaternion::w, &Quaternion::x, &Quaternion::y, &Quaternion::z }};\n";
+        } else {
+          parse_attributes << "          std::array<float Quaternion::*, 4> members = {{ &Quaternion::W, &Quaternion::X, &Quaternion::Y, &Quaternion::Z }};\n";
+        }
+        parse_attributes << R""(          parse_float(text, parseResult->*members[*name - 'W']);
           skip_unlikely<whitespace_pred>(text);
         })"" << "\n";
         allAttributes.clear();
@@ -995,7 +1030,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       parse_attributes << "        }\n";
 
       // Generate code for parsing method
-      out << R""(  static void parse_element_)"" << elementType->name << "(const Ch *& text, struct " << elementType->name << R""(* parseResult) {
+      out << R""(  static void parse_element_)"" << elementType->name << "(const Ch *& text, " << elementType->cppName << R""(* parseResult) {
 
       // For all attributes
       while (attribute_name_pred::test(*text))
@@ -1040,7 +1075,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       {
           ++text;
           parse_node_contents(text, [](const Ch *&text, void* parseResultUntyped) {
-              struct )"" << elementType->name << R""(* parseResult = static_cast<struct )"" << elementType->name << R""(*>(parseResultUntyped);
+              )"" << elementType->cppName << R""(* parseResult = static_cast<)"" << elementType->cppName << R""(*>(parseResultUntyped);
               // Extract element name
               const Ch *name = text;
               skip<node_name_pred>(text);
@@ -1247,10 +1282,18 @@ class ParserGeneratorBuilder {
   }
 
   ParserGenerator Build(Config config) {
+    using namespace std::string_literals;
     std::vector<std::unique_ptr<ElementType>> elementTypes;
     for (const auto& [ typeName, elementTypeRaw] : m_element_types) {
+      const auto nameCpp = [&config, &typeName]() -> std::string {
+        if (config.use_glm && ((typeName == "Vec2") || (typeName == "Vec3") || (typeName == "Quaternion"))) {
+          return typeName;
+        }
+        return "struct "s + typeName;
+      }();
       elementTypes.push_back(std::unique_ptr<ElementType>(new ElementType {
           { elementTypeRaw.name, elementTypeRaw.documentation },
+          nameCpp,
           nullptr,
           elementTypeRaw.attributes,
           std::vector<Child>()}));
@@ -1376,6 +1419,7 @@ int main(int argc, char** argv) {
     ("help", "show help message")
     ("out-dir", po::value<std::string>(&out_dir), "Root XSD file to process")
     ("ignore-unknown", po::bool_switch(&config.ignore_unknown), "Do not produce an error message on encountering unknown element or attribute names. This speeds up parsing.")
+    ("use-glm", po::bool_switch(&config.use_glm), "Use glm::tvec2, glm::tvec3 and glm::tquat for vector and quaternion types.")
     ("whitelist", po::value<std::vector<std::string>>(&whitelist), "Whitelist an element or attribute name to parse, in the form ParentName::Name. Can be specified multiple times. If no whitelist is specified, all known elements and attributes are parsed.")
     ("xsd", po::value<std::string>(&xsd), "Root XSD file to process")
     ;
