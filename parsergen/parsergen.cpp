@@ -401,7 +401,7 @@ class ParserGenerator {
 
       std::ostringstream attrs;
       for (const auto& attribute : elementType->attributes) {
-        if (!IsOnWhitelist(*elementType, attribute) || attribute.deprecated()) {
+        if (!IsOnWhitelist(*elementType, attribute)) {
           continue;
         }
         if (!attribute.documentation.empty()) {
@@ -857,29 +857,32 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
         }
 
         parse_attributes << "        else if (name_size == " << attr.name.size() << " && !memcmp(name, \"" << attr.name << "\", " << attr.name.size() << ")) {\n";
-        if (!IsOnWhitelist(*curParent, attr) || attr.deprecated()) {
-          if (IsOnWhitelist(*curParent, attr) && (attr.name == "C" || attr.name == "CA" || attr.name == "E")) {
-            if (!startWhitespaceSkip) {
-              parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
-            }
-            parse_attributes << "          uint32_t tmp;\n";
-            parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);\n";
-            parse_attributes << "          parseResult->";
-            if (attr.name == "C") {
-              parse_attributes << "Cd";
-            } else if (attr.name == "CA") {
-              parse_attributes << "Ca";
-            } else if (attr.name == "E") {
-              parse_attributes << "Ce";
-            }
-            parse_attributes << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>(tmp & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF) };\n";
-            parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
-          } else {
-            if (attr.deprecated()) {
-              parse_attributes << "          // deprecated\n";
-            }
-            parse_attributes << "          skip_attribute_value(text, quote);\n";
+
+        // Skip deprecated attributes and attributes that are not on the whitelist.
+        if (!IsOnWhitelist(*curParent, attr)) {
+          if (attr.deprecated()) {
+            parse_attributes << "          // deprecated\n";
           }
+          parse_attributes << "          skip_attribute_value(text, quote);\n";
+          parse_attributes << "        }\n";
+          continue;
+        } else if ((attr.name == "C" || attr.name == "CA" || attr.name == "E")) {
+          // Convert deprecated old form of color attributes to new form.
+          if (!startWhitespaceSkip) {
+            parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
+          }
+          parse_attributes << "          uint32_t tmp;\n";
+          parse_attributes << "          boost::spirit::qi::parse(text, static_cast<const char*>(nullptr), boost::spirit::qi::int_parser<uint32_t, 16, 1, 9>(), tmp);\n";
+          parse_attributes << "          parseResult->";
+          if (attr.name == "C") {
+            parse_attributes << "Cd";
+          } else if (attr.name == "CA") {
+            parse_attributes << "Ca";
+          } else if (attr.name == "E") {
+            parse_attributes << "Ce";
+          }
+          parse_attributes << " = ArgbColor { static_cast<uint8_t>((tmp >> 24) & 0xFF), static_cast<uint8_t>(tmp & 0xFF), static_cast<uint8_t>((tmp >> 8) & 0xFF), static_cast<uint8_t>((tmp >> 16) & 0xFF) };\n";
+          parse_attributes << "          skip_unlikely<whitespace_pred>(text);\n";
           parse_attributes << "        }\n";
           continue;
         }
