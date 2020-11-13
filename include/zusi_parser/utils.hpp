@@ -58,15 +58,15 @@ class FileReader {
 #ifdef _WIN32
     // TODO mmap
     io::basic_ifstream<std::remove_const_t<zusixml::Ch>> stream;
-    stream.exceptions(std::ifstream::failbit | std::ifstream::eofbit | std::ifstream::badbit);
+    stream.exceptions(io::ifstream::failbit | io::ifstream::eofbit | io::ifstream::badbit);
     try {
       stream.open(std::string(dateiname), std::ios::binary);
-    } catch (const std::ifstream::failure& e) {
+    } catch (const io::ifstream::failure& e) {
       throw std::runtime_error(std::string(dateiname) + ": open() failed: " + e.what());
     }
     try {
       stream.seekg(0, std::ios::end);
-    } catch (const std::ifstream::failure& e) {
+    } catch (const io::ifstream::failure& e) {
       throw std::runtime_error(std::string(dateiname) + ": seek() failed: " + e.what());
     }
     size_t size = stream.tellg();
@@ -74,7 +74,7 @@ class FileReader {
     try {
       stream.seekg(0);
       stream.read(m_buffer.data(), size);
-    } catch (const std::ifstream::failure& e) {
+    } catch (const io::ifstream::failure& e) {
       throw std::runtime_error(std::string(dateiname) + ": read() failed: " + e.what());
     }
 #else
