@@ -182,7 +182,7 @@ class FileReader {
   std::vector<std::remove_const_t<zusixml::Ch>> m_buffer;
 };
 
-static std::unique_ptr<Zusi> parseFile(std::string_view dateiname) {
+static inline std::unique_ptr<Zusi> parseFile(std::string_view dateiname) {
   try {
     FileReader reader(dateiname);
     try {
@@ -196,7 +196,7 @@ static std::unique_ptr<Zusi> parseFile(std::string_view dateiname) {
   return nullptr;
 }
 
-static std::unique_ptr<Zusi> tryParseFile(std::string_view dateiname) {
+static inline std::unique_ptr<Zusi> tryParseFile(std::string_view dateiname) {
   try {
     return parseFile(dateiname);
   } catch (const std::runtime_error& e) {
@@ -205,7 +205,7 @@ static std::unique_ptr<Zusi> tryParseFile(std::string_view dateiname) {
   }
 }
 
-static std::string bestimmeZusiDatenpfad() {
+static inline std::string bestimmeZusiDatenpfad() {
   std::string result;
 #ifdef _WIN32
   HKEY key;
@@ -226,7 +226,7 @@ static std::string bestimmeZusiDatenpfad() {
   return result;
 }
 
-static std::string bestimmeZusiDatenpfadOffiziell() {
+static inline std::string bestimmeZusiDatenpfadOffiziell() {
   std::string result;
 #ifdef _WIN32
   HKEY key;
@@ -250,12 +250,12 @@ static std::string bestimmeZusiDatenpfadOffiziell() {
   return result;
 }
 
-const std::string& getZusiDatenpfad() {
+inline const std::string& getZusiDatenpfad() {
   static const std::string zusiDatenpfad = bestimmeZusiDatenpfad();
   return zusiDatenpfad;
 }
 
-const std::string& getZusiDatenpfadOffiziell() {
+inline const std::string& getZusiDatenpfadOffiziell() {
   static const std::string zusiDatenpfadOffiziell = bestimmeZusiDatenpfadOffiziell();
   return zusiDatenpfadOffiziell;
 }
