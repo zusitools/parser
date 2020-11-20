@@ -500,6 +500,7 @@ class ParserGenerator {
     out << "#include <array>\n";
     out << "#include <cstring>  // for memcmp\n";
     out << "#include <cfloat>   // Workaround for https://svn.boost.org/trac10/ticket/12642\n";
+    out << "#include <iostream> // for cerr\n";
     out << "#include <string_view>\n";
 
     out << "#include <boost/spirit/include/qi_real.hpp>\n";

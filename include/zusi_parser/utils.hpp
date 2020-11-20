@@ -7,7 +7,7 @@
 #include <exception>
 #include <ios>
 
-#if ZUSI_PARSER_USE_BOOST_NOWIDE
+#ifdef _WIN32
 #  include <boost/nowide/iostream.hpp>
 #  include <boost/nowide/fstream.hpp>
 #else
@@ -22,6 +22,7 @@
 #ifdef _WIN32
 #  include <windows.h>
 #  include <winerror.h>
+#  include <boost/nowide/convert.hpp>
 #else
 #  include <cerrno>
 #  include <fcntl.h>
@@ -36,7 +37,7 @@
 
 #define MMAP_THRESHOLD_BYTES 0
 
-#if ZUSI_PARSER_USE_BOOST_NOWIDE
+#ifdef _WIN32
 namespace io = boost::nowide;
 #else
 namespace io = std;
@@ -317,7 +318,7 @@ public:
         auto mm = std::mismatch(p.begin(), p.end(), base.begin(), base.end()
 #ifdef _WIN32
             , [](const fs::path& lhs, const fs::path& rhs) {
-              return lstrcmpi(lhs.string().c_str(), rhs.string().c_str()) == 0;
+              return strcmpi(lhs.string().c_str(), rhs.string().c_str()) == 0;
             }
 #endif
         );
@@ -390,12 +391,12 @@ public:
     }
 
 #ifdef _WIN32
-    WIN32_FIND_DATA findData;
+    WIN32_FIND_DATAW findData;
 #endif
 
     if (
 #ifdef _WIN32
-      FindFirstFile(resultEigenes.c_str(), &findData) != INVALID_HANDLE_VALUE
+      FindFirstFileW(boost::nowide::widen(resultEigenes).c_str(), &findData) != INVALID_HANDLE_VALUE
 #else
       euidaccess(resultEigenes.c_str(), F_OK) == 0
 #endif
