@@ -1222,7 +1222,9 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
         result.insert(elementType.get());
       }
       for (const auto& child : elementType->children) {
-        result.emplace(child.type);
+        if (IsOnWhitelist(*elementType, child)) {
+          result.emplace(child.type);
+        }
       }
     }
     return result;
