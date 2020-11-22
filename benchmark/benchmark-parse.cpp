@@ -28,15 +28,41 @@ int main(int argc, char** argv) {
 #ifdef __linux__
   rlimit rlim;
   getrlimit(RLIMIT_NOFILE, &rlim);
-  rlim.rlim_cur = rlim.rlim_max;
-  setrlimit(RLIMIT_NOFILE, &rlim);
+  if (rlim.rlim_cur < rlim.rlim_max) {
+    std::cout << "Setting RLIMIT_NOFILE from " << rlim.rlim_cur << " to " << rlim.rlim_max << "\n";
+    rlim.rlim_cur = rlim.rlim_max;
+    setrlimit(RLIMIT_NOFILE, &rlim);
+  }
+
+  getrlimit(RLIMIT_AS, &rlim);
+  if (rlim.rlim_cur < rlim.rlim_max) {
+    std::cout << "Setting RLIMIT_AS from " << rlim.rlim_cur << " to " << rlim.rlim_max << "\n";
+    rlim.rlim_cur = rlim.rlim_max;
+    setrlimit(RLIMIT_AS, &rlim);
+  }
 #endif
 
-  char buf[256];
-  std::ifstream i(argv[1]);
-  while (i.getline(buf, 256)) {
-    dateinamen.push_back(buf);
-    const auto& fileReader = dateien.emplace_back(std::string_view(buf, i.gcount()));
+  {
+    char buf[256];
+    std::ifstream i(argv[1]);
+    while (i.getline(buf, sizeof(buf))) {
+      dateinamen.push_back(buf);
+    }
+  }
+
+#ifdef __linux__
+  {
+    char buf[256];
+    std::ifstream i("/proc/sys/vm/max_map_count");
+    i.getline(buf, sizeof(buf));
+    if (atoi(buf) < dateinamen.size() + 50) {
+      std::cerr << "Mapping files into memory might fail, consider running sudo sysctl -w vm.max_map_count=" << (dateinamen.size() + 50) << "\n";
+    }
+  }
+#endif
+
+  for (const auto& dateiname : dateinamen) {
+    const auto& fileReader = dateien.emplace_back(std::string_view(dateiname));
     total_size += fileReader.size();
   }
 
