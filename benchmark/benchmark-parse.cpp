@@ -9,6 +9,10 @@
 #include "zusi_parser/zusi_parser.hpp"
 #include "zusi_parser/utils.hpp"
 
+#ifdef __linux__
+#include <sys/resource.h>
+#endif
+
 int main(int argc, char** argv) {
 #ifdef NDEBUG
   (void)argc;
@@ -20,6 +24,13 @@ int main(int argc, char** argv) {
   std::vector<std::string> dateinamen;
   std::vector<zusixml::FileReader> dateien;
   size_t total_size = 0;
+
+#ifdef __linux__
+  rlimit rlim;
+  getrlimit(RLIMIT_NOFILE, &rlim);
+  rlim.rlim_cur = rlim.rlim_max;
+  setrlimit(RLIMIT_NOFILE, &rlim);
+#endif
 
   char buf[256];
   std::ifstream i(argv[1]);
