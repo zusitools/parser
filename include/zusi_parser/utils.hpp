@@ -80,6 +80,9 @@ class FileReader {
     }
 #else
     struct FdHelper {
+      FdHelper() = default;
+      FdHelper(const FdHelper&) = delete;
+      FdHelper& operator=(const FdHelper&) = delete;
       ~FdHelper() {
         if (fd != -1) { close(fd); }
       }
