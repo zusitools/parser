@@ -139,7 +139,6 @@ namespace zusixml
     
     // Forward declarations.
     static void parse_bom(const Ch *&text);
-    static void parse_xml_declaration(const Ch *&text);
     static void parse_comment(const Ch *&text);
     static void parse_doctype(const Ch *&text);
     static void parse_pi(const Ch *&text);
@@ -474,21 +473,8 @@ namespace zusixml {
             static_cast<unsigned char>(text[1]) == 0xBB && 
             static_cast<unsigned char>(text[2]) == 0xBF)
         {
-            text += 3;      // Skup utf-8 bom
+            text += 3;      // Skip utf-8 bom
         }
-    }
-
-    // Parse XML declaration (<?xml...)
-    static void parse_xml_declaration(const Ch *&text)
-    {
-        // Skip until end of declaration
-        while (text[0] != Ch('?') || text[1] != Ch('>'))
-        {
-            if (!text[0])
-                ZUSIXML_PARSE_ERROR("unexpected end of data", text);
-            ++text;
-        }
-        text += 2;    // Skip '?>'
     }
 
     // Parse XML comment (<!--...)
@@ -605,22 +591,9 @@ namespace zusixml {
         // <?...
         case Ch('?'): 
             ++text;     // Skip ?
-            if ((text[0] == Ch('x') || text[0] == Ch('X')) &&
-                (text[1] == Ch('m') || text[1] == Ch('M')) && 
-                (text[2] == Ch('l') || text[2] == Ch('L')) &&
-                whitespace_pred::test(text[3]))
-            {
-                // '<?xml ' - xml declaration
-                text += 4;      // Skip 'xml '
-                parse_xml_declaration(text);
-                break;
-            }
-            else
-            {
-                // Parse PI
-                parse_pi(text);
-                break;
-            }
+            // Parse PI
+            parse_pi(text);
+            break;
 
         // <!...
         case Ch('!'): 
