@@ -440,9 +440,7 @@ namespace zusixml {
             // Parse and append new child
             if (*text == Ch('<'))
             {
-                parseResult.reset(new Result());
                 ++text;     // Skip '<'
-
                 parse_node(text, [](const Ch *&text, void* parseResult) {
                     // Extract element name
                     const Ch *name = text;
@@ -452,8 +450,10 @@ namespace zusixml {
 
                     // Skip whitespace between element name and attributes or >
                     skip<whitespace_pred>(text);
-                    parse_element_Zusi(text, static_cast<Result*>(parseResult));
-                }, parseResult.get());
+                    auto* parse_result_typed = static_cast<std::unique_ptr<Result>*>(parseResult);
+                    parse_result_typed->reset(new Result());
+                    parse_element_Zusi(text, parse_result_typed->get());
+                }, &parseResult);
 
             }
             else
