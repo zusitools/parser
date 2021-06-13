@@ -1292,7 +1292,7 @@ class ParserGeneratorBuilder {
     using namespace std::string_literals;
     std::vector<std::unique_ptr<ElementType>> elementTypes;
     for (const auto& [ typeName, elementTypeRaw] : m_element_types) {
-      const auto nameCpp = [&config, &typeName]() -> std::string {
+      const auto nameCpp = [&config, typeName = typeName]() -> std::string {
         if (config.use_glm && ((typeName == "Vec2") || (typeName == "Vec3") || (typeName == "Quaternion"))) {
           return typeName;
         }
@@ -1443,7 +1443,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  for (const auto entry : whitelist) {
+  for (const auto& entry : whitelist) {
     auto colon_pos = entry.find("::");
     decltype(colon_pos) start = 0;
     if (colon_pos == std::string::npos) {
