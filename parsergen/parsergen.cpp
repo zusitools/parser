@@ -276,6 +276,7 @@ class ParserGenerator {
     out << "#include <vector>  // for std::vector\n";
     out << "#include <memory>  // for std::unique_ptr\n";
     out << "#include <optional>// for std::optional\n";
+    out << "#include <string>  // for std::string\n";
     out << "#include <ctime>   // for struct tm\n";
     out << "struct ArgbColor {\n";
     out << "  uint8_t a, r, g, b;\n";
