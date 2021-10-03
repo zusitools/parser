@@ -97,7 +97,17 @@
         <xs:element name="T91" type="Tastaturzuordnung"/>
         <xs:element name="T92" type="Tastaturzuordnung"/>
         <xs:element name="T93" type="Tastaturzuordnung"/>
+        <xs:element name="T94" type="Tastaturzuordnung"/>
+        <xs:element name="K0" type="Achse"/>
+        <xs:element name="K1" type="Achse"/>
+        <xs:element name="K2" type="Achse"/>
+        <xs:element name="K3" type="Achse"/>
+        <xs:element name="K4" type="Achse"/>
+        <xs:element name="K5" type="Achse"/>
+        <xs:element name="K6" type="Achse"/>
       </xs:sequence>
+      <xs:attribute name="RailDriverAusgabeTyp" type="xs:int"/>
+      <xs:attribute name="RailDriverLautsprecherAn" type="boolean"/>
       <xs:attribute name="Benutzen" type="xs:int"/>
     </xs:complexType>
   </xs:element>
@@ -106,5 +116,16 @@
     <xs:attribute name="T1" type="xs:int"/>
     <xs:attribute name="T2" type="xs:int"/>
     <xs:attribute name="T3" type="xs:int"/>
+  </xs:complexType>
+  <xs:complexType name="Achse">
+    <xs:sequence>
+      <xs:element name="Kennlinie" type="Kennfeld"/>
+    </xs:sequence>
+    <xs:attribute name="Unten" type="xs:int"/>
+    <xs:attribute name="Mitte" type="xs:int"/>
+    <xs:attribute name="Oben" type="xs:int"/>
+    <xs:attribute name="Totbereich" type="xs:int"/>
+    <xs:attribute name="Platinenzuordnung" type="boolean"/>
+    <xs:attribute name="Kennlinienmodus" type="boolean"/>
   </xs:complexType>
 </xs:schema>

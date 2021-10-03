@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
   <xs:include schemaLocation="typen.xsd"/>
+  <xs:include schemaLocation="trn.xsd"/>
   <xs:element name="Fahrplan">
     <xs:complexType>
       <xs:all>
         <xs:element name="BefehlsKonfiguration" type="Dateiverknuepfung" maxOccurs="1"/>
         <xs:element name="Begruessungsdatei" type="Dateiverknuepfung" maxOccurs="1"/>
+        <xs:element name="trn" type="Zug"/>
         <xs:element name="Zug" type="FahrplanZugVerknuepfung" maxOccurs="unbounded"/>
         <xs:element ref="StrModul" maxOccurs="unbounded"/>
         <xs:element ref="UTM" maxOccurs="1"/>
@@ -14,6 +16,7 @@
       <xs:attribute name="Zeitmodus" type="xs:int"/>
       <xs:attribute name="ChaosVorschlagen" type="boolean"/>
       <xs:attribute name="ChaosVorschlag" type="xs:float"/>
+      <xs:attribute name="trnDateien" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="FahrplanZugVerknuepfung">

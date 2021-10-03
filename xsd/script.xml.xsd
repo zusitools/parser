@@ -10,6 +10,7 @@
         <xs:element ref="NeuerLink" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Loeschen" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
+      <xs:attribute name="IndexNoetig" type="boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="DateiInfo">

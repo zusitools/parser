@@ -100,6 +100,8 @@
           <xs:documentation xml:lang="de">Der zur Erstellung des Objekts benötigte Zeitaufwand, gemessen in 'Haus-Einheiten'. 1 Haus-Einheit entspricht dem Zeitaufwand zur Erstellung eines durchschnittlichen 3D-Hauses.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="AutorAufwandPunkte" type="xs:float"/>
+      <xs:attribute name="AutorAufwandStunden" type="xs:float"/>
       <xs:attribute name="AutorLizenz" type="xs:int">
         <xs:annotation>
           <xs:documentation xml:lang="de">Lizenz, unter der das Objekt steht und die die Verteilung der Einnahmen aus der kommerziellen Nutzung der Zusi-Objekte regelt. Es gilt: 0 = Einnahmen an den Autor [Standard], 1 = Einnahmen auf alle anderen Autoren im Pool verteilen, 2 = Einnahmen gehen an Firma Carsten Hölscher Software, 3 = Objekt ist in der Public Domain (Autor verzichtet auf seine Autorenrechte), 4 = Private nicht zur Veröffentlichung vorgesehene Datei, 5 = Kommerzielle Sondernutzung</xs:documentation>

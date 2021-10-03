@@ -24,6 +24,7 @@
         <xs:element ref="PZB90I60R_V15" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="PZB90I60R_V20" type="PZB90I60R_V20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="EBICAB500" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="EBICAB600" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="TrainguardBasicIndusi" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90ER24_V20" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="PZB90I60RBus" minOccurs="0" maxOccurs="unbounded"/>
@@ -42,10 +43,20 @@
         <xs:element ref="LZB80_CE_PZB90_20_ZUB262" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="LZB80E" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="EBICAB2000" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element ref="ETCS" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="ETCS" type="ETCSFunktionalitaet" minOccurs="0" maxOccurs="unbounded">
+          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+        </xs:element>
+        <xs:element name="ETCSAtlas" type="ETCSFunktionalitaet" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="ETCSTrainguard100" type="ETCSFunktionalitaet" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="ETCSTrainguard200" type="ETCSFunktionalitaet" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="ETCSEBICAB2000" type="ETCSFunktionalitaet" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="ETCSAltrac" type="ETCSFunktionalitaet" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="ETCSGuardia" type="ETCSFunktionalitaet" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="ZBS" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Fahrsperre" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Textmelder" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FtdDokulink" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="ZDInfo" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Sifa_ZeitZeit" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Sifa_RZM" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Sifa_ZeitWeg" minOccurs="0" maxOccurs="unbounded"/>
@@ -150,6 +161,7 @@
       <xs:attribute name="LMZugartU" type="xs:string"/>
       <xs:attribute name="LM500Hz" type="xs:string"/>
       <xs:attribute name="LMBefehl" type="xs:string"/>
+      <xs:attribute name="PZBStoerschalterBauart" type="xs:int"/>
     </xs:extension>
   </xs:complexType>
   <xs:complexType name="FtdFunktionalitaetSifa">
@@ -160,6 +172,9 @@
         </xs:all>
         <xs:attribute name="NameLM" type="xs:string"/>
         <xs:attribute name="ZweiSchalter" type="boolean"/>
+        <xs:attribute name="Pruefmodus" type="xs:int"/>
+        <xs:attribute name="Mindestsp" type="xs:float"/>
+        <xs:attribute name="MelderVerzoegerung" type="xs:float"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -233,6 +248,13 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="EBICAB500">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaetPZB"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="EBICAB600">
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetPZB"/>
@@ -326,6 +348,8 @@
         <xs:attribute name="LMBefehl" type="xs:string"/>
         <xs:attribute name="LMLZBEnde" type="xs:string"/>
         <xs:attribute name="Sprachausgabe" type="boolean"/>
+        <xs:attribute name="LZBStoerschalterBauart" type="xs:int"/>
+        <xs:attribute name="PZBStoerschalterBauart" type="xs:int"/>
         <xs:attribute name="LMZugartU" type="xs:string"/>
         <xs:attribute name="LMZugartM" type="xs:string"/>
         <xs:attribute name="LMZugartO" type="xs:string"/>
@@ -416,22 +440,25 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
-  <xs:element name="ETCS">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="FtdFunktionalitaet">
-          <xs:all minOccurs="0">
-            <xs:element name="ETCSInfoTon" type="Sound"/>
-            <xs:element name="ETCSWarnungTon" type="Sound"/>
-            <xs:element name="ETCSvmaxTon" type="Sound"/>
-          </xs:all>
-          <xs:attribute name="ETCSSchalterQuittieren" type="xs:string"/>
-          <xs:attribute name="ETCSSTMAuswahl" type="xs:long"/>
-          <xs:attribute name="ETCSGSMRNetz" type="xs:long"/>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="ETCSFunktionalitaet">
+    <xs:complexContent>
+      <xs:extension base="FtdFunktionalitaet">
+        <xs:all minOccurs="0">
+          <xs:element name="ETCSInfoTon" type="Sound"/>
+          <xs:element name="ETCSWarnungTon" type="Sound"/>
+          <xs:element name="ETCSvmaxTon" type="Sound"/>
+        </xs:all>
+        <xs:attribute name="ETCSSchalterQuittieren" type="xs:string"/>
+        <xs:attribute name="ETCSSTMAuswahl" type="xs:long"/>
+        <xs:attribute name="ETCSGSMRNetz" type="xs:long"/>
+        <xs:attribute name="ETCSBaseline" type="xs:string"/>
+        <xs:attribute name="ETCSLSSVorhanden" type="boolean"/>
+        <xs:attribute name="ETCSPassivschalterVorhanden" type="boolean"/>
+        <xs:attribute name="ETCSResetSchalterVorhanden" type="boolean"/>
+        <xs:attribute name="ETCSResetSoftkeyVorhanden" type="boolean"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   <xs:element name="ZBS">
     <xs:complexType>
       <xs:complexContent>
@@ -459,14 +486,36 @@
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
+  <xs:element name="FtdDokulink">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaet">
+          <xs:attribute name="Dokulink" type="xs:string"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ZDInfo">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FtdFunktionalitaet">
+          <xs:attribute name="BatterieHSTyp" type="xs:int"/>
+          <xs:attribute name="SAWahlTyp" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="Sifa_ZeitZeit">
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaetSifa">
           <xs:all minOccurs="0">
             <xs:element name="SoundSifaZB" type="Sound"/>
+            <xs:element name="SoundSifaRR" type="Sound"/>
           </xs:all>
           <xs:attribute name="Sprachausgabe" type="boolean"/>
+          <xs:attribute name="FRROhneWAV" type="boolean"/>
+          <xs:attribute name="FRRNichtperSifa" type="boolean"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -874,6 +923,8 @@
       <xs:attribute name="FtdHauptrichtung" type="xs:int"/>
       <xs:attribute name="FtdLfdNr" type="xs:int"/>
       <xs:attribute name="FtdQualitaet" type="xs:long"/>
+      <xs:attribute name="VersatzWaagerecht" type="xs:float"/>
+      <xs:attribute name="VersatzSenkrecht" type="xs:float"/>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="FtdInstrument">

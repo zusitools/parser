@@ -6,6 +6,7 @@
       <xs:all minOccurs="0">
         <xs:element name="Datei_fpn" type="Dateiverknuepfung"/>
         <xs:element name="Datei_trn" type="Dateiverknuepfung"/>
+        <xs:element ref="UTM" maxOccurs="1"/>
         <xs:element ref="Fzg" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="FplZeile" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
@@ -17,7 +18,11 @@
       <xs:attribute name="spMax" type="xs:float"/>
       <xs:attribute name="Bremsh" type="xs:float"/>
       <xs:attribute name="MBrh" type="xs:float"/>
+      <xs:attribute name="Verkehrstage" type="xs:string"/>
+      <xs:attribute name="Grenzlast" type="boolean"/>
       <xs:attribute name="Laenge" type="xs:float"/>
+      <xs:attribute name="LaengeLoks" type="xs:float"/>
+      <xs:attribute name="Wagenzuglaenge" type="xs:float"/>
       <xs:attribute name="kmStart" type="xs:float"/>
       <xs:attribute name="Bremsstellung" type="xs:int">
         <xs:annotation>
@@ -36,6 +41,7 @@
   <xs:element name="FplZeile">
     <xs:complexType>
       <xs:all minOccurs="0">
+        <xs:element name="p" type="Vec3" minOccurs="0" />
         <xs:element ref="FplvMax" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="FplvMaxGNT" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="Fplkm" minOccurs="0" maxOccurs="unbounded"/>
@@ -48,6 +54,7 @@
         <xs:element ref="FplAnk" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="FplAbf" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="FplRichtungswechsel" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element ref="FplvMaxReduzierungen" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="FplRglGgl" type="xs:int"/>
       <xs:attribute name="FplLaufweg" type="xs:float"/>
@@ -102,6 +109,7 @@
       <xs:complexContent>
         <xs:extension base="FplZeileEintrag">
           <xs:attribute name="FplSignaltypNr" type="xs:int"/>
+          <xs:attribute name="FplHilfssignal" type="boolean"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -166,6 +174,17 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FplZeileEintrag"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FplvMaxReduzierungen">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="FplZeileEintrag">
+          <xs:all minOccurs="0">
+            <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:all>
+        </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>

@@ -55,6 +55,7 @@
       <xs:attribute name="ETCSGSMRNetz" type="xs:long"/>
       <xs:attribute name="ETCSFSUebergangTAF" type="boolean"/>
       <xs:attribute name="ETCSFSUebergangOS" type="boolean"/>
+      <xs:attribute name="ETCSTransitionErsatzsignalSR" type="boolean"/>
       <xs:all minOccurs="0">
         <xs:element name="p" type="Vec3"/>
       </xs:all>
@@ -261,6 +262,7 @@
     <xs:all minOccurs="0">
       <xs:element name="p" type="Vec3" minOccurs="0"/>
       <xs:element name="phi" type="Vec3" minOccurs="0"/>
+      <xs:element name="sk" type="Vec3" minOccurs="0"/>
       <xs:element ref="KoppelSignal" minOccurs="0"/>
       <xs:element ref="SignalFrame" minOccurs="0" maxOccurs="unbounded"/>
       <xs:element ref="HsigBegriff" minOccurs="0" maxOccurs="unbounded"/>
@@ -293,6 +295,7 @@
       <xs:all minOccurs="0">
         <xs:element name="p" type="Vec3" minOccurs="0"/>
         <xs:element name="phi" type="Vec3" minOccurs="0"/>
+        <xs:element name="sk" type="Vec3" minOccurs="0"/>
         <xs:element name="Datei" type="Dateiverknuepfung" minOccurs="0"/>
         <xs:element ref="Ereignis" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>

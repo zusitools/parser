@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema/v1.1" elementFormDefault="qualified">
   <xs:include schemaLocation="typen.xsd"/>
-  <xs:element name="Zug">
-    <xs:complexType>
-      <xs:all>
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-        <xs:element name="BuchfahrplanRohDatei" type="Dateiverknuepfung"/>
-        <xs:element name="BuchfahrplanBMPDatei" type="Dateiverknuepfung"/>
-        <xs:element name="Anfangsbefehl" type="Dateiverknuepfung"/>
-        <xs:element ref="Aufgleisreferenz"/>
-        <xs:element ref="FahrplanEintrag" maxOccurs="unbounded"/>
-        <xs:element ref="FahrzeugVarianten"/>
-      </xs:all>
-      <xs:attribute name="Gattung" type="xs:string"/>
-      <xs:attribute name="Nummer" type="xs:string"/>
-      <xs:attribute name="Zuglauf" type="xs:string"/>
-      <xs:attribute name="BRAngabe" type="xs:string"/>
-      <xs:attribute name="Prio" type="xs:int"/>
-      <xs:attribute name="Standortmodus" type="xs:int"/>
-      <xs:attribute name="StartVorschubweg" type="xs:float"/>
-      <xs:attribute name="Bremsstellung" type="xs:int">
-        <xs:annotation>
-          <xs:documentation xml:lang="de">@deprecated</xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="BremsstellungZug" type="xs:int"/>
-      <xs:attribute name="EnergieVorgabe" type="xs:float"/>
-      <xs:attribute name="spAnfang" type="xs:float"/>
-      <xs:attribute name="MBrh" type="xs:float"/>
-      <xs:attribute name="spZugNiedriger" type="xs:float"/>
-      <xs:attribute name="KeineVorplanKorrektur" type="boolean"/>
-      <xs:attribute name="Dekozug" type="boolean"/>
-      <xs:attribute name="LODzug" type="xs:int"/>
-      <xs:attribute name="ReisendenDichte" type="xs:float"/>
-      <xs:attribute name="FahrplanGruppe" type="xs:string"/>
-      <xs:attribute name="Rekursionstiefe" type="xs:int"/>
-      <xs:attribute name="ZugsicherungStartmodus" type="xs:int"/>
-      <xs:attribute name="FahrstrName" type="xs:string"/>
-      <xs:attribute name="Zugtyp" type="xs:int"/>
-      <xs:attribute name="BuchfahrplanEinfach" type="boolean"/>
-      <xs:attribute name="Buchfahrplandll" type="xs:string"/>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="Zug">
+    <xs:all>
+      <xs:element name="Datei" type="Dateiverknuepfung"/>
+      <xs:element name="BuchfahrplanRohDatei" type="Dateiverknuepfung"/>
+      <xs:element name="BuchfahrplanBMPDatei" type="Dateiverknuepfung"/>
+      <xs:element name="Anfangsbefehl" type="Dateiverknuepfung"/>
+      <xs:element ref="Aufgleisreferenz"/>
+      <xs:element ref="FahrplanEintrag" maxOccurs="unbounded"/>
+      <xs:element ref="FahrzeugVarianten"/>
+    </xs:all>
+    <xs:attribute name="Gattung" type="xs:string"/>
+    <xs:attribute name="Nummer" type="xs:string"/>
+    <xs:attribute name="Zuglauf" type="xs:string"/>
+    <xs:attribute name="BRAngabe" type="xs:string"/>
+    <xs:attribute name="Prio" type="xs:int"/>
+    <xs:attribute name="Standortmodus" type="xs:int"/>
+    <xs:attribute name="StartVorschubweg" type="xs:float"/>
+    <xs:attribute name="Bremsstellung" type="xs:int">
+      <xs:annotation>
+        <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="BremsstellungZug" type="xs:int"/>
+    <xs:attribute name="EnergieVorgabe" type="xs:float"/>
+    <xs:attribute name="spAnfang" type="xs:float"/>
+    <xs:attribute name="MBrh" type="xs:float"/>
+    <xs:attribute name="Verkehrstage" type="xs:string"/>
+    <xs:attribute name="Grenzlast" type="boolean"/>
+    <xs:attribute name="spZugNiedriger" type="xs:float"/>
+    <xs:attribute name="APBeschl" type="xs:float"/>
+    <xs:attribute name="KeineVorplanKorrektur" type="boolean"/>
+    <xs:attribute name="Dekozug" type="boolean"/>
+    <xs:attribute name="LODzug" type="xs:int"/>
+    <xs:attribute name="ReisendenDichte" type="xs:float"/>
+    <xs:attribute name="FahrplanGruppe" type="xs:string"/>
+    <xs:attribute name="Rekursionstiefe" type="xs:int"/>
+    <xs:attribute name="ZugsicherungStartmodus" type="xs:int"/>
+    <xs:attribute name="FahrstrName" type="xs:string"/>
+    <xs:attribute name="Zugtyp" type="xs:int"/>
+    <xs:attribute name="Ueberschrift" type="xs:string"/>
+    <xs:attribute name="BuchfahrplanEinfach" type="boolean"/>
+    <xs:attribute name="Buchfahrplandll" type="xs:string"/>
+    <xs:attribute name="TuerSystemBezeichner" type="xs:string"/>
+  </xs:complexType>
+  <xs:element name="Zug" type="Zug" />
   <xs:element name="Aufgleisreferenz">
     <xs:complexType>
       <xs:all>
@@ -110,8 +114,13 @@
         <xs:element ref="FahrzeugVarianten" minOccurs="0" maxOccurs="unbounded"/>
       </xs:all>
       <xs:attribute name="Bezeichnung" type="xs:string"/>
-      <xs:attribute name="spZugNiedriger" type="xs:float"/>
       <xs:attribute name="PerZufallUebernehmen" type="boolean"/>
+      <xs:attribute name="Gattung" type="xs:string"/>
+      <xs:attribute name="ZugTypVorgeben" type="boolean"/>
+      <xs:attribute name="Zugtyp" type="xs:int"/>
+      <xs:attribute name="MBrh" type="xs:float"/>
+      <xs:attribute name="BremsstellungZug" type="xs:int"/>
+      <xs:attribute name="spZugNiedriger" type="xs:float"/>
       <xs:attribute name="ZufallsWert" type="xs:float"/>
       <xs:attribute name="FzgPosition" type="xs:int"/>
     </xs:complexType>
@@ -122,6 +131,7 @@
         <xs:element name="Datei" type="Dateiverknuepfung"/>
         <xs:element name="ZugdatenETCS" type="ETCSZugdaten"/>
         <xs:element name="ZugdatenZBS" type="ZBSZugdaten"/>
+        <xs:element name="ZugdatenFahrsperre" type="FahrsperreZugdaten"/>
         <xs:element name="ZugdatenLZB80" type="LZBZugdaten"/>
         <xs:element name="ZugdatenIndusiAnalog" type="IndusiAnalogZugdaten"/>
         <xs:element name="ZugdatenIndusiRechner" type="IndusiZugdaten"/>
@@ -165,9 +175,16 @@
     <xs:attribute name="ETCSLevel" type="xs:int"/>
     <xs:attribute name="ETCSModus" type="xs:int"/>
     <xs:attribute name="Startsystem" type="xs:string"/>
-    <xs:attribute name="ZugsicherungHS" type="xs:int"/>
+    <xs:attribute name="ETCSLSS" type="xs:int"/>
+    <xs:attribute name="ETCSCEASchalter" type="xs:int"/>
+    <xs:attribute name="ZugsicherungHS" type="xs:int">
+      <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+    </xs:attribute>
     <xs:attribute name="Lufthahn" type="xs:int"/>
-    <xs:attribute name="ETCSStoerschalter" type="xs:int"/>
+    <xs:attribute name="ETCSStoerschalter" type="xs:int">
+      <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+    </xs:attribute>
+    <xs:attribute name="ETCSPassivschalter" type="xs:int"/>
   </xs:complexType>
   <xs:complexType name="ZBSZugdaten">
     <xs:attribute name="BRH" type="xs:int"/>
@@ -180,5 +197,10 @@
     <xs:attribute name="ZugsicherungHS" type="xs:int"/>
     <xs:attribute name="Lufthahn" type="xs:int"/>
     <xs:attribute name="ZBSStoerschalter" type="xs:int"/>
+  </xs:complexType>
+  <xs:complexType name="FahrsperreZugdaten">
+    <xs:attribute name="ZugsicherungHS" type="xs:int"/>
+    <xs:attribute name="Lufthahn" type="xs:int"/>
+    <xs:attribute name="PZBStoerschalter" type="xs:int"/>
   </xs:complexType>
 </xs:schema>
