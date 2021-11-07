@@ -7,7 +7,7 @@
       <xs:all>
         <xs:element name="BefehlsKonfiguration" type="Dateiverknuepfung" maxOccurs="1"/>
         <xs:element name="Begruessungsdatei" type="Dateiverknuepfung" maxOccurs="1"/>
-        <xs:element name="trn" type="Zug"/>
+        <xs:element name="trn" type="Zug" maxOccurs="unbounded"/>
         <xs:element name="Zug" type="FahrplanZugVerknuepfung" maxOccurs="unbounded"/>
         <xs:element ref="StrModul" maxOccurs="unbounded"/>
         <xs:element ref="UTM" maxOccurs="1"/>
