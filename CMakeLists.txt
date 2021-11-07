@@ -35,6 +35,7 @@ function(generate_zusi_parser targetName outputDir)
   set(xsd_sources
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/authority.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/author.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/expense.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/font.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/forest.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/fpn.xsd
@@ -51,6 +52,7 @@ function(generate_zusi_parser targetName outputDir)
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_authority.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_author.xml.xsd
+    ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_expense.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_font.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_forest.xml.xsd
     ${ZUSI_PARSER_SOURCE_DIR}/xsd/root_fpn.xsd
