@@ -93,7 +93,7 @@ struct Config {
 
 /** Returns a size > 0 if a small vector of this size can be used to hold @p child
  * inside @p parentType. This is the case if the collection will rarely contain more than size elements,
- * but also rarely significantly less. */
+ * but also rarely significantly fewer. */
 size_t SmallVectorSize(const ElementType& /*parentType*/, const Child& child) {
   assert(child.multiple);
   if (child.type->name == "NachfolgerSelbesModul" || child.type->name == "NachfolgerAnderesModul") {
