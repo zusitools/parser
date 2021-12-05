@@ -30,6 +30,7 @@
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="BremsstellungZug" type="xs:int"/>
+      <xs:attribute name="FplBremsstellungTextvorgabe" type="xs:string"/>
       <xs:attribute name="GNTSpalte" type="boolean"/>
     </xs:complexType>
   </xs:element>

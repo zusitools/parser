@@ -490,7 +490,12 @@
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="FtdFunktionalitaet">
-          <xs:attribute name="Dokulink" type="xs:string"/>
+          <xs:all minOccurs="0">
+            <xs:element name="htmlDoku" type="Dateiverknuepfung"/>
+          </xs:all>
+          <xs:attribute name="Dokulink" type="xs:string">
+            <xs:documentation xml:lang="de">@deprecated</xs:documentation>
+          </xs:attribute>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
@@ -501,6 +506,7 @@
         <xs:extension base="FtdFunktionalitaet">
           <xs:attribute name="BatterieHSTyp" type="xs:int"/>
           <xs:attribute name="SAWahlTyp" type="xs:int"/>
+          <xs:attribute name="TuerwahlTyp" type="xs:int"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>

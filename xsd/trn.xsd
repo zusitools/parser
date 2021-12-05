@@ -24,9 +24,12 @@
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="BremsstellungZug" type="xs:int"/>
+    <xs:attribute name="FplBremsstellungTextvorgabe" type="xs:string"/>
     <xs:attribute name="EnergieVorgabe" type="xs:float"/>
     <xs:attribute name="spAnfang" type="xs:float"/>
     <xs:attribute name="MBrh" type="xs:float"/>
+    <xs:attribute name="FplMasse" type="xs:float"/>
+    <xs:attribute name="FplZuglaenge" type="xs:float"/>
     <xs:attribute name="Verkehrstage" type="xs:string"/>
     <xs:attribute name="Grenzlast" type="boolean"/>
     <xs:attribute name="spZugNiedriger" type="xs:float"/>
@@ -39,6 +42,7 @@
     <xs:attribute name="Rekursionstiefe" type="xs:int"/>
     <xs:attribute name="ZugsicherungStartmodus" type="xs:int"/>
     <xs:attribute name="FahrstrName" type="xs:string"/>
+    <xs:attribute name="AufgleisenRegisterpruefen" type="boolean"/>
     <xs:attribute name="Zugtyp" type="xs:int"/>
     <xs:attribute name="Ueberschrift" type="xs:string"/>
     <xs:attribute name="BuchfahrplanEinfach" type="boolean"/>
@@ -119,7 +123,10 @@
       <xs:attribute name="ZugTypVorgeben" type="boolean"/>
       <xs:attribute name="Zugtyp" type="xs:int"/>
       <xs:attribute name="MBrh" type="xs:float"/>
+      <xs:attribute name="FplMasse" type="xs:float"/>
+      <xs:attribute name="FplZuglaenge" type="xs:float"/>
       <xs:attribute name="BremsstellungZug" type="xs:int"/>
+      <xs:attribute name="FplBremsstellungTextvorgabe" type="xs:string"/>
       <xs:attribute name="spZugNiedriger" type="xs:float"/>
       <xs:attribute name="ZufallsWert" type="xs:float"/>
       <xs:attribute name="FzgPosition" type="xs:int"/>
@@ -157,6 +164,7 @@
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="FahrzeugZusatzinfo" type="xs:string"/>
+      <xs:attribute name="NVRNummer" type="xs:string"/>
       <xs:attribute name="VariantenIndex" type="xs:int">
         <xs:annotation>
           <xs:documentation xml:lang="de">@deprecated</xs:documentation>

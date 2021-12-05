@@ -53,6 +53,7 @@
       </xs:all>
       <xs:attribute name="BR" type="xs:string"/>
       <xs:attribute name="NVRNummer" type="xs:string"/>
+      <xs:attribute name="HistNummer" type="xs:string"/>
       <xs:attribute name="InterneNummer" type="xs:string"/>
       <xs:attribute name="FzgGattung" type="xs:string"/>
       <xs:attribute name="Beschreibung" type="xs:string"/>
@@ -166,6 +167,7 @@
             <xs:element name="BremseP" type="Bremsgewicht"/>
             <xs:element name="BremseG" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="AutomLastabh" type="boolean"/>
           <xs:attribute name="VolumenR" type="xs:float"/>
           <xs:attribute name="VolumenA" type="xs:float"/>
           <xs:attribute name="AnzahlAchsen" type="xs:int"/>
@@ -186,6 +188,7 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="AutomLastabh" type="boolean"/>
           <xs:attribute name="VolumenR" type="xs:float"/>
           <xs:attribute name="VolumenA" type="xs:float"/>
           <xs:attribute name="AnzahlAchsen" type="xs:int"/>
@@ -206,6 +209,7 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="AutomLastabh" type="boolean"/>
           <xs:attribute name="VolumenR" type="xs:float"/>
           <xs:attribute name="VolumenA" type="xs:float"/>
           <xs:attribute name="AnzahlAchsen" type="xs:int"/>
@@ -226,6 +230,7 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="AutomLastabh" type="boolean"/>
           <xs:attribute name="VolumenR" type="xs:float"/>
           <xs:attribute name="VolumenA" type="xs:float"/>
           <xs:attribute name="AnzahlAchsen" type="xs:int"/>
@@ -246,6 +251,7 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="AutomLastabh" type="boolean"/>
           <xs:attribute name="VolumenR" type="xs:float"/>
           <xs:attribute name="VolumenA" type="xs:float"/>
           <xs:attribute name="AnzahlAchsen" type="xs:int"/>
@@ -266,6 +272,7 @@
             <xs:element name="BremseG" type="Bremsgewicht"/>
             <xs:element name="BremseR" type="Bremsgewicht"/>
           </xs:all>
+          <xs:attribute name="AutomLastabh" type="boolean"/>
           <xs:attribute name="VolumenR" type="xs:float"/>
           <xs:attribute name="VolumenA" type="xs:float"/>
           <xs:attribute name="AnzahlAchsen" type="xs:int"/>
@@ -282,8 +289,10 @@
       <xs:complexContent>
         <xs:extension base="Bremse">
           <xs:attribute name="Haltebremse" type="boolean"/>
+          <xs:attribute name="HaltebremseLoestOhneZugkraft" type="boolean"/>
           <xs:attribute name="HaltebremseAFB" type="boolean"/>
           <xs:attribute name="HaltebremseDruck" type="xs:float"/>
+          <xs:attribute name="HaltebremseGeschw" type="xs:float"/>
           <xs:attribute name="VolumenZylinder" type="xs:float"/>
           <xs:attribute name="FBremsuebersetzung" type="xs:float"/>
           <xs:attribute name="HBLAnschluss" type="boolean"/>
