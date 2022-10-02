@@ -273,6 +273,7 @@ class ParserGenerator {
     out << "#pragma once\n";
     out << "#include \"zusi_parser/zusi_types_fwd.hpp\"\n";
     out << "#include \"boost/container/small_vector.hpp\"\n";
+    out << "#include <array>   // for std::array\n";
     out << "#include <vector>  // for std::vector\n";
     out << "#include <memory>  // for std::unique_ptr\n";
     out << "#include <optional>// for std::optional\n";
