@@ -215,7 +215,8 @@ static inline std::string bestimmeZusiDatenpfad() {
   HKEY key;
   char buffer[MAX_PATH];
   DWORD len = MAX_PATH;
-  if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key) == ERROR_SUCCESS &&
+  if (((RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_64KEY, &key) == ERROR_SUCCESS) ||
+      (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key) == ERROR_SUCCESS)) &&
        (RegGetValueA(key, nullptr, "DatenVerzeichnis", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS ||
         RegGetValueA(key, nullptr, "DatenVerzeichnisSteam", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS)) {
     result = std::string(buffer, len - 1);  // buffer ist nullterminiert
@@ -236,7 +237,8 @@ static inline std::string bestimmeZusiDatenpfadOffiziell() {
   HKEY key;
   char buffer[MAX_PATH];
   DWORD len = MAX_PATH;
-  if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key) == ERROR_SUCCESS &&
+  if (((RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_64KEY, &key) == ERROR_SUCCESS) ||
+      (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key) == ERROR_SUCCESS)) &&
        (RegGetValueA(key, nullptr, "DatenVerzeichnisOffiziell", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS ||
         RegGetValueA(key, nullptr, "DatenVerzeichnisOffiziellSteam", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS)) {
     result = std::string(buffer, len - 1);  // buffer ist nullterminiert
