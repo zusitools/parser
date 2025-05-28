@@ -329,7 +329,7 @@ public:
         auto mm = std::mismatch(p.begin(), p.end(), base.begin(), base.end()
 #ifdef _WIN32
             , [](const fs::path& lhs, const fs::path& rhs) {
-              return strcmpi(lhs.string().c_str(), rhs.string().c_str()) == 0;
+              return lstrcmpiA(lhs.string().c_str(), rhs.string().c_str()) == 0;
             }
 #endif
         );
