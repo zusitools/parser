@@ -51,6 +51,13 @@ namespace io = std;
   namespace fs = std::filesystem;
 #endif
 
+constexpr char zusiSep = '\\';
+#ifdef _WIN32
+constexpr char osSep = '\\';
+#else
+constexpr char osSep = '/';
+#endif
+
 namespace zusixml {
 
 class FileReader {
@@ -228,6 +235,9 @@ static inline std::string bestimmeZusiDatenpfad() {
     result = std::string(datapath);
   }
 #endif
+  if (result.back() != osSep) {
+    result.push_back(osSep);
+  }
   return result;
 }
 
@@ -253,6 +263,9 @@ static inline std::string bestimmeZusiDatenpfadOffiziell() {
     result = std::string(datapath);
   }
 #endif
+  if (result.back() != osSep) {
+    result.push_back(osSep);
+  }
   return result;
 }
 
@@ -265,13 +278,6 @@ inline const std::string& getZusiDatenpfadOffiziell() {
   static const std::string zusiDatenpfadOffiziell = bestimmeZusiDatenpfadOffiziell();
   return zusiDatenpfadOffiziell;
 }
-
-constexpr char zusiSep = '\\';
-#ifdef _WIN32
-constexpr char osSep = '\\';
-#else
-constexpr char osSep = '/';
-#endif
 
 class ZusiPfad {
 public:
