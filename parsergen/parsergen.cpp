@@ -274,6 +274,7 @@ class ParserGenerator {
     out << "#include \"zusi_parser/zusi_types_fwd.hpp\"\n";
     out << "#include \"boost/container/small_vector.hpp\"\n";
     out << "#include <array>   // for std::array\n";
+    out << "#include <cmath>   // for std::hypot\n";
     out << "#include <vector>  // for std::vector\n";
     out << "#include <memory>  // for std::unique_ptr\n";
     out << "#include <optional>// for std::optional\n";
@@ -473,6 +474,22 @@ class ParserGenerator {
         out << children.str() << attrs.str();
       } else {
         out << attrs.str() << children.str();
+        if (elementType->name == "StrElement") {
+          out << R""(  std::vector<StrElement*> nachfolgerElementeNorm;
+  std::vector<StrElement*> nachfolgerElementeGegen;
+  mutable std::optional<float> NeigungCache;
+  bool nachfolgerElementeNormSindInAnderemModul { false };
+  bool nachfolgerElementeGegenSindInAnderemModul { false };
+  float Neigung() const {
+    if (!NeigungCache) {
+      NeigungCache = (b.Z - g.Z) / std::hypot(b.X - g.X, b.Y - g.Y, b.Z - g.Z);
+    }
+    return *NeigungCache;
+  })"";
+        }
+        else if (elementType->name == "Strecke") {
+          out << R""( )"";
+        }
       }
       out << "};\n";
     }
