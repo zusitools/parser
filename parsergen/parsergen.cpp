@@ -762,7 +762,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
   }
   text += strlen(expected);
 }
-\n)"";
+)"";
 #endif
 
     for (const auto& elementType : m_element_types) {
