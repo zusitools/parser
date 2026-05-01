@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.10)
 
 project(zusi_parser)
 
@@ -100,14 +100,12 @@ function(generate_zusi_parser targetName outputDir)
   if (GENERATE_ZUSI_PARSER_USE_GLM)
     set(generate_args "${generate_args};--use-glm")
   endif()
-  foreach (whitelist_entry IN LISTS GENERATE_ZUSI_PARSER_WHITELIST)
-    set(generate_args "${generate_args};--whitelist;${whitelist_entry}")
-  endforeach()
   add_custom_command(OUTPUT "${outputDir}/zusi_parser/zusi_types.hpp" "${outputDir}/zusi_parser/zusi_types_fwd.hpp" "${outputDir}/zusi_parser/zusi_parser.hpp" "${outputDir}/zusi_parser/zusi_parser_fwd.hpp"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${outputDir}/zusi_parser"
     COMMAND parsergen
         --xsd "${ZUSI_PARSER_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd"
         --out-dir "${outputDir}/zusi_parser"
+        $<LIST:TRANSFORM,$<TARGET_PROPERTY:${targetName},WHITELIST>,PREPEND,--whitelist=>
         ${generate_args}
     COMMAND_EXPAND_LISTS
     VERBATIM
@@ -122,4 +120,5 @@ function(generate_zusi_parser targetName outputDir)
     target_link_libraries(${targetName} INTERFACE Boost::nowide)
   endif()
   add_dependencies(${targetName} INTERFACE ${targetName}_includes)
+  set_property(TARGET ${targetName} PROPERTY WHITELIST "${GENERATE_ZUSI_PARSER_WHITELIST}")
 endfunction()

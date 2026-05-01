@@ -779,7 +779,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
   }
   text += strlen(expected);
 }
-\n)"";
+)"";
 #endif
 
     for (const auto& elementType : m_element_types) {
@@ -1334,7 +1334,9 @@ class ParserGeneratorBuilder {
 
       for (const auto& childRaw : elementTypeRaw.children) {
         const auto& childType = std::find_if(std::begin(elementTypes), std::end(elementTypes), [&childRaw](const auto& type) { return type->name == childRaw.type; });
-        assert(childType != std::end(elementTypes));
+        if (childType == std::end(elementTypes)) {
+          throw std::runtime_error("Child type not found: " + childRaw.type);
+        }
         elementType->children.emplace_back(Child { { childRaw.name, childRaw.documentation }, childType->get(), childRaw.multiple });
       }
     }
