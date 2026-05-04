@@ -482,7 +482,7 @@ class ParserGenerator {
   bool nachfolgerElementeGegenSindInAnderemModul { false };
   float Neigung() const {
     if (!NeigungCache) {
-      NeigungCache = (b.Z - g.Z) / std::hypot(b.X - g.X, b.Y - g.Y, b.Z - g.Z);
+      NeigungCache = (b.z - g.z) / std::hypot(b.x - g.x, b.y - g.y, b.z - g.z);
     }
     return *NeigungCache;
   })"";
