@@ -151,6 +151,12 @@
   <xs:complexType name="NachfolgerSelbesModul">
     <xs:attribute name="Nr" type="xs:int"/>
   </xs:complexType>
+  <xs:complexType name="FahrstrElement">
+    <xs:all minOccurs="0">
+      <xs:element name="Datei" type="Dateiverknuepfung"/>
+    </xs:all>
+    <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
+  </xs:complexType>
   <xs:complexType name="NachfolgerAnderesModul">
     <xs:all minOccurs="0">
       <xs:element name="Datei" type="Dateiverknuepfung"/>
@@ -184,78 +190,78 @@
   </xs:element>
   <xs:element name="FahrstrStart">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:all>
-      <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
+      <xs:complexContent>
+        <xs:extension base="FahrstrElement">
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrZiel">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:all>
-      <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
+      <xs:complexContent>
+        <xs:extension base="FahrstrElement">
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrRegister">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:all>
-      <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
+      <xs:complexContent>
+        <xs:extension base="FahrstrElement">
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrAufloesung">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:all>
-      <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
+      <xs:complexContent>
+        <xs:extension base="FahrstrElement">
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrTeilaufloesung">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:all>
-      <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
+      <xs:complexContent>
+        <xs:extension base="FahrstrElement">
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrSigHaltfall">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:all>
-      <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
+      <xs:complexContent>
+        <xs:extension base="FahrstrElement">
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrWeiche">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:all>
-      <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
-      <xs:attribute name="FahrstrWeichenlage" type="xs:int"/>
+      <xs:complexContent>
+        <xs:extension base="FahrstrElement">
+          <xs:attribute name="FahrstrWeichenlage" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrSignal">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:all>
-      <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
-      <xs:attribute name="FahrstrSignalZeile" type="xs:int"/>
-      <xs:attribute name="FahrstrSignalErsatzsignal" type="boolean"/>
+      <xs:complexContent>
+        <xs:extension base="FahrstrElement">
+          <xs:attribute name="FahrstrSignalZeile" type="xs:int"/>
+          <xs:attribute name="FahrstrSignalErsatzsignal" type="boolean"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:element name="FahrstrVSignal">
     <xs:complexType>
-      <xs:all minOccurs="0">
-        <xs:element name="Datei" type="Dateiverknuepfung"/>
-      </xs:all>
-      <xs:attribute name="Ref" type="xs:long"/> <!-- xs:long laut .schema.xml; aber ReferenzElement.ReferenzNr ist xs:int -->
-      <xs:attribute name="FahrstrSignalSpalte" type="xs:int"/>
+      <xs:complexContent>
+        <xs:extension base="FahrstrElement">
+          <xs:attribute name="FahrstrSignalSpalte" type="xs:int"/>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
   <xs:complexType name="Signal">
