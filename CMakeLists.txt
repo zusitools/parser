@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(zusi_parser)
+project(zusi_parser LANGUAGES CXX)
 
 # parsergen
 # (has to be in the same CMakeLists.txt as add_custom_command)
