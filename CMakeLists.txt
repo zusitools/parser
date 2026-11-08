@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(zusi_parser)
+project(zusi_parser LANGUAGES CXX)
 
 # parsergen
 # (has to be in the same CMakeLists.txt as add_custom_command)
@@ -100,7 +100,13 @@ function(generate_zusi_parser targetName outputDir)
   if (GENERATE_ZUSI_PARSER_USE_GLM)
     set(generate_args "${generate_args};--use-glm")
   endif()
-  add_custom_command(OUTPUT "${outputDir}/zusi_parser/zusi_types.hpp" "${outputDir}/zusi_parser/zusi_types_fwd.hpp" "${outputDir}/zusi_parser/zusi_parser.hpp" "${outputDir}/zusi_parser/zusi_parser_fwd.hpp"
+  set(parser_generated_source "${outputDir}/zusi_parser/zusi_parser.cpp")
+  set(parser_generated_headers
+    "${outputDir}/zusi_parser/zusi_types.hpp"
+    "${outputDir}/zusi_parser/zusi_types_fwd.hpp"
+    "${outputDir}/zusi_parser/zusi_parser.hpp"
+    "${outputDir}/zusi_parser/zusi_parser_fwd.hpp")
+  add_custom_command(OUTPUT ${parser_generated_headers} "${parser_generated_source}"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${outputDir}/zusi_parser"
     COMMAND parsergen
         --xsd "${ZUSI_PARSER_SOURCE_DIR}/xsd/root_alle_zusi_dateien.xsd"
@@ -111,14 +117,21 @@ function(generate_zusi_parser targetName outputDir)
     VERBATIM
     DEPENDS ${xsd_sources} parsergen)
 
-  add_custom_target(${targetName}_includes SOURCES "${outputDir}/zusi_parser/zusi_types.hpp" "${outputDir}/zusi_parser/zusi_parser.hpp" "${outputDir}/zusi_parser/zusi_parser_fwd.hpp")
+  add_custom_target(${targetName}_includes
+    DEPENDS ${parser_generated_headers} "${parser_generated_source}"
+    SOURCES ${parser_generated_headers})
 
-  add_library(${targetName} INTERFACE)
-  target_include_directories(${targetName} INTERFACE "${outputDir}" "${ZUSI_PARSER_SOURCE_DIR}/include" "${ZUSI_PARSER_SOURCE_DIR}/rapidxml-mod")
+  add_library(${targetName} STATIC "${parser_generated_source}")
+  set_property(TARGET ${targetName} PROPERTY CXX_STANDARD 17)
+  set_property(TARGET ${targetName} PROPERTY CXX_STANDARD_REQUIRED TRUE)
+  target_include_directories(${targetName} PUBLIC "${outputDir}" "${ZUSI_PARSER_SOURCE_DIR}/include" "${ZUSI_PARSER_SOURCE_DIR}/rapidxml-mod")
+  if (GENERATE_ZUSI_PARSER_USE_GLM)
+    target_compile_definitions(${targetName} PRIVATE GLM_ENABLE_EXPERIMENTAL)
+  endif()
   if (WIN32)
     find_package(Boost COMPONENTS nowide REQUIRED)
-    target_link_libraries(${targetName} INTERFACE Boost::nowide)
+    target_link_libraries(${targetName} PUBLIC Boost::nowide)
   endif()
-  add_dependencies(${targetName} INTERFACE ${targetName}_includes)
+  add_dependencies(${targetName} ${targetName}_includes)
   set_property(TARGET ${targetName} PROPERTY WHITELIST "${GENERATE_ZUSI_PARSER_WHITELIST}")
 endfunction()

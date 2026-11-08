@@ -253,7 +253,7 @@ namespace zusixml
         text = tmp;
     }
 
-    static void skip_attribute_value_pure(const Ch *&text, Ch quote)
+    [[maybe_unused]] static void skip_attribute_value_pure(const Ch *&text, Ch quote)
     {
         const Ch *tmp = text;
         const auto& lut = (unlikely(quote == Ch('\''))) ? internal::lookup_tables<0>::lookup_attribute_data_1_pure : internal::lookup_tables<0>::lookup_attribute_data_2_pure;
@@ -287,7 +287,7 @@ namespace zusixml
 
     // Skip characters until predicate evaluates to true while
     // replacing XML character entity references with proper characters (&apos; &amp; &quot; &lt; &gt; &#...;)
-    static size_t copy_and_expand_character_refs(const Ch *&src, Ch *dest, Ch quote)
+    [[maybe_unused]] static size_t copy_and_expand_character_refs(const Ch *&src, Ch *dest, Ch quote)
     {
         const Ch *dest_start = dest;
 
