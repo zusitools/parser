@@ -15,6 +15,7 @@
 #  include <fstream>
 #endif
 
+#include <cstdlib>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -215,15 +216,20 @@ static inline std::string bestimmeZusiDatenpfad() {
   HKEY key;
   char buffer[MAX_PATH];
   DWORD len = MAX_PATH;
+  const char* value1 = "DatenVerzeichnis";
+  const char* value2 = "DatenVerzeichnisSteam";
+  if (std::getenv("SteamClientLaunch") != nullptr) {
+    std::swap(value1, value2);
+  }
   if (((RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_64KEY, &key) == ERROR_SUCCESS) ||
       (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key) == ERROR_SUCCESS)) &&
-       (RegGetValueA(key, nullptr, "DatenVerzeichnis", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS ||
-        RegGetValueA(key, nullptr, "DatenVerzeichnisSteam", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS)) {
+       (RegGetValueA(key, nullptr, value1, RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS ||
+        RegGetValueA(key, nullptr, value2, RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS)) {
     result = std::string(buffer, len - 1);  // buffer ist nullterminiert
     RegCloseKey(key);
   }
 #else
-  const char* const datapath = getenv("ZUSI3_DATAPATH");
+  const char* const datapath = std::getenv("ZUSI3_DATAPATH");
   if (datapath != nullptr) {
     result = std::string(datapath);
   }
@@ -237,17 +243,22 @@ static inline std::string bestimmeZusiDatenpfadOffiziell() {
   HKEY key;
   char buffer[MAX_PATH];
   DWORD len = MAX_PATH;
+  const char* value1 = "DatenVerzeichnisOffiziell";
+  const char* value2 = "DatenVerzeichnisOffiziellSteam";
+  if (std::getenv("SteamClientLaunch") != nullptr) {
+    std::swap(value1, value2);
+  }
   if (((RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_64KEY, &key) == ERROR_SUCCESS) ||
       (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Zusi3", 0, KEY_READ | KEY_WOW64_32KEY, &key) == ERROR_SUCCESS)) &&
-       (RegGetValueA(key, nullptr, "DatenVerzeichnisOffiziell", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS ||
-        RegGetValueA(key, nullptr, "DatenVerzeichnisOffiziellSteam", RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS)) {
+       (RegGetValueA(key, nullptr, value1, RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS ||
+        RegGetValueA(key, nullptr, value2, RRF_RT_REG_SZ, nullptr, (LPBYTE)buffer, &len) == ERROR_SUCCESS)) {
     result = std::string(buffer, len - 1);  // buffer ist nullterminiert
     RegCloseKey(key);
   }
 #else
-  const char* datapath = getenv("ZUSI3_DATAPATH_OFFICIAL");
+  const char* datapath = std::getenv("ZUSI3_DATAPATH_OFFICIAL");
   if (datapath == nullptr) {
-    datapath = getenv("ZUSI3_DATAPATH");
+    datapath = std::getenv("ZUSI3_DATAPATH");
   }
   if (datapath != nullptr) {
     result = std::string(datapath);
