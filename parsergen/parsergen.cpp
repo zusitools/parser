@@ -489,13 +489,19 @@ class ParserGenerator {
       if (m_concrete_element_types.find(elementType.get()) == std::end(m_concrete_element_types)) {
         continue;
       }
-      out << "  static void parse_element_" << elementType->name << "(const Ch *&, " << elementType->name << "*);\n";
+      out << "  void parse_element_" << elementType->name << "(const Ch *&, " << elementType->name << "*);\n";
     }
     out << "}  // namespace zusixml\n";
   }
 
-  void GenerateParseFunctionDefinitions(std::ostream& out) {
+  void GenerateParseFunctionHeader(std::ostream& out) {
     out << "#pragma once\n";
+    out << "#include \"zusixml.hpp\"\n";
+    out << "#include \"zusi_parser/zusi_types.hpp\"\n";
+    out << "#include \"zusi_parser/zusi_parser_fwd.hpp\"\n";
+  }
+
+  void GenerateParseFunctionDefinitions(std::ostream& out) {
     out << "#include \"zusixml.hpp\"\n";
     out << "#include \"zusi_parser/zusi_types.hpp\"\n";
 
@@ -1036,7 +1042,7 @@ static bool parse_datetime(const Ch*& text, struct tm& result) {
       parse_attributes << "        }\n";
 
       // Generate code for parsing method
-      out << R""(  static void parse_element_)"" << elementType->name << "(const Ch *& text, " << elementType->cppName << R""(* parseResult) {
+      out << R""(  void parse_element_)"" << elementType->name << "(const Ch *& text, " << elementType->cppName << R""(* parseResult) {
 
       // For all attributes
       while (attribute_name_pred::test(*text))
@@ -1480,5 +1486,8 @@ int main(int argc, char** argv) {
   generator.GenerateParseFunctionDeclarations(out_parser_fwd);
 
   ofstream out_parser(fs::path(out_dir) / "zusi_parser.hpp");
-  generator.GenerateParseFunctionDefinitions(out_parser);
+  generator.GenerateParseFunctionHeader(out_parser);
+
+  ofstream out_parser_impl(fs::path(out_dir) / "zusi_parser.cpp");
+  generator.GenerateParseFunctionDefinitions(out_parser_impl);
 }
